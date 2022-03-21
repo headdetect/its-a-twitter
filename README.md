@@ -1,70 +1,91 @@
-# Getting Started with Create React App
+# It’s a Twitter
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is part of the “It’s A” series. A short project series that recreates the apps I use.
 
-## Available Scripts
+Here’s a list of other projects that are a part of these series:
 
-In the project directory, you can run:
+- TODO
 
-### `npm start`
+# Why
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+As I’m growing in my career I wanted to push myself to understand the hard parts that make up the apps I use on a daily bases. The goal is to understand the challenges that building an app like Twitter would face, and demonstrates how I would solve them. The outcomes I’m hoping to gain are two fold: Gain a better understanding of the system design of a social networking platform and learn Go.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+# Scope
 
-### `npm test`
+Obviously we don’t want to recreate the full Twitter experience as a result, this is just a recreation of the essential parts that make Twitter work. The scope has been cut to accommodate my, self assigned, timeline of a single week. This includes the infamous lack of editing a tweet. Mostly because I don’t want to implement it.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+That gives me time to do a deep dive into the interesting challenges and solutions while also not completely consuming my life. This is a project series of course. I have to pace myself.
 
-### `npm run build`
+# Features
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+This project will feature some of twitters main functions. Below is a list of product facing features (the things that users will be able to use) and non-functional features (features that are not user facing).
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Product Features
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Send out short text snippets (tweet)
+- Retweet
+- Post media
+- Emoji reactions (not a twitter thing, but I like it)
+- Personalized Timelines
+- Log in and manage account (display name, profile pic, and password)
 
-### `npm run eject`
+## Non-functional features
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- TTFB < 200ms
+- Generated timelines w/30 second window.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# Engineering Decisions
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Dependencies
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+I wanted to accomplish the ambitions of the project with as little dependencies as possible. In a real world scenario, dependencies (while they do give the ability to enable rapid development) can cause a stream of issues down the line. As an application becomes more dependent on other providers to keep it functional, the potential for the application to become unavailable becomes unavoidable. Most of these large companies with millions of Daily Active Users will need to create their own building blocks to ensure the most cohesive and available system relating to their solutions. As a test of ability, I’ve decided to reduce the amount of dependencies as much as possible and treat this project like it has a future.
 
-## Learn More
+However, there will be decisions made in the interest of brevity. In most situations should be called out in the code where they’re being implemented. But for choices made for the overall application, I’ll list them below.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- For the frontend, I used React because it’s stable, lightweight, and easy to use. It will be the largest front end dependency but should remain as the only major dependency.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Data
 
-### Code Splitting
+Because I don’t want to throw money at this project we will be storing media locally as opposed to some object storage provider like Amazon’s S3. They’ll be stored & cached in the server’s filesystem. 
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+# Design
 
-### Analyzing the Bundle Size
+TODO - Insert API Spec
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+TODO - Insert Schema
 
-### Making a Progressive Web App
+# Future Scaling
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+If this were a true production grade application with the number of users twitter sees on a daily basis, these are the types of ways it would need to scale.
 
-### Advanced Configuration
+## Database
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+There would be thousands and thousands of tweets going out every second of every day. 
 
-### Deployment
+TODO
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Storage
 
-### `npm run build` fails to minify
+TODO
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Load Balancing
+
+TODO
+
+## Caching
+
+TODO
+
+### Bundle Caching
+
+Because the application is designed as an SPA of sorts, the front end code could be aggressively cached. If the JavaScript bundle were to be loaded with a hash tied to the specific build version, the bundle could be cached indefinably.
+
+### CDN/Media Caching
+
+Media would be a large portion of this application and having to load the assets from a single source would take forever. We would need to store the different medias in different edge nodes around the world so it could be loaded quicker. This would allow users in different parts of the world to load the assets as if it were being served from a few miles away (because it would be)
+
+The absolute best solution would be to duplicate all media being uploaded to every edge node. But alas, money doesn’t grow on trees and housing that amount of data in every edge node is just a logistical nightmare. So as we break it down, there are a few major issues with this solution. Can’t store that much data and don’t have the bandwidth to duplicate **every** asset to **every** edge node. 
+
+So a potential solution for this would be to create a classification for each user to determine how far their audience reach goes and how many users might see a piece of media. Someone in a small village in Europe probably isn’t going to be looking at that picture a local politician posted in Utah. We can keep the image local to the audience that it will *most likely* reach. 
+
+Subsequently, if that politicians image sparks some rage and it goes viral, we would have more incentive to cache that image in more and more edge nodes. We would need to employ a strategy of storing images in some edge nodes only after someone requests it.
