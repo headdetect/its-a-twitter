@@ -1,13 +1,11 @@
 package models
 
-import "time"
-
 type User struct {
+	Id int
 	Username string
 	DisplayName string
-	HashedPassword string
 	ProfilePicPath string
 
-	CreatedAt time.Time
+	CreatedAt int64
 }
 

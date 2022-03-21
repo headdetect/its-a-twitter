@@ -1,31 +1,29 @@
 package models
 
-import "time"
-
 type Tweet struct {
-	Id string
+	Id int
 	User *User
 	Text string
 	MediaPath string
 
-	CreatedAt time.Time
+	CreatedAt int64
 }
 
 type Retweet struct {
-	Id string
+	Id int
 	Tweet *Tweet
 	User *User
 
-	createdAt time.Time
+	createdAt int64
 }
 
 type Reaction struct {
-	Id string
+	Id int
 	Tweet *Tweet
 	Reaction string
 	User *User
 
-	CreatedAt time.Time
+	CreatedAt int64
 }
 
 type Timeline struct {

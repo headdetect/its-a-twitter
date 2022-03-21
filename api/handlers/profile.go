@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/headdetect/its-a-twitter/api/models"
@@ -15,17 +16,34 @@ type loginRequest struct {
 }
 
 type loginResponse struct {
-	AuthToken string `json:"authToken"`
-	User *models.User `json:"user"`
+	AuthToken string
+	User *models.User
+}
+
+type userResponse struct {
+	User *models.User
 }
 
 
 func HandleUser(writer http.ResponseWriter, request *http.Request) {
-	if !HasValidAuth(writer, request) {
+	if user, ok := AuthUser(request); ok {
+		response := userResponse {
+			User: user,
+		}
+
+		jsonResponse, err := json.Marshal(response)
+
+		if err != nil {
+			writer.WriteHeader(http.StatusInternalServerError)
+			JsonResponse(writer, []byte(`{ message: "We messed up somehow. Strange. We never mess up" }`))
+			return
+		}
+
+		JsonResponse(writer, jsonResponse)
 		return
 	}
 
-	JsonResponse(writer, []byte(`{"message": "TODO"}`))
+	RejectResponse(writer)
 }
 
 func HandleUserRegister(writer http.ResponseWriter, request *http.Request) {
@@ -42,12 +60,20 @@ func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	user, ok := store.Users[loginRequest.Username]
+	user, hashedPassword, err := store.GetUserWithPassByUsername(loginRequest.Username)
 
-	if !ok || !utils.CheckPasswordHash(loginRequest.Password, user.HashedPassword) {
+	if err != nil || !utils.CheckPasswordHash(loginRequest.Password, hashedPassword) {
+		log.Printf("%k\n", err)
 		writer.WriteHeader(http.StatusUnauthorized)
 		JsonResponse(writer, []byte(`{ message: "Invalid username or password" }`))
 		return
+	}
+
+	for authToken, val := range store.Sessions {
+		if val.Id == user.Id {
+			delete(store.Sessions, authToken)
+			break
+		}
 	}
 	
 	// Persist through the session //
@@ -55,7 +81,7 @@ func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
 
 	response := loginResponse {
 		AuthToken: authToken,
-		User: &user,
+		User: user,
 	}
 
 	jsonResponse, err := json.Marshal(response)
@@ -67,4 +93,6 @@ func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	JsonResponse(writer, jsonResponse)
+
+	store.Sessions[authToken] = user
 }

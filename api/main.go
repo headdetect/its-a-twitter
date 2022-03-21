@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 
+	"github.com/headdetect/its-a-twitter/api/store"
+
 	"github.com/joho/godotenv"
 )
 
@@ -18,7 +20,7 @@ func main() {
 	}
 
 	log.Println("Loading database")
-	// db
+	store.LoadDatabase()
 
 	StartRouter()
 }

@@ -3,22 +3,21 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/headdetect/its-a-twitter/api/models"
 	"github.com/headdetect/its-a-twitter/api/store"
 )
 
-func HasValidAuth(writer http.ResponseWriter, request *http.Request) bool {
+func AuthUser(request *http.Request) (*models.User, bool) {
   authToken := request.Header.Get("AuthToken")
   authUsername := request.Header.Get("Username")
 
-	if val, ok := store.Sessions[authToken]; ok {
-		if authUsername == val.Username {
-			return true
+	if user, ok := store.Sessions[authToken]; ok {
+		if authUsername == user.Username {
+			return user, true
 		}
 	}
 
-	writer.WriteHeader(http.StatusUnauthorized)
-  JsonResponse(writer, []byte(`{ message: "Invalid auth token provided. Please log in" }`))
-	return false
+	return nil, false
 }
 
 func JsonResponse(writer http.ResponseWriter, response []byte) {
@@ -27,4 +26,9 @@ func JsonResponse(writer http.ResponseWriter, response []byte) {
 
   writer.WriteHeader(http.StatusOK)
   writer.Write(response)
+}
+
+func RejectResponse(writer http.ResponseWriter) {
+	writer.WriteHeader(http.StatusUnauthorized)
+  JsonResponse(writer, []byte(`{ message: "Invalid auth token provided. Please log in" }`))
 }
