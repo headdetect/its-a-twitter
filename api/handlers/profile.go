@@ -10,24 +10,26 @@ import (
 	"github.com/headdetect/its-a-twitter/api/utils"
 )
 
-type loginRequest struct {
+type LoginRequest struct {
 	Username string
 	Password string
 }
 
-type loginResponse struct {
+type LoginResponse struct {
 	AuthToken string
 	User *models.User
 }
 
-type userResponse struct {
+type UserResponse struct {
 	User *models.User
 }
 
 
 func HandleUser(writer http.ResponseWriter, request *http.Request) {
+	defer request.Body.Close()
+
 	if user, ok := AuthUser(request); ok {
-		response := userResponse {
+		response := UserResponse {
 			User: user,
 		}
 
@@ -47,16 +49,26 @@ func HandleUser(writer http.ResponseWriter, request *http.Request) {
 }
 
 func HandleUserRegister(writer http.ResponseWriter, request *http.Request) {
+	defer request.Body.Close()
+
 	JsonResponse(writer, []byte(`{"message": "TODO"}`))
 }
 
 func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
-	var loginRequest loginRequest
+	defer request.Body.Close()
+
+	var loginRequest LoginRequest
 
 	err := json.NewDecoder(request.Body).Decode(&loginRequest)
 
-	if err != nil || request.Method != "POST" {
+	if err != nil {
+		log.Printf("%k\n", err)
 		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if request.Method != "POST" {
+		http.Error(writer, "Not found", http.StatusNotFound)
 		return
 	}
 
@@ -79,7 +91,7 @@ func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
 	// Persist through the session //
 	authToken := utils.RandomString(32)	
 
-	response := loginResponse {
+	response := LoginResponse {
 		AuthToken: authToken,
 		User: user,
 	}

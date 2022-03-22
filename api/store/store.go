@@ -59,10 +59,14 @@ func GetUserById(id int) (*models.User, error) {
 }
 
 func LoadDatabase() {
-	_, err := os.Stat("./store/store.db"); 
+	LoadDatabaseFromFile("./store/store.db", "./store/initial.sql")
+}
+
+func LoadDatabaseFromFile(databaseFile string, initialQueryFile string) {
+	_, err := os.Stat(databaseFile); 
 	existed := err == nil
 
-	data, err := sql.Open("sqlite3", "./store/store.db")
+	data, err := sql.Open("sqlite3", databaseFile)
 	db = data // FIXME: Gotta be a better way to do this
 
 	if err != nil {
@@ -70,7 +74,7 @@ func LoadDatabase() {
 	}
 
 	if !existed {
-		initialQuery, err := os.ReadFile("./store/initial.sql")
+		initialQuery, err := os.ReadFile(initialQueryFile)
 
 		if err != nil {
 			log.Fatal(err)
