@@ -17,7 +17,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var CurrentUser *models.User
+var CurrentUser *model.User
 
 func TestMain(m *testing.M) {
 	log.Println("Loading env")

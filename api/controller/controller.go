@@ -7,7 +7,7 @@ import (
 	"github.com/headdetect/its-a-twitter/api/store"
 )
 
-func AuthUser(request *http.Request) (*models.User, bool) {
+func AuthUser(request *http.Request) (*model.User, bool) {
   authToken := request.Header.Get("AuthToken")
   authUsername := request.Header.Get("Username")
 

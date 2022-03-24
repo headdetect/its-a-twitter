@@ -6,17 +6,17 @@ func InsertFollowLink(lurkerUserId int, followedUserId int) (error) {
 	return nil
 }
 
-func GetFollowers(userId int) (error) {
+func GetFollowers(userId int) ([]*model.User, error) {
 	var user model.User
 
 	err := db.
 		QueryRow(
 			"select id, username, displayName, profilePicHash, createdAt from user where id = ? limit 1", 
-			id,
+			userId,
 		).
 		Scan(&user.Id, &user.Username, &user.DisplayName, &user.ProfilePicPath, &user.CreatedAt)
 
-	return &user, err
+	return nil, err
 }
 
 func InsertTweet(userId, tweet string, ) (error) {
