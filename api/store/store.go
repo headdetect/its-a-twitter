@@ -7,7 +7,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/headdetect/its-a-twitter/api/models"
+	"github.com/headdetect/its-a-twitter/api/model"
 )
 
 /*
@@ -25,38 +25,10 @@ import (
 var db *sql.DB
 
 // Memory stores //
-var Sessions map[string]*models.User = make(map[string]*models.User) // [authToken] = user
-var Timelines map[string]models.Timeline = make(map[string]models.Timeline) // [username] = timeline
+var Sessions map[string]*model.User = make(map[string]*model.User) // [authToken] = user
+var Timelines map[string]model.Timeline = make(map[string]model.Timeline) // [username] = timeline
 
-var Tweets []models.Tweet = make([]models.Tweet, 1)
-
-
-func GetUserWithPassByUsername(username string) (*models.User, string, error) {
-	var user models.User
-	var hashedPassword string
-
-	err := db.
-		QueryRow(
-			"select id, username, displayName, profilePicHash, password, createdAt from users where username = ? limit 1",
-			username,
-		).
-		Scan(&user.Id, &user.Username, &user.DisplayName, &user.ProfilePicPath, &hashedPassword, &user.CreatedAt)
-
-	return &user, hashedPassword, err
-}
-
-func GetUserById(id int) (*models.User, error) {
-	var user models.User
-
-	err := db.
-		QueryRow(
-			"select id, username, displayName, profilePicHash, createdAt from user where id = ? limit 1", 
-			id,
-		).
-		Scan(&user.Id, &user.Username, &user.DisplayName, &user.ProfilePicPath, &user.CreatedAt)
-
-	return &user, err
-}
+var Tweets []model.Tweet = make([]model.Tweet, 1)
 
 func LoadDatabase() {
 	LoadDatabaseFromFile("./store/store.db", "./store/initial.sql")

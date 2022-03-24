@@ -1,11 +1,11 @@
-package handlers
+package controller
 
 import (
 	"encoding/json"
 	"log"
 	"net/http"
 
-	"github.com/headdetect/its-a-twitter/api/models"
+	"github.com/headdetect/its-a-twitter/api/model"
 	"github.com/headdetect/its-a-twitter/api/store"
 	"github.com/headdetect/its-a-twitter/api/utils"
 )
@@ -17,13 +17,18 @@ type LoginRequest struct {
 
 type LoginResponse struct {
 	AuthToken string
-	User *models.User
+	User *model.User
 }
 
 type UserResponse struct {
-	User *models.User
+	User *model.User
 }
 
+func HandleUserFollowUser(writer http.ResponseWriter, request *http.Request) {
+	defer request.Body.Close()
+
+	JsonResponse(writer, []byte(`{"message": "TODO"}`))
+}
 
 func HandleUser(writer http.ResponseWriter, request *http.Request) {
 	defer request.Body.Close()
@@ -37,7 +42,7 @@ func HandleUser(writer http.ResponseWriter, request *http.Request) {
 
 		if err != nil {
 			writer.WriteHeader(http.StatusInternalServerError)
-			JsonResponse(writer, []byte(`{ message: "We messed up somehow. Strange. We never mess up" }`))
+			JsonResponse(writer, []byte(`{ "message": "We messed up somehow. Strange. We never mess up" }`))
 			return
 		}
 
@@ -53,6 +58,8 @@ func HandleUserRegister(writer http.ResponseWriter, request *http.Request) {
 
 	JsonResponse(writer, []byte(`{"message": "TODO"}`))
 }
+
+
 
 func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
 	defer request.Body.Close()

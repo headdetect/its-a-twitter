@@ -1,4 +1,4 @@
-package models
+package model
 
 type Tweet struct {
 	Id int
@@ -14,7 +14,7 @@ type Retweet struct {
 	Tweet *Tweet
 	User *User
 
-	createdAt int64
+	CreatedAt int64
 }
 
 type Reaction struct {

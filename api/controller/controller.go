@@ -1,9 +1,9 @@
-package handlers
+package controller
 
 import (
 	"net/http"
 
-	"github.com/headdetect/its-a-twitter/api/models"
+	"github.com/headdetect/its-a-twitter/api/model"
 	"github.com/headdetect/its-a-twitter/api/store"
 )
 

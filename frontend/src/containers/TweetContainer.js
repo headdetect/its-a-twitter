@@ -53,7 +53,7 @@ export function useContext() {
   
   if (!context) {
     throw new Error(
-      "container can only be used in the context of a TimelineContainer.Provider"
+      "container can only be used in the context of a TweetContainer.Provider"
     );
   }
 
