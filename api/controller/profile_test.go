@@ -45,14 +45,6 @@ func TestHandleUser(t *testing.T) {
 			CurrentUser.Username,
 		)
 	}
-
-	if expectedResponse.User.DisplayName != CurrentUser.DisplayName {
-		t.Errorf(
-			"expected %s got %s", 
-			expectedResponse.User.DisplayName, 
-			CurrentUser.DisplayName,
-		)
-	}
 }
 
 func TestHandleUserLogin(t *testing.T) {

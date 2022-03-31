@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/headdetect/its-a-twitter/api/model"
-	"github.com/headdetect/its-a-twitter/api/store"
 	"github.com/headdetect/its-a-twitter/api/utils"
 )
 
@@ -79,7 +78,7 @@ func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	user, hashedPassword, err := store.GetUserWithPassByUsername(loginRequest.Username)
+	user, hashedPassword, err := model.GetUserWithPassByUsername(loginRequest.Username)
 
 	if err != nil || !utils.CheckPasswordHash(loginRequest.Password, hashedPassword) {
 		log.Printf("%k\n", err)
@@ -88,9 +87,9 @@ func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	for authToken, val := range store.Sessions {
+	for authToken, val := range model.Sessions {
 		if val.Id == user.Id {
-			delete(store.Sessions, authToken)
+			delete(model.Sessions, authToken)
 			break
 		}
 	}
@@ -113,5 +112,5 @@ func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
 
 	JsonResponse(writer, jsonResponse)
 
-	store.Sessions[authToken] = user
+	model.Sessions[authToken] = user
 }

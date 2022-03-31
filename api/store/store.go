@@ -6,8 +6,6 @@ import (
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
-
-	"github.com/headdetect/its-a-twitter/api/model"
 )
 
 /*
@@ -22,16 +20,10 @@ import (
 	suffice. Just don't plan to have this be production grade.
 */
 
-var db *sql.DB
-
-// Memory stores //
-var Sessions map[string]*model.User = make(map[string]*model.User) // [authToken] = user
-var Timelines map[string]model.Timeline = make(map[string]model.Timeline) // [username] = timeline
-
-var Tweets []model.Tweet = make([]model.Tweet, 1)
+var DB *sql.DB
 
 func LoadDatabase() {
-	LoadDatabaseFromFile("./store/store.db", "./store/initial.sql")
+	LoadDatabaseFromFile("./store/store.db?mode=rwc", "./store/initial.sql")
 }
 
 func LoadDatabaseFromFile(databaseFile string, initialQueryFile string) {
@@ -39,7 +31,9 @@ func LoadDatabaseFromFile(databaseFile string, initialQueryFile string) {
 	existed := err == nil
 
 	data, err := sql.Open("sqlite3", databaseFile)
-	db = data // FIXME: Gotta be a better way to do this
+	DB = data // FIXME: Gotta be a better way to do this
+
+	DB.SetMaxOpenConns(1)
 
 	if err != nil {
 		log.Fatal(err)
@@ -53,7 +47,11 @@ func LoadDatabaseFromFile(databaseFile string, initialQueryFile string) {
 		}
 
 		log.Println("Seeding database")
-		_, err = db.Exec(string(initialQuery))
+		_, err = DB.Exec(string(initialQuery))
+
+		if err != nil {
+			log.Fatalf("%q\n", err)
+		}
 	}
 
 	if err != nil {

@@ -48,6 +48,9 @@ However, there will be decisions made in the interest of brevity. In most situat
 
 Because I don’t want to throw money at this project we will be storing media locally as opposed to some object storage provider like Amazon’s S3. They’ll be stored & cached in the server’s filesystem. 
 
+## Validation
+There is barely any. Why? Because it doesn't really matter here.
+
 # Design
 
 TODO - Insert API Spec
