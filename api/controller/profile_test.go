@@ -38,11 +38,11 @@ func TestHandleUser(t *testing.T) {
 		log.Fatalf("Error parsing TestHandleUser json response. Got: %s\n", string(body))
 	}
 
-	if expectedResponse.User.Username != CurrentUser.Username {
+	if expectedResponse.User.Username != controller.CurrentUser.Username {
 		t.Errorf(
 			"expected %s got %s", 
 			expectedResponse.User.Username, 
-			CurrentUser.Username,
+			controller.CurrentUser.Username,
 		)
 	}
 }

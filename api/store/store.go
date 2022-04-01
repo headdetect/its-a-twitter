@@ -2,6 +2,7 @@ package store
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 
@@ -23,14 +24,14 @@ import (
 var DB *sql.DB
 
 func LoadDatabase() {
-	LoadDatabaseFromFile("./store/store.db?mode=rwc", "./store/initial.sql")
+	LoadDatabaseFromFile("./store/store.db", "./store/initial.sql", "rcw")
 }
 
-func LoadDatabaseFromFile(databaseFile string, initialQueryFile string) {
+func LoadDatabaseFromFile(databaseFile string, initialQueryFile string, openMode string) {
 	_, err := os.Stat(databaseFile); 
 	existed := err == nil
 
-	data, err := sql.Open("sqlite3", databaseFile)
+	data, err := sql.Open("sqlite3", fmt.Sprintf("%s?mode=%s", databaseFile, openMode))
 	DB = data // FIXME: Gotta be a better way to do this
 
 	DB.SetMaxOpenConns(1)

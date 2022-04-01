@@ -12,12 +12,9 @@ import (
 	"testing"
 
 	"github.com/headdetect/its-a-twitter/api/controller"
-	"github.com/headdetect/its-a-twitter/api/model"
 	"github.com/headdetect/its-a-twitter/api/store"
 	"github.com/joho/godotenv"
 )
-
-var CurrentUser *model.User
 
 func TestMain(m *testing.M) {
 	log.Println("Loading env")
@@ -28,7 +25,7 @@ func TestMain(m *testing.M) {
 	}
 
 	log.Println("Loading database")
-	store.LoadDatabaseFromFile("../store/store.db", "../store/initial.sql")
+	store.LoadDatabaseFromFile("../store/test.db", "../store/initial.sql", "rcw")
 
 	m.Run()
 
@@ -65,7 +62,7 @@ func Login() (controller.LoginResponse, error) {
 func AuthenticatedRequest(method, target string, body io.Reader) (*http.Request, error) {
 	var loginResponse controller.LoginResponse
 
-	if CurrentUser == nil {
+	if controller.CurrentUser == nil {
 		response, err := Login()
 
 		if err != nil {
@@ -73,7 +70,7 @@ func AuthenticatedRequest(method, target string, body io.Reader) (*http.Request,
 		}
 
 		loginResponse = response
-		CurrentUser = response.User
+		controller.CurrentUser = &response.User
 	}
 
 	request := httptest.NewRequest(method, target, body)

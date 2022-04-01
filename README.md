@@ -51,6 +51,8 @@ Because I don’t want to throw money at this project we will be storing media l
 ## Validation
 There is barely any. Why? Because it doesn't really matter here.
 
+## Auth Scheme
+
 # Design
 
 TODO - Insert API Spec

@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/headdetect/its-a-twitter/api/model"
@@ -16,11 +15,18 @@ type LoginRequest struct {
 
 type LoginResponse struct {
 	AuthToken string
-	User *model.User
+	User model.User
+}
+
+type OwnUserResponse struct {
+	User model.User
 }
 
 type UserResponse struct {
-	User *model.User
+	User model.User
+	Followers []model.User
+	Following []model.User
+	Tweets []model.Tweet
 }
 
 func HandleUserFollowUser(writer http.ResponseWriter, request *http.Request) {
@@ -29,27 +35,70 @@ func HandleUserFollowUser(writer http.ResponseWriter, request *http.Request) {
 	JsonResponse(writer, []byte(`{"message": "TODO"}`))
 }
 
-func HandleUser(writer http.ResponseWriter, request *http.Request) {
+func HandleOwnUser(writer http.ResponseWriter, request *http.Request) {
 	defer request.Body.Close()
 
-	if user, ok := AuthUser(request); ok {
-		response := UserResponse {
-			User: user,
-		}
+	response := OwnUserResponse {
+		User: *CurrentUser,
+	}
 
-		jsonResponse, err := json.Marshal(response)
+	jsonResponse, err := json.Marshal(response)
 
-		if err != nil {
-			writer.WriteHeader(http.StatusInternalServerError)
-			JsonResponse(writer, []byte(`{ "message": "We messed up somehow. Strange. We never mess up" }`))
-			return
-		}
-
-		JsonResponse(writer, jsonResponse)
+	if err != nil {
+		ErrorResponse(err, writer)
 		return
 	}
 
-	RejectResponse(writer)
+	JsonResponse(writer, jsonResponse)
+}
+
+func HandleUser(writer http.ResponseWriter, request *http.Request) {
+	defer request.Body.Close()
+	username := GetPathValue(request, 0)
+
+	user, err := model.GetUserByUsername(username)
+
+	if err != nil {
+		NotFoundResponse(writer)
+		return
+	}
+
+	following, err := user.GetFollowing()
+
+	if err != nil {
+		ErrorResponse(err, writer)
+		return
+	}
+
+	followers, err := user.GetFollowers()
+
+	if err != nil {
+		ErrorResponse(err, writer)
+		return
+	}
+
+	tweets, err := user.GetTweets()
+
+	if err != nil {
+		ErrorResponse(err, writer)
+		return
+	}
+
+	response := UserResponse {
+		User: user,
+		Followers: followers,
+		Following: following,
+		Tweets: tweets,
+	}
+
+	jsonResponse, err := json.Marshal(response)
+
+	if err != nil {
+		ErrorResponse(err, writer)
+		return
+	}
+
+	JsonResponse(writer, jsonResponse)
 }
 
 func HandleUserRegister(writer http.ResponseWriter, request *http.Request) {
@@ -57,8 +106,6 @@ func HandleUserRegister(writer http.ResponseWriter, request *http.Request) {
 
 	JsonResponse(writer, []byte(`{"message": "TODO"}`))
 }
-
-
 
 func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
 	defer request.Body.Close()
@@ -68,22 +115,14 @@ func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
 	err := json.NewDecoder(request.Body).Decode(&loginRequest)
 
 	if err != nil {
-		log.Printf("%k\n", err)
-		http.Error(writer, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	if request.Method != "POST" {
-		http.Error(writer, "Not found", http.StatusNotFound)
+		BadRequestResponse(writer)
 		return
 	}
 
 	user, hashedPassword, err := model.GetUserWithPassByUsername(loginRequest.Username)
 
 	if err != nil || !utils.CheckPasswordHash(loginRequest.Password, hashedPassword) {
-		log.Printf("%k\n", err)
-		writer.WriteHeader(http.StatusUnauthorized)
-		JsonResponse(writer, []byte(`{ message: "Invalid username or password" }`))
+		UnauthorizedResponse(writer)
 		return
 	}
 
@@ -105,8 +144,7 @@ func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
 	jsonResponse, err := json.Marshal(response)
 
 	if err != nil {
-		writer.WriteHeader(http.StatusInternalServerError)
-		JsonResponse(writer, []byte(`{ message: "We messed up somehow. Strange. We never mess up" }`))
+		ErrorResponse(err, writer)
 		return
 	}
 

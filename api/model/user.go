@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -25,7 +26,7 @@ type Follow struct {
 	CreatedAt int64
 }
 
-func GetUserWithPassByUsername(username string) (*User, string, error) {
+func GetUserWithPassByUsername(username string) (User, string, error) {
 	var user User
 	var hashedPassword string
 
@@ -36,10 +37,10 @@ func GetUserWithPassByUsername(username string) (*User, string, error) {
 			&user.Id, &user.Username, &hashedPassword, &user.CreatedAt,
 		)
 
-	return &user, hashedPassword, err
+	return user, hashedPassword, err
 }
 
-func GetUserById(id int) (*User, error) {
+func GetUserById(id int) (User, error) {
 	var user User
 
 	err := store.DB.QueryRow(
@@ -49,34 +50,47 @@ func GetUserById(id int) (*User, error) {
 			&user.Id, &user.Username, &user.CreatedAt,
 		)
 
-	return &user, err
+	return user, err
 }
 
-func MakeUser(username string, passwordHash string) (*User, error) {
+func GetUserByUsername(username string) (User, error) {
+	var user User
+
+	err := store.DB.QueryRow(
+			"select id, username, createdAt from users where username = ? limit 1", 
+			username,
+		).Scan(
+			&user.Id, &user.Username, &user.CreatedAt,
+		)
+
+	return user, err
+}
+
+func MakeUser(username string, passwordHash string) (User, error) {
 	var user User
 	
 	createdAt := time.Now().Unix()
 
 	res, err := store.DB.Exec(
-		"insert into user (username, password, createdAt) values (?, ?, ?, ?)",
+		"insert into users (username, password, createdAt) values (?, ?, ?, ?)",
 		username, passwordHash, createdAt,
 	)
 
 	if err != nil {
-		return nil, err
+		return user, err
 	}
 
 	id, err := res.LastInsertId()
 
 	if err != nil {
-		return nil, err
+		return user, err
 	}
 
 	user.Id = int(id)
 	user.CreatedAt = createdAt
 	user.Username = username
 
-	return &user, err
+	return user, err
 }
 
 func (u *User) DeleteUser() (error) {
@@ -113,7 +127,7 @@ func (u *User) UnFollowUser(userId int) (error) {
 	return err
 }
 
-func (u *User) GetFollowers() ([]*User, error) {
+func (u *User) GetFollowers() ([]User, error) {
 	rows, err := store.DB.
 		Query(
 			`select 
@@ -132,7 +146,7 @@ func (u *User) GetFollowers() ([]*User, error) {
 
 	defer rows.Close()
 
-	var followers []*User
+	followers := []User{}
 	
 	for rows.Next() {
 		var u User
@@ -142,13 +156,13 @@ func (u *User) GetFollowers() ([]*User, error) {
 			return nil, err
 		}
 
-		followers = append(followers, &u)
+		followers = append(followers, u)
 	}
 
 	return followers, nil
 }
 
-func (u *User) GetFollowing() ([]*User, error) {
+func (u *User) GetFollowing() ([]User, error) {
 	rows, err := store.DB.
 		Query(
 			`select 
@@ -167,7 +181,7 @@ func (u *User) GetFollowing() ([]*User, error) {
 
 	defer rows.Close()
 
-	var followering []*User
+	followering := []User{}
 	
 	for rows.Next() {
 		var u User
@@ -177,7 +191,7 @@ func (u *User) GetFollowing() ([]*User, error) {
 			return nil, err
 		}
 
-		followering = append(followering, &u)
+		followering = append(followering, u)
 	}
 
 	return followering, nil
@@ -186,7 +200,7 @@ func (u *User) GetFollowing() ([]*User, error) {
 
 func (u *User) GetTweets() ([]Tweet, error) {
 	rows, err := store.DB.
-		Query(`select text, mediaPath, createdAt from tweets where userId = ?`, 
+		Query(`select id, text, mediaPath, createdAt from tweets where userId = ?`, 
 			u.Id,
 		)
 
@@ -196,17 +210,23 @@ func (u *User) GetTweets() ([]Tweet, error) {
 
 	defer rows.Close()
 
-	var tweets []Tweet
+	tweets := []Tweet{}
 	
 	for rows.Next() {
 		var t Tweet
-		err := rows.Scan(&t.Text, &t.MediaPath, &t.CreatedAt)
+		var mediaPath sql.NullString
+		err := rows.Scan(&t.Id, &t.Text, &mediaPath, &t.CreatedAt)
 
 		if err != nil {
 			return nil, err
 		}
 
-		t.User = u
+		if (mediaPath.Valid) {
+			t.MediaPath = mediaPath.String
+		}
+		
+		// Note: We don't attach the user to the tweet, because the caller
+		// should already have access to the user
 
 		tweets = append(tweets, t)
 	}

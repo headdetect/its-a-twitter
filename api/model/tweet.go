@@ -39,7 +39,7 @@ type Reaction struct {
 
 type GeneratedTimeline struct {
 	User *User
-	Tweets []*Tweet
+	Tweets []Tweet
 }
 
 func MakeTweet(userId int, text string, mediaPath string) (Tweet, error) {
@@ -71,7 +71,7 @@ func MakeTweet(userId int, text string, mediaPath string) (Tweet, error) {
 
 	tweet.Id = int(id)
 	tweet.CreatedAt = createdAt
-	tweet.User = user
+	tweet.User = &user
 	tweet.Text = text
 	tweet.MediaPath = mediaPath
 

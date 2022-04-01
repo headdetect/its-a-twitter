@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 
 	"github.com/headdetect/its-a-twitter/api/controller"
 	"github.com/headdetect/its-a-twitter/api/utils"
@@ -19,24 +21,50 @@ func middleware(logger *log.Logger) func(http.HandlerFunc) http.HandlerFunc  {
 	}
 }
 
-// TODO: Handle auth checking here
-// TODO: Check for HTTP Method here
+type route struct {
+	method string
+	path string // Will be compiled to regex //
+	handler http.HandlerFunc
+
+	// TODO: Have middleware to support auth before
+}
+
+var routes = []route{
+	{ method: "GET", path: "/", handler: controller.HandleRoot },
+
+	{ method: "GET", path: "/user/profile/([^/]+)", handler: controller.HandleUser },
+	{ method: "GET", path: "/user/self", handler: controller.HandleOwnUser },
+	{ method: "POST", path: "/user/login", handler: controller.HandleUserLogin },
+	{ method: "POST", path: "/user/register", handler: controller.HandleUserRegister },
+
+	{ method: "GET", path: "/timeline", handler: controller.HandleTimeline },
+	{ method: "POST", path: "/tweet", handler: controller.HandlePostTweet },
+}
+
+func serve(w http.ResponseWriter, r *http.Request) {
+	for _, route := range routes {
+		pattern := regexp.MustCompile(fmt.Sprintf("^%s$", route.path))
+		matches := pattern.FindStringSubmatch(r.URL.Path)
+
+		if len(matches) > 0 {
+			if r.Method != route.method {
+				continue
+			}
+			
+			ctx := context.WithValue(r.Context(), controller.ContextKeys, matches[1:])
+			route.handler(w, r.WithContext(ctx))
+			return
+		}
+	}
+	
+	http.NotFound(w, r)
+}
 
 func StartRouter() {
 	logger := log.New(os.Stdout, "", log.Lmicroseconds)
 	middle := middleware(logger)
 	port, _ := utils.GetIntOrDefault("API_PORT", 5555)
-	routeMux := http.NewServeMux()
+	handler := http.HandlerFunc(middle(serve))
 
-	routeMux.HandleFunc("/", middle(controller.HandleRoot))
-
-	// TODO: Change the paths once the function registration is done
-	routeMux.HandleFunc("/user", middle(controller.HandleUser))
-	routeMux.HandleFunc("/user/login", middle(controller.HandleUserLogin))
-	routeMux.HandleFunc("/user/new", middle(controller.HandleUserRegister))
-
-	routeMux.HandleFunc("/timeline", middle(controller.HandleTimeline))
-	routeMux.HandleFunc("/tweet", middle(controller.HandlePostTweet))
-
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), routeMux))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), handler))
 }
