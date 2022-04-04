@@ -3,6 +3,7 @@ package controller_test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -12,70 +13,112 @@ import (
 	"testing"
 
 	"github.com/headdetect/its-a-twitter/api/controller"
+	"github.com/headdetect/its-a-twitter/api/model"
 	"github.com/headdetect/its-a-twitter/api/store"
 	"github.com/joho/godotenv"
 )
 
+var currentUser *model.User
+var routeContextKeys struct{}
+
 func TestMain(m *testing.M) {
 	log.Println("Loading env")
 	err := godotenv.Load("../.env")
+	os.Setenv("APP_ENV", "test")
+	os.Setenv("STORE_PATH", "../store")
 	
 	if err != nil {
 		log.Fatalf("Error loading env. Error %k\n", err)
 	}
 
 	log.Println("Loading database")
-	store.LoadDatabaseFromFile("../store/test.db", "../store/initial.sql", "rcw")
+	store.LoadDatabase(true)
 
 	m.Run()
 
 	os.Exit(0)
 }
 
-
-func Login() (controller.LoginResponse, error) {
-	writer := httptest.NewRecorder()
-	request := httptest.NewRequest(
+func login(request controller.LoginRequest) (controller.LoginResponse, *http.Response, error) {
+	response, _ := makeRequest(
 		http.MethodPost,
 		"/user/login", 
-		bytes.NewReader([]byte(`{ "Username": "admin", "Password":"password" }`)),
+		bytes.NewReader(
+			[]byte(fmt.Sprintf(`{ "Username": "%s", "Password":"%s" }`, request.Username, request.Password)),
+		),
 	)
 	
-	controller.HandleUserLogin(writer, request)
-
-	response := writer.Result()
 	defer response.Body.Close()
 
-	var expectedResponse controller.LoginResponse
+	var actualResponse controller.LoginResponse
 
 	body, err := ioutil.ReadAll(response.Body)
 
 	if err != nil {
-		return expectedResponse, err
+		return actualResponse, response, err
 	}
 
-	err = json.Unmarshal(body, &expectedResponse)
+	err = json.Unmarshal(body, &actualResponse)
 
-	return expectedResponse, err
+	return actualResponse, response, err
 }
 
-func AuthenticatedRequest(method, target string, body io.Reader) (*http.Request, error) {
-	var loginResponse controller.LoginResponse
+func AuthenticatedRequest(loginRequest controller.LoginRequest, request *http.Request) (*http.Request, error) {
+	loginResponse, _, err := login(loginRequest)
 
-	if controller.CurrentUser == nil {
-		response, err := Login()
+	if err != nil {
+		return nil, err
+	}	
 
-		if err != nil {
-			return nil, err
-		}
-
-		loginResponse = response
-		controller.CurrentUser = &response.User
-	}
-
-	request := httptest.NewRequest(method, target, body)
 	request.Header.Add("AuthToken", loginResponse.AuthToken)
 	request.Header.Add("Username", loginResponse.User.Username)
 
 	return request, nil
+}
+
+func makeRequest(
+	method string, 
+	route string, 
+	body io.Reader, 
+) (*http.Response, *http.Request) {
+	writer := httptest.NewRecorder()
+	request := httptest.NewRequest(method, route, body)
+
+	controller.Serve(writer, request)
+
+	response := writer.Result()
+	
+	return response, request
+}
+
+func makeAuthenticatedRequest(
+	loginRequest controller.LoginRequest,
+	method string, 
+	route string, 
+	body io.Reader,
+) (*http.Response, *http.Request, error) {
+	writer := httptest.NewRecorder()
+	request, err := AuthenticatedRequest(loginRequest, httptest.NewRequest(method, route, body))
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	controller.Serve(writer, request)
+
+	response := writer.Result()
+
+	return response, request, nil
+}
+
+func parseResponse(response *http.Response, v any) ([]byte, error) {
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+
+	if err != nil {
+		return nil, err
+	}
+	
+	return body, json.Unmarshal(body, &v)
 }

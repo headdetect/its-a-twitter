@@ -3,7 +3,8 @@ package utils
 import (
 	"crypto/rand"
 	"encoding/base64"
-	
+	"encoding/hex"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -11,6 +12,12 @@ func RandomString(length int) string {
 	randomBytes := make([]byte, length)
 	rand.Read(randomBytes)
 	return base64.URLEncoding.EncodeToString(randomBytes)
+}
+
+func RandomHex(length int) string {
+	randomBytes := make([]byte, length)
+  rand.Read(randomBytes)
+  return hex.EncodeToString(randomBytes)
 }
 
 func HashPassword(password string) (string, error) {

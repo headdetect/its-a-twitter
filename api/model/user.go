@@ -20,7 +20,7 @@ type User struct {
 type Follow struct {
 	Id int
 
-	LurkUser *User
+	User *User
 	FollowedUser *User
 
 	CreatedAt int64
@@ -109,19 +109,19 @@ func (u *User) GetProfilePicPath() (string, error) {
 }
 
 
-func (u *User) FollowUser(userId int) (error) {
+func (u *User) FollowUser(followedUserId int) (error) {
 	_, err := store.DB.Exec(
-		"insert into follows (lurkerUserId, followedUserId) values (?, ?)",
-		u.Id, userId,
+		"insert into follows (userId, followedUserId) values (?, ?)",
+		u.Id, followedUserId,
 	)
 
 	return err
 }
 
-func (u *User) UnFollowUser(userId int) (error) {
+func (u *User) UnFollowUser(followedUserId int) (error) {
 	_, err := store.DB.Exec(
-		"delete from follows where lurkerUserId = ? and followedUserId = ?",
-		u.Id, userId,
+		"delete from follows where userId = ? and followedUserId = ?",
+		u.Id, followedUserId,
 	)
 
 	return err
@@ -135,7 +135,7 @@ func (u *User) GetFollowers() ([]User, error) {
 				followers.username,
 				followers.createdAt
 			from follows f
-			join users followers on f.lurkerUserId = followers.id
+			join users followers on f.userId = followers.id
 			where f.followedUserId = ?`, 
 			u.Id,
 		)
@@ -171,7 +171,7 @@ func (u *User) GetFollowing() ([]User, error) {
 				following.createdAt
 			from follows
 			join users following on follows.followedUserId = following.id
-			where follows.lurkerUserId = ?`, 
+			where follows.userId = ?`, 
 			u.Id,
 		)
 
@@ -202,6 +202,69 @@ func (u *User) GetTweets() ([]Tweet, error) {
 	rows, err := store.DB.
 		Query(`select id, text, mediaPath, createdAt from tweets where userId = ?`, 
 			u.Id,
+		)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	tweets := []Tweet{}
+	
+	for rows.Next() {
+		var t Tweet
+		var mediaPath sql.NullString
+		err := rows.Scan(&t.Id, &t.Text, &mediaPath, &t.CreatedAt)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if (mediaPath.Valid) {
+			t.MediaPath = mediaPath.String
+		}
+		
+		// Note: We don't attach the user to the tweet, because the caller
+		// should already have access to the user
+
+		tweets = append(tweets, t)
+	}
+
+	return tweets, nil
+}
+
+// Get user's stream of tweets we want to feature
+// The timeline should consist of tweets from followed
+// users and from retweets of followed users.
+//
+// The for retweets to show up, the user does not need to be
+// following the original poster of the retweeted tweet.
+// 
+// Should only show the `count` latest tweets.
+// Should be in order of `createdAt`
+func (u *User) GetTimeline(count int) ([]Tweet, error) {
+	rows, err := store.DB.
+		Query(`
+			SELECT t.id, t.text, t.mediaPath, t.createdAt
+			FROM tweets t
+			JOIN (
+				SELECT t.id as tweetId
+					FROM tweets t
+					JOIN follows f ON f.followedUserId = t.userId
+					JOIN users u ON f.followedUserId = u.id
+					WHERE f.userId = ?
+				UNION
+				SELECT rt.tweetId as tweetId
+					FROM follows f
+					JOIN retweets rt ON rt.userId = f.followedUserId
+					WHERE f.userId = ?
+			) followedTweets ON followedTweets.tweetId = t.id
+			ORDER BY t.createdAt DESC`,
+
+			// The userId is filled in two spots. Instead of 
+			// messing with named parameters, I'll just fill twice
+			u.Id, u.Id,
 		)
 
 	if err != nil {

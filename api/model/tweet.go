@@ -5,10 +5,8 @@ import (
 	"time"
 
 	"github.com/headdetect/its-a-twitter/api/store"
+	"github.com/headdetect/its-a-twitter/api/utils"
 )
-
-var MEDIA_PATH = "./assets/media"
-
 
 type Tweet struct {
 	Id int
@@ -34,12 +32,6 @@ type Reaction struct {
 	User *User
 
 	CreatedAt int64
-}
-
-
-type GeneratedTimeline struct {
-	User *User
-	Tweets []Tweet
 }
 
 func MakeTweet(userId int, text string, mediaPath string) (Tweet, error) {
@@ -84,8 +76,8 @@ func GetTweetById(tweetId int) (Tweet, error) {
 
 func (t *Tweet) GetMediaPath() (string, error) {
 	// TODO: Look for file
-
-	return fmt.Sprintf("%s/%s", MEDIA_PATH, t.MediaPath), nil
+	path, _ := utils.GetStringOrDefault("MEDIA_PATH", "./assets/media")
+	return fmt.Sprintf("%s/%s", path, t.MediaPath), nil
 }
 
 func (t *Tweet) MakeRetweet(userId int) (error) {

@@ -7,30 +7,36 @@ import (
 	"github.com/headdetect/its-a-twitter/api/model"
 )
 
-var CurrentUser *model.User
-var ContextKeys struct{}
+var sessions map[string]model.User = make(map[string]model.User) // [authToken] = user
 
-func GetPathValue(request *http.Request, index int) string {
-	fields := request.Context().Value(ContextKeys).([]string)
-	return fields[index]
-}
+// TODO Make these helper funcs private
 
-func AuthUser(request *http.Request) (model.User, bool) {
-  authToken := request.Header.Get("AuthToken")
+func GetCurrentUser(request *http.Request) *model.User {
+	authToken := request.Header.Get("AuthToken")
 
 	// The auth username is a sort of 'public key'
 	// so people can't just brute-force a token.
 	// they'll also have to supply the username
 	// that is associated with the token
-  authUsername := request.Header.Get("Username")
+	authUsername := request.Header.Get("Username")
 
-	if user, ok := model.Sessions[authToken]; ok {
+	if user, ok := sessions[authToken]; ok {
 		if authUsername == user.Username {
-			return user, true
+			return &user
 		}
 	}
 
-	return model.User{}, false
+	return nil
+}
+
+func GetPathValue(request *http.Request, index int) (string, bool) {
+	fields, ok := request.Context().Value(ContextKeys).([]string)
+
+	if index >= len(fields) || !ok {
+		return "", false
+	}
+
+	return fields[index], true
 }
 
 func JsonResponse(writer http.ResponseWriter, response []byte) {
@@ -47,8 +53,8 @@ func UnauthorizedResponse(writer http.ResponseWriter) {
 }
 
 func BadRequestResponse(writer http.ResponseWriter) {
-	writer.WriteHeader(http.StatusUnauthorized)
-  JsonResponse(writer, []byte(`{ message: "Invalid auth token provided. Please log in" }`))
+	writer.WriteHeader(http.StatusBadRequest)
+  JsonResponse(writer, []byte(`{ message: "Bad request was sent." }`))
 }
 
 func NotFoundResponse(writer http.ResponseWriter) {

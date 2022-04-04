@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/headdetect/its-a-twitter/api/utils"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -21,18 +22,34 @@ import (
 	suffice. Just don't plan to have this be production grade.
 */
 
+// TODO: Make this a struct and make local to that struct
 var DB *sql.DB
 
-func LoadDatabase() {
-	LoadDatabaseFromFile("./store/store.db", "./store/initial.sql", "rcw")
+func LoadDatabase(overwrite bool) {
+	appEnv, _ := utils.GetStringOrDefault("APP_ENV", "development")
+	storePath , _ := utils.GetStringOrDefault("STORE_PATH", "./store")
+	dbFilePath := fmt.Sprintf("%s/%s.db", storePath, appEnv)
+
+	if overwrite {
+		os.Remove(dbFilePath)
+	}
+
+	existed := LoadDatabaseFromFile(dbFilePath, "rcw")
+
+	if !existed {
+		SeedDatabase(
+			fmt.Sprintf("%s/schema.sql", storePath),
+			fmt.Sprintf("%s/seeds/%s.sql", storePath, appEnv),
+		)
+	}
 }
 
-func LoadDatabaseFromFile(databaseFile string, initialQueryFile string, openMode string) {
+func LoadDatabaseFromFile(databaseFile string, openMode string) bool {
 	_, err := os.Stat(databaseFile); 
 	existed := err == nil
 
 	data, err := sql.Open("sqlite3", fmt.Sprintf("%s?mode=%s", databaseFile, openMode))
-	DB = data // FIXME: Gotta be a better way to do this
+	DB = data
 
 	DB.SetMaxOpenConns(1)
 
@@ -40,22 +57,21 @@ func LoadDatabaseFromFile(databaseFile string, initialQueryFile string, openMode
 		log.Fatal(err)
 	}
 
-	if !existed {
-		initialQuery, err := os.ReadFile(initialQueryFile)
+	return existed
+}
+
+func SeedDatabase(files ...string) {
+	for _, file := range files {
+		sql, err := os.ReadFile(file)
 
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		log.Println("Seeding database")
-		_, err = DB.Exec(string(initialQuery))
+		_, err = DB.Exec(string(sql))
 
 		if err != nil {
 			log.Fatalf("%q\n", err)
 		}
-	}
-
-	if err != nil {
-		log.Fatalf("%q\n", err)
 	}
 }
