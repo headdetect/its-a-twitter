@@ -19,7 +19,6 @@ import (
 )
 
 var currentUser *model.User
-var routeContextKeys struct{}
 
 func TestMain(m *testing.M) {
 	log.Println("Loading env")
