@@ -1,150 +1,96 @@
 package controller_test
 
 import (
-	"bytes"
 	"net/http"
 	"testing"
 
 	"github.com/headdetect/its-a-twitter/api/controller"
 )
 
-func TestHandleTimeline(t *testing.T) {
-	loginRequest := controller.LoginRequest	{
-		Username: "test",
-		Password: "password",
-	}
-	response, _, err := makeAuthenticatedRequest(loginRequest, http.MethodGet, "/timeline", nil)
-
-	if err != nil {
-		t.Errorf("Error authenticating. %k\n", err)
-	}
-	
-	var actualResponse controller.TimelineResponse 
+func TestHandleGetTweet(t *testing.T) {
+	response, _ := makeRequest(http.MethodGet, "/tweet/1", nil)
+  var actualResponse controller.SingleTweetResponse
 	body, err := parseResponse(response, &actualResponse)
 
 	if err != nil {
 		t.Fatalf("Error parsing json response. %k\nBody: %s\n", err, string(body))
 	}
 
-	tweets := actualResponse.Tweets
-
-	// Verify state from seeded value //
-	validTweetIds := []int{7, 6, 5, 4, 2, 1}
-
-	if len(tweets) != len(validTweetIds) {
+	if actualResponse.Tweet.Id != 1 {
 		t.Errorf(
-			"Expected %d tweets on timeline. Got %d\n", 
-			len(validTweetIds), 
-			len(actualResponse.Tweets),
+			"expected id:1 got id:%d\n", 
+			actualResponse.Tweet.Id, 
 		)
 	}
 
-	for i, tweetId := range validTweetIds {
-		if tweets[i].Id != tweetId {
-			t.Errorf("Expected Tweet ID to be %d. Got %d\n", tweetId, tweets[i].Id)
-		}
-	}
-
-	// Add a tweet from a followed user and a non-followed user  //
-	
-	response, _, err = makeAuthenticatedRequest(
-		controller.LoginRequest	{
-			Username: "admin",
-			Password: "password",
-		},
-		http.MethodPost,
-		"/tweet", 
-		bytes.NewReader([]byte(`{ "Text": "Tweet Tweet" }`)),
-	)
-
-	if response.StatusCode != http.StatusOK {
-		t.Errorf("expected OK (200) got %s (%d)", response.Status, response.StatusCode)
-	}
-	
-	response, _, err = makeAuthenticatedRequest(
-		controller.LoginRequest	{
-			Username: "lurker",
-			Password: "password",
-		}, 
-		http.MethodPost, 
-		"/tweet", 
-		bytes.NewReader([]byte(`{ "Text": "Tweet Tweet" }`)),
-	)
-
-	if err != nil {
-		t.Fatalf("Got error while making auth request. %k\n", err)
-		return
-	}
-
-	if response.StatusCode != http.StatusOK {
-		t.Errorf("expected OK (200) got %s (%d)", response.Status, response.StatusCode)
-	}
-
-	// Add a retweet from a followed user to a non-followed user  //
-	response, _, err = makeAuthenticatedRequest(
-		controller.LoginRequest	{
-			Username: "basic",
-			Password: "password",
-		}, 
-		http.MethodPut, 
-		"/tweet/8/retweet", 
-		nil,
-	)
-
-	if err != nil {
-		t.Fatalf("Got error while making auth request. %k\n", err)
-	}
-
-	if response.StatusCode != http.StatusOK {
-		t.Errorf("expected OK (200) got %s (%d)", response.Status, response.StatusCode)
-	}
-
-  response, _, err = makeAuthenticatedRequest(loginRequest, http.MethodGet, "/timeline", nil)
-
-	if err != nil {
-		t.Errorf("Error authenticating. %k\n", err)
-	}
-	
-	actualResponse = controller.TimelineResponse{}
-	body, err = parseResponse(response, &actualResponse)
-
-	if err != nil {
-		t.Fatalf("Error parsing json response. %k\nBody: %s\n", err, string(body))
-	}
-
-	tweets = actualResponse.Tweets
-
-	// Verify the timeline only shows the followed user's tweet/retweet //
-	validTweetIds = append([]int{ 8 }, validTweetIds...) // Add the new retweet //
-
-	if len(tweets) != len(validTweetIds) {
+	if actualResponse.Tweet.Text != "First tweet ever" {
 		t.Errorf(
-			"Expected %d tweets on timeline. Got %d\n", 
-			len(validTweetIds), 
-			len(actualResponse.Tweets),
+			"expected 'First tweet ever' got '%s'\n", 
+			actualResponse.Tweet.Text, 
 		)
 	}
 
-	for i, tweetId := range validTweetIds {
-		if tweets[i].Id != tweetId {
-			t.Errorf("Expected Tweet ID to be %d. Got %d.\n", tweetId, tweets[i].Id)
-		}
-	}
-}
+	count, ok := actualResponse.ReactionCount["🎉"]
 
-func TestHandleGetTweet(t *testing.T) {
+	if !ok {
+		t.Errorf("expected '🎉' to exist\n")
+	}
+
+	if count != 2 {
+		t.Errorf("expected 2 got %d\n", count)	
+	}
+
+	if actualResponse.RetweetCount != 2 {
+		t.Errorf("expected 2 got %d\n", actualResponse.RetweetCount)	
+	}
 }
 
 func TestHandlePostTweet(t *testing.T) {
 
 }
 
-func TestHandleRetweet(t *testing.T) {
-	
+func TestHandleRetweet(t *testing.T) { 
+	response, _, err := makeAuthenticatedRequest("lily", http.MethodPut, "/tweet/1/retweet", nil)
+
+	if err != nil {
+		t.Fatalf("Error making authenticated request. %k\n", err)
+	}
+
+	if response.StatusCode != http.StatusOK {
+		t.Errorf("Expected Status Code (200) got (%d)\n", response.StatusCode)
+	}
+
+	response, _ = makeRequest(http.MethodGet, "/tweet/1", nil)
+
+	var actualResponse controller.SingleTweetResponse
+	body, err := parseResponse(response, &actualResponse)
+
+	if err != nil {
+		t.Fatalf("Error parsing json response. %k\nBody: %s\n", err, string(body))
+	}
+
+	if response.StatusCode != http.StatusOK {
+		t.Errorf("Expected Status Code (200) got (%d)\n", response.StatusCode)
+	}
+
+	if actualResponse.RetweetCount != 3 {
+		t.Errorf("Expecting 3 got %d\n", actualResponse.RetweetCount)
+	}
+
+	// TODO: Figure this out ^
 }
 
 
 func TestHandleReactTweet(t *testing.T) {
+	
+}
+
+func TestHandleDeleteRetweet(t *testing.T) {
+	
+}
+
+
+func TestHandleDeleteReactTweet(t *testing.T) {
 	
 }
 

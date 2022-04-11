@@ -91,11 +91,16 @@ func makeRequest(
 }
 
 func makeAuthenticatedRequest(
-	loginRequest controller.LoginRequest,
+	userName string,
 	method string, 
 	route string, 
 	body io.Reader,
 ) (*http.Response, *http.Request, error) {
+	loginRequest := controller.LoginRequest{
+		Username: userName,
+		Password: "password",
+	}
+	
 	writer := httptest.NewRecorder()
 	request, err := AuthenticatedRequest(loginRequest, httptest.NewRequest(method, route, body))
 

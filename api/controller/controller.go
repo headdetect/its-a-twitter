@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -11,7 +12,7 @@ var sessions map[string]model.User = make(map[string]model.User) // [authToken] 
 
 // TODO Make these helper funcs private
 
-func GetCurrentUser(request *http.Request) *model.User {
+func GetCurrentUser(request *http.Request) (model.User, error) {
 	authToken := request.Header.Get("AuthToken")
 
 	// The auth username is a sort of 'public key'
@@ -22,11 +23,11 @@ func GetCurrentUser(request *http.Request) *model.User {
 
 	if user, ok := sessions[authToken]; ok {
 		if authUsername == user.Username {
-			return &user
+			return user, nil
 		}
 	}
 
-	return nil
+	return model.User{}, errors.New("No user logged in")
 }
 
 func GetPathValue(request *http.Request, index int) (string, bool) {
@@ -54,15 +55,15 @@ func UnauthorizedResponse(writer http.ResponseWriter) {
 
 func BadRequestResponse(writer http.ResponseWriter) {
 	writer.WriteHeader(http.StatusBadRequest)
-  JsonResponse(writer, []byte(`{ message: "Bad request was sent." }`))
+  JsonResponse(writer, []byte(`{ message: "Invalid request" }`))
 }
 
 func NotFoundResponse(writer http.ResponseWriter) {
 	writer.WriteHeader(http.StatusNotFound)
-	JsonResponse(writer, []byte(`{ "message": "Could not find that resource" }`))
+	JsonResponse(writer, []byte(`{ "message": "Specified resource was not found" }`))
 }
 
-func ErrorResponse(err error, writer http.ResponseWriter) {
+func ErrorResponse(writer http.ResponseWriter, err error) {
 	writer.WriteHeader(http.StatusInternalServerError)
 	JsonResponse(writer, []byte(fmt.Sprintf(`{ "message": "We messed up somehow. Strange. We never mess up", "error": "%k" }`, err)))
 }

@@ -11,19 +11,19 @@ import (
 var PROFILE_PIC_PATH = "./assets/profile"
 
 type User struct {
-	Id int
-	Username string
+	Id int `json:"id"`
+	Username string `json:"username"`
 
-	CreatedAt int64
+	CreatedAt int64 `json:"createdAt"`
 }
 
 type Follow struct {
-	Id int
+	Id int `json:"id"`
 
-	User *User
-	FollowedUser *User
+	User *User `json:"user"`
+	FollowedUser *User `json:"followedUser"`
 
-	CreatedAt int64
+	CreatedAt int64 `json:"createdAt"`
 }
 
 func GetUserWithPassByUsername(username string) (User, string, error) {
@@ -181,7 +181,7 @@ func (u *User) GetFollowing() ([]User, error) {
 
 	defer rows.Close()
 
-	followering := []User{}
+	following := []User{}
 	
 	for rows.Next() {
 		var u User
@@ -191,10 +191,10 @@ func (u *User) GetFollowing() ([]User, error) {
 			return nil, err
 		}
 
-		followering = append(followering, u)
+		following = append(following, u)
 	}
 
-	return followering, nil
+	return following, nil
 }
 
 

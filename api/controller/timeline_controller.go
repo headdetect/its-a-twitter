@@ -12,7 +12,13 @@ type TimelineResponse struct {
 }
 
 func HandleTimeline(writer http.ResponseWriter, request *http.Request) {
-	currentUser := GetCurrentUser(request)
+	currentUser, err := GetCurrentUser(request)
+
+	if err != nil {
+		// Returning an error response because this shouldn't be possible //
+		ErrorResponse(writer, err)
+		return
+	}
 
 	tweets, err := currentUser.GetTimeline(25)
 
@@ -23,7 +29,7 @@ func HandleTimeline(writer http.ResponseWriter, request *http.Request) {
 	jsonResponse, err := json.Marshal(response)
 
 	if err != nil {
-		ErrorResponse(err, writer)
+		ErrorResponse(writer, err)
 		return
 	}
 

@@ -8,9 +8,9 @@ import (
 func AuthMiddleware() MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-			user := GetCurrentUser(request)
+			_, err := GetCurrentUser(request)
 
-			if user != nil {
+			if err == nil {
 				next.ServeHTTP(writer, request)
 				return
 			}

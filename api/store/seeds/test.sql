@@ -15,6 +15,14 @@ insert into users (username, password, createdAt) values (
   'lurker', '$2a$14$Xyy1t.JsY.LHkN23Rsw5meOcmrVAueiRFEE8m5.YJy.vUi0.qowcW', strftime('%s', 'now')
 );
 
+insert into users (username, password, createdAt) values (
+  'chuck', '$2a$14$Xyy1t.JsY.LHkN23Rsw5meOcmrVAueiRFEE8m5.YJy.vUi0.qowcW', strftime('%s', 'now')
+);
+
+insert into users (username, password, createdAt) values (
+  'lily', '$2a$14$Xyy1t.JsY.LHkN23Rsw5meOcmrVAueiRFEE8m5.YJy.vUi0.qowcW', strftime('%s', 'now')
+);
+
 insert into follows (userId, followedUserId) values (
   1, 3
 );
@@ -78,7 +86,11 @@ insert into retweets (userId, tweetId) values (
 );
 
 insert into reactions (userId, tweetId, reaction) values (
-  3, 1, '👏'
+  2, 1, '👏'
+);
+
+insert into reactions (userId, tweetId, reaction) values (
+  3, 1, '🎉'
 );
 
 insert into reactions (userId, tweetId, reaction) values (

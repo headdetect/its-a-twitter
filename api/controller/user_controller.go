@@ -9,24 +9,24 @@ import (
 )
 
 type LoginRequest struct {
-	Username string
-	Password string
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type LoginResponse struct {
-	AuthToken string
-	User model.User
+	AuthToken string `json:"authToken"`
+	User model.User `json:"user"`
 }
 
 type OwnUserResponse struct {
-	User model.User
+	User model.User `json:"user"`
 }
 
 type UserResponse struct {
-	User model.User
-	Followers []model.User
-	Following []model.User
-	Tweets []model.Tweet
+	User model.User `json:"user"`
+	Followers []model.User `json:"followers"`
+	Following []model.User `json:"following"`
+	Tweets []model.Tweet `json:"tweets"`
 }
 
 func HandleUserFollowUser(writer http.ResponseWriter, request *http.Request) {
@@ -34,16 +34,22 @@ func HandleUserFollowUser(writer http.ResponseWriter, request *http.Request) {
 }
 
 func HandleOwnUser(writer http.ResponseWriter, request *http.Request) {
-	currentUser := GetCurrentUser(request)
+	currentUser, err := GetCurrentUser(request)
+
+	if err != nil {
+		// Returning an error response because this shouldn't be possible //
+		ErrorResponse(writer, err)
+		return
+	}
 
 	response := OwnUserResponse {
-		User: *currentUser,
+		User: currentUser,
 	}
 
 	jsonResponse, err := json.Marshal(response)
 
 	if err != nil {
-		ErrorResponse(err, writer)
+		ErrorResponse(writer, err)
 		return
 	}
 
@@ -68,21 +74,21 @@ func HandleUser(writer http.ResponseWriter, request *http.Request) {
 	following, err := user.GetFollowing()
 
 	if err != nil {
-		ErrorResponse(err, writer)
+		ErrorResponse(writer, err)
 		return
 	}
 
 	followers, err := user.GetFollowers()
 
 	if err != nil {
-		ErrorResponse(err, writer)
+		ErrorResponse(writer, err)
 		return
 	}
 
 	tweets, err := user.GetTweets()
 
 	if err != nil {
-		ErrorResponse(err, writer)
+		ErrorResponse(writer, err)
 		return
 	}
 
@@ -96,7 +102,7 @@ func HandleUser(writer http.ResponseWriter, request *http.Request) {
 	jsonResponse, err := json.Marshal(response)
 
 	if err != nil {
-		ErrorResponse(err, writer)
+		ErrorResponse(writer, err)
 		return
 	}
 
@@ -142,7 +148,7 @@ func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
 	jsonResponse, err := json.Marshal(response)
 
 	if err != nil {
-		ErrorResponse(err, writer)
+		ErrorResponse(writer, err)
 		return
 	}
 

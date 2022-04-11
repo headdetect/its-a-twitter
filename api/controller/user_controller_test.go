@@ -81,11 +81,7 @@ func TestHandleAdminUser(t *testing.T) {
 }
 
 func TestHandleOwnUser(t *testing.T) {
-	loginRequest := controller.LoginRequest {
-		Username: "test",
-		Password: "password",
-	}
-	response, _, err := makeAuthenticatedRequest(loginRequest, http.MethodGet, "/user/self", nil)
+	response, _, err := makeAuthenticatedRequest("test", http.MethodGet, "/user/self", nil)
 
 	if err != nil {
 		t.Errorf("Error authenticating. %k\n", err)
