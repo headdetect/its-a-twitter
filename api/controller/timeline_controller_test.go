@@ -9,7 +9,7 @@ import (
 )
 
 func TestHandleTimeline(t *testing.T) {
-	var actualResponse controller.TimelineResponse 
+	var actualResponse controller.TimelineResponse
 	response, _ := makeAuthenticatedTestRequest(t, "test", http.MethodGet, "/timeline", nil)
 	parseTestResponse(t, response, &actualResponse)
 
@@ -20,8 +20,8 @@ func TestHandleTimeline(t *testing.T) {
 
 	if len(tweets) != len(validTweetIds) {
 		t.Errorf(
-			"Expected %d tweets on timeline. Got %d\n", 
-			len(validTweetIds), 
+			"Expected %d tweets on timeline. Got %d\n",
+			len(validTweetIds),
 			len(actualResponse.Tweets),
 		)
 	}
@@ -37,40 +37,40 @@ func TestHandleTimeline(t *testing.T) {
 		t,
 		"admin",
 		http.MethodPost,
-		"/tweet", 
+		"/tweet",
 		bytes.NewReader([]byte(`{ "text": "Tweet Tweet" }`)),
 	)
-	
+
 	makeAuthenticatedTestRequest(
 		t,
-		"lurker", 
-		http.MethodPost, 
-		"/tweet", 
+		"lurker",
+		http.MethodPost,
+		"/tweet",
 		bytes.NewReader([]byte(`{ "text": "Tweet Tweet" }`)),
 	)
 
 	// Add a retweet from a followed user to a non-followed user  //
 	makeAuthenticatedTestRequest(
 		t,
-		"basic", 
+		"basic",
 		http.MethodPut,
-		"/tweet/8/retweet", 
+		"/tweet/8/retweet",
 		nil,
 	)
 
 	actualResponse = controller.TimelineResponse{}
-  response, _ = makeAuthenticatedTestRequest(t, "test", http.MethodGet, "/timeline", nil)
+	response, _ = makeAuthenticatedTestRequest(t, "test", http.MethodGet, "/timeline", nil)
 	parseTestResponse(t, response, &actualResponse)
 
 	tweets = actualResponse.Tweets
 
 	// Verify the timeline only shows the followed user's tweet/retweet //
-	validTweetIds = append([]int{ 8 }, validTweetIds...) // Add the new retweet //
+	validTweetIds = append([]int{8}, validTweetIds...) // Add the new retweet //
 
 	if len(tweets) != len(validTweetIds) {
 		t.Errorf(
-			"Expected %d tweets on timeline. Got %d\n", 
-			len(validTweetIds), 
+			"Expected %d tweets on timeline. Got %d\n",
+			len(validTweetIds),
 			len(actualResponse.Tweets),
 		)
 	}

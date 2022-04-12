@@ -25,7 +25,7 @@ func TestMain(m *testing.M) {
 	err := godotenv.Load("../.env")
 	os.Setenv("APP_ENV", "test")
 	os.Setenv("STORE_PATH", "../store")
-	
+
 	if err != nil {
 		log.Fatalf("Error loading env. Error %k\n", err)
 	}
@@ -41,12 +41,12 @@ func TestMain(m *testing.M) {
 func login(request controller.LoginRequest) (controller.LoginResponse, *http.Response, error) {
 	response, _ := makeRequest(
 		http.MethodPost,
-		"/user/login", 
+		"/user/login",
 		bytes.NewReader(
 			[]byte(fmt.Sprintf(`{ "Username": "%s", "Password":"%s" }`, request.Username, request.Password)),
 		),
 	)
-	
+
 	defer response.Body.Close()
 
 	var actualResponse controller.LoginResponse
@@ -67,7 +67,7 @@ func AuthenticatedRequest(loginRequest controller.LoginRequest, request *http.Re
 
 	if err != nil {
 		return nil, err
-	}	
+	}
 
 	request.Header.Add("AuthToken", loginResponse.AuthToken)
 	request.Header.Add("Username", loginResponse.User.Username)
@@ -79,9 +79,9 @@ func AuthenticatedRequest(loginRequest controller.LoginRequest, request *http.Re
 
 func makeTestRequest(
 	t *testing.T,
-	method string, 
-	route string, 
-	body io.Reader, 
+	method string,
+	route string,
+	body io.Reader,
 ) (*http.Response, *http.Request) {
 	writer := httptest.NewRecorder()
 	request := httptest.NewRequest(method, route, body)
@@ -93,22 +93,22 @@ func makeTestRequest(
 	if response.StatusCode != http.StatusOK {
 		t.Errorf("expected OK (200) got %s (%d)", response.Status, response.StatusCode)
 	}
-	
+
 	return response, request
 }
 
 func makeAuthenticatedTestRequest(
 	t *testing.T,
 	userName string,
-	method string, 
-	route string, 
+	method string,
+	route string,
 	body io.Reader,
 ) (*http.Response, *http.Request) {
 	loginRequest := controller.LoginRequest{
 		Username: userName,
 		Password: "password",
 	}
-	
+
 	writer := httptest.NewRecorder()
 	request, err := AuthenticatedRequest(loginRequest, httptest.NewRequest(method, route, body))
 
@@ -135,7 +135,7 @@ func parseTestResponse(t *testing.T, response *http.Response, v any) {
 	if err != nil {
 		t.Fatalf("Error reading body response. %k\nBody: %s\n", err, string(body))
 	}
-	
+
 	err = json.Unmarshal(body, &v)
 
 	if err != nil {
@@ -145,8 +145,8 @@ func parseTestResponse(t *testing.T, response *http.Response, v any) {
 
 // Functions to build own handler for response //
 func makeRequest(
-	method string, 
-	route string, 
+	method string,
+	route string,
 	body io.Reader,
 ) (*http.Response, *http.Request) {
 	writer := httptest.NewRecorder()
@@ -155,21 +155,21 @@ func makeRequest(
 	controller.Serve(writer, request)
 
 	response := writer.Result()
-	
+
 	return response, request
 }
 
 func makeAuthenticatedRequest(
 	userName string,
-	method string, 
-	route string, 
+	method string,
+	route string,
 	body io.Reader,
 ) (*http.Response, *http.Request, error) {
 	loginRequest := controller.LoginRequest{
 		Username: userName,
 		Password: "password",
 	}
-	
+
 	writer := httptest.NewRecorder()
 	request, err := AuthenticatedRequest(loginRequest, httptest.NewRequest(method, route, body))
 
@@ -192,6 +192,6 @@ func parseResponse(response *http.Response, v any) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return body, json.Unmarshal(body, &v)
 }

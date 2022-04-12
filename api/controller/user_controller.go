@@ -14,27 +14,27 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	AuthToken string `json:"authToken"`
-	User model.User `json:"user"`
+	AuthToken string     `json:"authToken"`
+	User      model.User `json:"user"`
 }
 
 type OwnUserResponse struct {
-	User model.User `json:"user"`
-	Followers []model.User `json:"followers"`
-	Following []model.User `json:"following"`
-	Tweets []model.Tweet `json:"tweets"`
+	User      model.User    `json:"user"`
+	Followers []model.User  `json:"followers"`
+	Following []model.User  `json:"following"`
+	Tweets    []model.Tweet `json:"tweets"`
 }
 
 type UserResponse struct {
-	User model.User `json:"user"`
-	FollowerCount int `json:"followerCount"`
-	FollowingCount int `json:"followingCount"`
-	Tweets []model.Tweet `json:"tweets"`
+	User           model.User    `json:"user"`
+	FollowerCount  int           `json:"followerCount"`
+	FollowingCount int           `json:"followingCount"`
+	Tweets         []model.Tweet `json:"tweets"`
 }
 
 type RegisterUserRequest struct {
 	Username string `json:"username"`
-	Email string `json:"email"`
+	Email    string `json:"email"`
 
 	// [Scaling]
 	// In a production-grade app, this should be hashed from the
@@ -90,11 +90,11 @@ func HandleOwnUser(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	response := OwnUserResponse {
-		User: currentUser,
+	response := OwnUserResponse{
+		User:      currentUser,
 		Followers: followers,
 		Following: following,
-		Tweets: tweets,
+		Tweets:    tweets,
 	}
 
 	jsonResponse, err := json.Marshal(response)
@@ -136,11 +136,11 @@ func HandleUser(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	response := UserResponse {
-		User: requestedUser,
-		FollowerCount: len(followers),
+	response := UserResponse{
+		User:           requestedUser,
+		FollowerCount:  len(followers),
 		FollowingCount: len(following),
-		Tweets: tweets,
+		Tweets:         tweets,
 	}
 
 	jsonResponse, err := json.Marshal(response)
@@ -162,7 +162,7 @@ func HandleUserRegister(writer http.ResponseWriter, request *http.Request) {
 		BadRequestResponse(writer)
 		return
 	}
-	
+
 	hashedPassword, err := utils.HashPassword(registerUserRequest.Password)
 
 	if err != nil {
@@ -199,16 +199,16 @@ func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
 			break
 		}
 	}
-	
+
 	// Persist through the session //
-	authToken := utils.RandomString(32)	
+	authToken := utils.RandomString(32)
 
 	// Email should be explicitly assigned so it's not accidentally leaked //
 	user.Email = email
 
-	response := LoginResponse {
+	response := LoginResponse{
 		AuthToken: authToken,
-		User: user,
+		User:      user,
 	}
 
 	jsonResponse, err := json.Marshal(response)
@@ -222,7 +222,6 @@ func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
 
 	sessions[authToken] = user
 }
-
 
 func HandleFollowUser(writer http.ResponseWriter, request *http.Request) {
 	requestedUser, exists := getUser(request)

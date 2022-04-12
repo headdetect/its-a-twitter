@@ -10,9 +10,9 @@ import (
 )
 
 type Tweet struct {
-	Id int `json:"id"`
-	User *User `json:"user"`
-	Text string `json:"text"`
+	Id        int    `json:"id"`
+	User      *User  `json:"user"`
+	Text      string `json:"text"`
 	MediaPath string `json:"mediaPath"` // TODO: Do we replace this with a dynamic hashed version of the id?
 
 	CreatedAt int64 `json:"createdAt"`
@@ -20,15 +20,15 @@ type Tweet struct {
 
 type Retweet struct {
 	Tweet *Tweet `json:"tweet"`
-	User *User `json:"user"`
+	User  *User  `json:"user"`
 
 	CreatedAt int64 `json:"createdAt"`
 }
 
 type Reaction struct {
-	Tweet *Tweet `json:"tweet"`
+	Tweet    *Tweet `json:"tweet"`
 	Reaction string `json:"reaction"`
-	User *User `json:"user"`
+	User     *User  `json:"user"`
 
 	CreatedAt int64 `json:"createdAt"`
 }
@@ -72,11 +72,11 @@ func GetTweetById(tweetId int) (t Tweet, err error) {
 	var mediaPath sql.NullString
 
 	err = store.DB.
-		QueryRow(`select text, mediaPath, createdAt from tweets where id = ?`, 
+		QueryRow(`select text, mediaPath, createdAt from tweets where id = ?`,
 			tweetId,
 		).Scan(&t.Text, &mediaPath, &t.CreatedAt)
 
-	if (mediaPath.Valid) {
+	if mediaPath.Valid {
 		t.MediaPath = mediaPath.String
 	}
 

@@ -22,7 +22,7 @@ func HandleTimeline(writer http.ResponseWriter, request *http.Request) {
 
 	tweets, err := currentUser.GetTimeline(25)
 
-	response := TimelineResponse {
+	response := TimelineResponse{
 		Tweets: tweets,
 	}
 

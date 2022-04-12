@@ -15,8 +15,8 @@ type MiddlewareFunc func(http.Handler) http.Handler
 var ContextKeys struct{}
 
 type route struct {
-	method string
-	path string // Will be compiled to regex //
+	method  string
+	path    string // Will be compiled to regex //
 	handler http.HandlerFunc
 
 	// The logger middleware will apply to all of them by default //
@@ -25,27 +25,27 @@ type route struct {
 
 var routes = []route{
 	// Root //
-	{ method: "GET", path: "/", handler: HandleRoot },
+	{method: "GET", path: "/", handler: HandleRoot},
 
 	// Timeline //
-	{ method: "GET", path: "/timeline", handler: HandleTimeline, middlewares: []MiddlewareFunc{ AuthMiddleware() } },
+	{method: "GET", path: "/timeline", handler: HandleTimeline, middlewares: []MiddlewareFunc{AuthMiddleware()}},
 
 	// Users //
-	{ method: "GET", path: "/user/self", handler: HandleOwnUser, middlewares: []MiddlewareFunc{ AuthMiddleware() } },
-	{ method: "POST", path: "/user/login", handler: HandleUserLogin },
-	{ method: "POST", path: "/user/register", handler: HandleUserRegister },
-	{ method: "GET", path: "/user/profile/([^/]+)", handler: HandleUser },
-	{ method: "PUT", path: "/user/profile/([^/]+)/follow", handler: HandleFollowUser, middlewares: []MiddlewareFunc{ AuthMiddleware() }  },
-	{ method: "DELETE", path: "/user/profile/([^/]+)/follow", handler: HandleUnFollowUser, middlewares: []MiddlewareFunc{ AuthMiddleware() }  },
+	{method: "GET", path: "/user/self", handler: HandleOwnUser, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+	{method: "POST", path: "/user/login", handler: HandleUserLogin},
+	{method: "POST", path: "/user/register", handler: HandleUserRegister},
+	{method: "GET", path: "/user/profile/([^/]+)", handler: HandleUser},
+	{method: "PUT", path: "/user/profile/([^/]+)/follow", handler: HandleFollowUser, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+	{method: "DELETE", path: "/user/profile/([^/]+)/follow", handler: HandleUnFollowUser, middlewares: []MiddlewareFunc{AuthMiddleware()}},
 
 	// Tweets //
-	{ method: "GET", path: "/tweet/([\\d^/]+)", handler: HandleGetTweet }, // No auth required //
-	{ method: "POST", path: "/tweet", handler: HandlePostTweet, middlewares: []MiddlewareFunc{ AuthMiddleware() } },
-	{ method: "DELETE", path: "/tweet/([\\d^/]+)", handler: HandleDeleteTweet, middlewares: []MiddlewareFunc{ AuthMiddleware() } },
-	{ method: "PUT", path: "/tweet/([\\d^/]+)/retweet", handler: HandleRetweet, middlewares: []MiddlewareFunc{ AuthMiddleware() } },
-	{ method: "DELETE", path: "/tweet/([\\d^/]+)/retweet", handler: HandleRemoveRetweet, middlewares: []MiddlewareFunc{ AuthMiddleware() } },
-	{ method: "PUT", path: "/tweet/([\\d^/]+)/react", handler: HandleReactTweet, middlewares: []MiddlewareFunc{ AuthMiddleware() } },
-	{ method: "DELETE", path: "/tweet/([\\d^/]+)/react", handler: HandleRemoveReactTweet, middlewares: []MiddlewareFunc{ AuthMiddleware() } },
+	{method: "GET", path: "/tweet/([\\d^/]+)", handler: HandleGetTweet}, // No auth required //
+	{method: "POST", path: "/tweet", handler: HandlePostTweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+	{method: "DELETE", path: "/tweet/([\\d^/]+)", handler: HandleDeleteTweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+	{method: "PUT", path: "/tweet/([\\d^/]+)/retweet", handler: HandleRetweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+	{method: "DELETE", path: "/tweet/([\\d^/]+)/retweet", handler: HandleRemoveRetweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+	{method: "PUT", path: "/tweet/([\\d^/]+)/react", handler: HandleReactTweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+	{method: "DELETE", path: "/tweet/([\\d^/]+)/react", handler: HandleRemoveReactTweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
 }
 
 func Serve(writer http.ResponseWriter, request *http.Request) {
@@ -84,7 +84,7 @@ func Serve(writer http.ResponseWriter, request *http.Request) {
 			return
 		}
 	}
-	
+
 	http.NotFound(writer, request)
 }
 

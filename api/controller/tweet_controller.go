@@ -13,9 +13,9 @@ import (
 )
 
 type SingleTweetResponse struct {
-	Tweet model.Tweet `json:"tweet"`
+	Tweet         model.Tweet    `json:"tweet"`
 	ReactionCount map[string]int `json:"reactionCount"` // A reaction & count map //
-	RetweetCount int `json:"retweetCount"`
+	RetweetCount  int            `json:"retweetCount"`
 }
 
 type CreateTweetRequest struct {
@@ -37,7 +37,7 @@ func getTweet(request *http.Request) (model.Tweet, bool) {
 	tweetId, err := strconv.Atoi(requestedTweetId)
 
 	if err != nil {
-		return tweet, false 
+		return tweet, false
 	}
 
 	tweet, err = model.GetTweetById(tweetId)
@@ -55,7 +55,7 @@ func getTweet(request *http.Request) (model.Tweet, bool) {
 
 func HandleGetTweet(writer http.ResponseWriter, request *http.Request) {
 	tweet, exists := getTweet(request)
-	
+
 	if !exists {
 		NotFoundResponse(writer)
 		return
@@ -75,9 +75,9 @@ func HandleGetTweet(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	response := SingleTweetResponse {
-		Tweet: tweet,
-		RetweetCount: retweetCount,
+	response := SingleTweetResponse{
+		Tweet:         tweet,
+		RetweetCount:  retweetCount,
 		ReactionCount: reactionCount,
 	}
 
@@ -107,10 +107,10 @@ func HandlePostTweet(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	var mediaPath string
-	
+
 	// Receive file upload if there is one //
 	file, _, err := request.FormFile("file")
-	
+
 	// The file exists. Proceed with uploading //
 	if err == nil {
 		defer file.Close()
@@ -123,7 +123,7 @@ func HandlePostTweet(writer http.ResponseWriter, request *http.Request) {
 		// Copy to disk //
 		mediaPath, _ := utils.GetStringOrDefault("MEDIA_PATH", "./assets/media")
 		fullFilePath := fmt.Sprintf("%s/%s", mediaPath, name)
-		diskFile, err := os.OpenFile(fullFilePath, os.O_CREATE | os.O_WRONLY, 0644)
+		diskFile, err := os.OpenFile(fullFilePath, os.O_CREATE|os.O_WRONLY, 0644)
 		defer diskFile.Close()
 
 		if err != nil {
@@ -133,7 +133,7 @@ func HandlePostTweet(writer http.ResponseWriter, request *http.Request) {
 
 		io.Copy(diskFile, file)
 
-		mediaPath = fullFilePath 
+		mediaPath = fullFilePath
 	}
 
 	tweet, err := model.MakeTweet(currentUser, createTweetRequest.Text, mediaPath)
@@ -143,7 +143,7 @@ func HandlePostTweet(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	response := SingleTweetResponse {
+	response := SingleTweetResponse{
 		Tweet: tweet,
 	}
 
@@ -170,7 +170,7 @@ func HandleDeleteTweet(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-  if tweet.User.Id != currentUser.Id {
+	if tweet.User.Id != currentUser.Id {
 		ForbiddenResponse(writer)
 		return
 	}
@@ -267,7 +267,7 @@ func HandleReactTweet(writer http.ResponseWriter, request *http.Request) {
 	// The valid emotes should be in some dynamic data store like a database
 	// so a new app deploy wouldn't be required to add or remove.
 	valid := false
-	for _, reaction := range []string{ "👏", "🎉", "😔", "❤️", "👍", "👎" } {
+	for _, reaction := range []string{"👏", "🎉", "😔", "❤️", "👍", "👎"} {
 		if reaction == tweetReactionRequest.Reaction {
 			valid = true
 			break
@@ -298,7 +298,7 @@ func HandleRemoveReactTweet(writer http.ResponseWriter, request *http.Request) {
 		ErrorResponse(writer, err)
 		return
 	}
-	
+
 	if err = tweet.DeleteReaction(currentUser.Id); err != nil {
 		BadRequestResponse(writer)
 	}

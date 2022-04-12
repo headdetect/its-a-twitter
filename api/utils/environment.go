@@ -11,7 +11,7 @@ func GetIntOrDefault(key string, defaultValue int) (int, bool) {
 
 	if exists {
 		num, err := strconv.Atoi(val)
-		
+
 		if err != nil {
 			log.Fatal("Invalid value: " + key)
 		}

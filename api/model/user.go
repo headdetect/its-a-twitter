@@ -11,15 +11,15 @@ import (
 var PROFILE_PIC_PATH = "./assets/profile"
 
 type User struct {
-	Id int `json:"id"`
+	Id       int    `json:"id"`
 	Username string `json:"username"`
-	Email string `json:"email"`
+	Email    string `json:"email"`
 
 	CreatedAt int64 `json:"createdAt"`
 }
 
 type Follow struct {
-	User *User `json:"user"`
+	User         *User `json:"user"`
 	FollowedUser *User `json:"followedUser"`
 
 	CreatedAt int64 `json:"createdAt"`
@@ -27,43 +27,43 @@ type Follow struct {
 
 func GetUserByUsernameWithPass(username string) (user User, hashedPassword string, email string, err error) {
 	err = store.DB.QueryRow(
-			"select id, username, email, password, createdAt from users where username = ? limit 1",
-			username,
-		).Scan(
-			&user.Id, &user.Username, &email, &hashedPassword, &user.CreatedAt,
-		)
+		"select id, username, email, password, createdAt from users where username = ? limit 1",
+		username,
+	).Scan(
+		&user.Id, &user.Username, &email, &hashedPassword, &user.CreatedAt,
+	)
 
 	return
 }
 
 func GetUserById(id int) (user User, email string, err error) {
 	err = store.DB.QueryRow(
-			"select id, username, email, createdAt from users where id = ? limit 1", 
-			id,
-		).Scan(
-			&user.Id, &user.Username, &email, &user.CreatedAt,
-		)
+		"select id, username, email, createdAt from users where id = ? limit 1",
+		id,
+	).Scan(
+		&user.Id, &user.Username, &email, &user.CreatedAt,
+	)
 
 	return
 }
 
 func GetUserByUsername(username string) (user User, email string, err error) {
 	err = store.DB.QueryRow(
-			"select id, username, email, createdAt from users where username = ? limit 1", 
-			username,
-		).Scan(
-			&user.Id, &user.Username, &user.Email, &user.CreatedAt,
-		)
+		"select id, username, email, createdAt from users where username = ? limit 1",
+		username,
+	).Scan(
+		&user.Id, &user.Username, &user.Email, &user.CreatedAt,
+	)
 
 	return
 }
 
 func GetUserByTweetId(tweetId int) (user User, email string, err error) {
 	err = store.DB.QueryRow(
-			"select u.id, u.username, u.email, u.createdAt from users u, tweets t where u.id = t.userId and t.id = 1 limit 1",
-		).Scan(
-			&user.Id, &user.Username, &user.Email, &user.CreatedAt,
-		)
+		"select u.id, u.username, u.email, u.createdAt from users u, tweets t where u.id = t.userId and t.id = 1 limit 1",
+	).Scan(
+		&user.Id, &user.Username, &user.Email, &user.CreatedAt,
+	)
 
 	return
 }
@@ -108,7 +108,6 @@ func (u *User) GetProfilePicPath() (string, error) {
 	return fmt.Sprintf("%s/%d.jpg", PROFILE_PIC_PATH, u.Id), nil
 }
 
-
 func (u *User) FollowUser(followedUserId int) (err error) {
 	_, err = store.DB.Exec(
 		"insert into follows (userId, followedUserId) values (?, ?)",
@@ -136,7 +135,7 @@ func (u *User) GetFollowers() ([]User, error) {
 				followers.createdAt
 			from follows f
 			join users followers on f.userId = followers.id
-			where f.followedUserId = ?`, 
+			where f.followedUserId = ?`,
 			u.Id,
 		)
 
@@ -147,7 +146,7 @@ func (u *User) GetFollowers() ([]User, error) {
 	defer rows.Close()
 
 	followers := []User{}
-	
+
 	for rows.Next() {
 		var u User
 		err := rows.Scan(&u.Id, &u.Username, &u.CreatedAt)
@@ -171,7 +170,7 @@ func (u *User) GetFollowing() ([]User, error) {
 				following.createdAt
 			from follows
 			join users following on follows.followedUserId = following.id
-			where follows.userId = ?`, 
+			where follows.userId = ?`,
 			u.Id,
 		)
 
@@ -182,7 +181,7 @@ func (u *User) GetFollowing() ([]User, error) {
 	defer rows.Close()
 
 	following := []User{}
-	
+
 	for rows.Next() {
 		var u User
 		err := rows.Scan(&u.Id, &u.Username, &u.CreatedAt)
@@ -197,10 +196,9 @@ func (u *User) GetFollowing() ([]User, error) {
 	return following, nil
 }
 
-
 func (u *User) GetTweets() ([]Tweet, error) {
 	rows, err := store.DB.
-		Query(`select id, text, mediaPath, createdAt from tweets where userId = ?`, 
+		Query(`select id, text, mediaPath, createdAt from tweets where userId = ?`,
 			u.Id,
 		)
 
@@ -211,7 +209,7 @@ func (u *User) GetTweets() ([]Tweet, error) {
 	defer rows.Close()
 
 	tweets := []Tweet{}
-	
+
 	for rows.Next() {
 		var t Tweet
 		var mediaPath sql.NullString
@@ -221,10 +219,10 @@ func (u *User) GetTweets() ([]Tweet, error) {
 			return nil, err
 		}
 
-		if (mediaPath.Valid) {
+		if mediaPath.Valid {
 			t.MediaPath = mediaPath.String
 		}
-		
+
 		// Note: We don't attach the user to the tweet, because the caller
 		// should already have access to the user
 
@@ -240,7 +238,7 @@ func (u *User) GetTweets() ([]Tweet, error) {
 //
 // The for retweets to show up, the user does not need to be
 // following the original poster of the retweeted tweet.
-// 
+//
 // Should only show the `count` latest tweets.
 // Should be in order of `createdAt`
 func (u *User) GetTimeline(count int) ([]Tweet, error) {
@@ -262,7 +260,7 @@ func (u *User) GetTimeline(count int) ([]Tweet, error) {
 			) followedTweets on followedTweets.tweetId = t.id
 			order by t.createdAt desc`,
 
-			// The userId is filled in two spots. Instead of 
+			// The userId is filled in two spots. Instead of
 			// messing with named parameters, I'll just fill twice
 			u.Id, u.Id,
 		)
@@ -274,7 +272,7 @@ func (u *User) GetTimeline(count int) ([]Tweet, error) {
 	defer rows.Close()
 
 	tweets := []Tweet{}
-	
+
 	for rows.Next() {
 		var t Tweet
 		var mediaPath sql.NullString
@@ -284,10 +282,10 @@ func (u *User) GetTimeline(count int) ([]Tweet, error) {
 			return nil, err
 		}
 
-		if (mediaPath.Valid) {
+		if mediaPath.Valid {
 			t.MediaPath = mediaPath.String
 		}
-		
+
 		// Note: We don't attach the user to the tweet, because the caller
 		// should already have access to the user
 

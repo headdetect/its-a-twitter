@@ -16,8 +16,8 @@ func RandomString(length int) string {
 
 func RandomHex(length int) string {
 	randomBytes := make([]byte, length)
-  rand.Read(randomBytes)
-  return hex.EncodeToString(randomBytes)
+	rand.Read(randomBytes)
+	return hex.EncodeToString(randomBytes)
 }
 
 func HashPassword(password string) (string, error) {

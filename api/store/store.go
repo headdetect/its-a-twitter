@@ -27,7 +27,7 @@ var DB *sql.DB
 
 func LoadDatabase(overwrite bool) {
 	appEnv, _ := utils.GetStringOrDefault("APP_ENV", "development")
-	storePath , _ := utils.GetStringOrDefault("STORE_PATH", "./store")
+	storePath, _ := utils.GetStringOrDefault("STORE_PATH", "./store")
 	dbFilePath := fmt.Sprintf("%s/%s.db", storePath, appEnv)
 
 	if overwrite {
@@ -45,7 +45,7 @@ func LoadDatabase(overwrite bool) {
 }
 
 func LoadDatabaseFromFile(databaseFile string, openMode string) bool {
-	_, err := os.Stat(databaseFile); 
+	_, err := os.Stat(databaseFile)
 	existed := err == nil
 
 	data, err := sql.Open("sqlite3", fmt.Sprintf("%s?mode=%s", databaseFile, openMode))

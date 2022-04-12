@@ -41,22 +41,21 @@ func GetPathValue(request *http.Request, index int) (string, bool) {
 }
 
 func JsonResponse(writer http.ResponseWriter, response []byte) {
-  writer.Header().Set("Content-Type", "application/json")
-  writer.Header().Set("Access-Control-Allow-Origin", "*")
+	writer.Header().Set("Content-Type", "application/json")
+	writer.Header().Set("Access-Control-Allow-Origin", "*")
 
-  writer.WriteHeader(http.StatusOK)
-  writer.Write(response)
+	writer.WriteHeader(http.StatusOK)
+	writer.Write(response)
 }
-
 
 func BadRequestResponse(writer http.ResponseWriter) {
 	writer.WriteHeader(http.StatusBadRequest)
-  JsonResponse(writer, []byte(`{ message: "Invalid request" }`))
+	JsonResponse(writer, []byte(`{ message: "Invalid request" }`))
 }
 
 func UnauthorizedResponse(writer http.ResponseWriter) {
 	writer.WriteHeader(http.StatusUnauthorized)
-  JsonResponse(writer, []byte(`{ message: "Invalid auth token provided. Please log in" }`))
+	JsonResponse(writer, []byte(`{ message: "Invalid auth token provided. Please log in" }`))
 }
 
 func ForbiddenResponse(writer http.ResponseWriter) {

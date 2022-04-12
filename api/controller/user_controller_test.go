@@ -10,7 +10,7 @@ import (
 
 func TestHandleTestUser(t *testing.T) {
 	response, _ := makeRequest(http.MethodGet, "/user/profile/test", nil)
-  var actualResponse controller.UserResponse
+	var actualResponse controller.UserResponse
 	body, err := parseResponse(response, &actualResponse)
 
 	if err != nil {
@@ -20,8 +20,8 @@ func TestHandleTestUser(t *testing.T) {
 	// Verify user //
 	if actualResponse.User.Username != "test" {
 		t.Errorf(
-			"expected test got %s", 
-			actualResponse.User.Username, 
+			"expected test got %s",
+			actualResponse.User.Username,
 		)
 	}
 
@@ -34,7 +34,7 @@ func TestHandleTestUser(t *testing.T) {
 
 func TestHandleLurkerUser(t *testing.T) {
 	response, _ := makeRequest(http.MethodGet, "/user/profile/lurker", nil)
-  var actualResponse controller.UserResponse
+	var actualResponse controller.UserResponse
 	body, err := parseResponse(response, &actualResponse)
 
 	if err != nil {
@@ -44,8 +44,8 @@ func TestHandleLurkerUser(t *testing.T) {
 	// Verify user //
 	if actualResponse.User.Username != "lurker" {
 		t.Errorf(
-			"expected lurker got %s", 
-			actualResponse.User.Username, 
+			"expected lurker got %s",
+			actualResponse.User.Username,
 		)
 	}
 
@@ -58,7 +58,7 @@ func TestHandleLurkerUser(t *testing.T) {
 
 func TestHandleAdminUser(t *testing.T) {
 	response, _ := makeRequest(http.MethodGet, "/user/profile/admin", nil)
-  var actualResponse controller.UserResponse
+	var actualResponse controller.UserResponse
 	body, err := parseResponse(response, &actualResponse)
 
 	if err != nil {
@@ -68,8 +68,8 @@ func TestHandleAdminUser(t *testing.T) {
 	// Verify user //
 	if actualResponse.User.Username != "admin" {
 		t.Errorf(
-			"expected admin got %s", 
-			actualResponse.User.Username, 
+			"expected admin got %s",
+			actualResponse.User.Username,
 		)
 	}
 
@@ -89,7 +89,7 @@ func TestHandleOwnUser(t *testing.T) {
 	if actualResponse.User.Username != "test" {
 		t.Errorf(
 			"expected 'test' got '%s'",
-			actualResponse.User.Username, 
+			actualResponse.User.Username,
 		)
 	}
 }
@@ -98,8 +98,8 @@ func TestHandleFollow(t *testing.T) {
 	// Verify can put //
 	response, _ := makeAuthenticatedTestRequest(
 		t,
-		"test", 
-		http.MethodPut, 
+		"test",
+		http.MethodPut,
 		"/user/profile/lurker/follow",
 		nil,
 	)
@@ -125,8 +125,8 @@ func TestHandleFollow(t *testing.T) {
 	// Verify can delete //
 	makeAuthenticatedTestRequest(
 		t,
-		"test", 
-		http.MethodDelete, 
+		"test",
+		http.MethodDelete,
 		"/user/profile/lurker/follow",
 		nil,
 	)
@@ -152,7 +152,7 @@ func TestHandleFollow(t *testing.T) {
 func TestHandleRegister(t *testing.T) {
 	makeTestRequest(
 		t,
-		http.MethodPost, 
+		http.MethodPost,
 		"/user/register",
 		bytes.NewReader([]byte(`{ "username": "fake", "password": "password", "email": "fake@fake.com" }`)),
 	)
@@ -164,13 +164,13 @@ func TestHandleRegister(t *testing.T) {
 	if actualResponse.User.Username != "fake" {
 		t.Errorf(
 			"expected 'fake' got '%s'",
-			actualResponse.User.Username, 
+			actualResponse.User.Username,
 		)
 	}
 }
 
 func TestHandleUserLogin(t *testing.T) {
-	actualResponse, httpResponse, err := login(controller.LoginRequest{ Username: "test", Password: "password" })
+	actualResponse, httpResponse, err := login(controller.LoginRequest{Username: "test", Password: "password"})
 
 	if err != nil {
 		t.Errorf("Error logging in %k\n", err)
@@ -188,7 +188,7 @@ func TestHandleUserLogin(t *testing.T) {
 // Invalids //
 
 func TestHandleWrongUserLogin(t *testing.T) {
-	_, httpResponse, err := login(controller.LoginRequest{ Username: "sdfsdf", Password: "asdfasdfasdf" })
+	_, httpResponse, err := login(controller.LoginRequest{Username: "sdfsdf", Password: "asdfasdfasdf"})
 
 	if httpResponse.StatusCode != http.StatusUnauthorized {
 		t.Errorf("expected Unauthorized (401) got %s (%d)", httpResponse.Status, httpResponse.StatusCode)
@@ -225,9 +225,9 @@ func TestHandleInvalidUser2(t *testing.T) {
 }
 
 func TestHandleInvalidUserLogin(t *testing.T) {
-	response, _ := makeRequest(	
+	response, _ := makeRequest(
 		http.MethodPost,
-		"/user/login", 
+		"/user/login",
 		bytes.NewReader([]byte(`{ "username": "not-a-real-user", "password":"not-a-real-user" }`)),
 	)
 
@@ -238,8 +238,8 @@ func TestHandleInvalidUserLogin(t *testing.T) {
 
 func TestHandleCannotFollowSelf(t *testing.T) {
 	response, _, err := makeAuthenticatedRequest(
-		"test", 
-		http.MethodPut, 
+		"test",
+		http.MethodPut,
 		"/user/profile/test/follow",
 		nil,
 	)
@@ -255,8 +255,8 @@ func TestHandleCannotFollowSelf(t *testing.T) {
 
 func TestHandleCannotFollowInvalidUser(t *testing.T) {
 	response, _, err := makeAuthenticatedRequest(
-		"test", 
-		http.MethodPut, 
+		"test",
+		http.MethodPut,
 		"/user/profile/test/follow",
 		nil,
 	)
@@ -272,7 +272,7 @@ func TestHandleCannotFollowInvalidUser(t *testing.T) {
 
 func TestHandleCannotRegisterSameUsername(t *testing.T) {
 	response, _ := makeRequest(
-		http.MethodPost, 
+		http.MethodPost,
 		"/user/register",
 		bytes.NewReader([]byte(`{ "username": "test", "password": "password", "email": "not-test@example.com" }`)),
 	)
@@ -284,7 +284,7 @@ func TestHandleCannotRegisterSameUsername(t *testing.T) {
 
 func TestHandleCannotRegisterHaveInvalidUsername(t *testing.T) {
 	response, _ := makeRequest(
-		http.MethodPost, 
+		http.MethodPost,
 		"/user/register",
 		bytes.NewReader([]byte(`{ "username": "a user with spaces", "password": "password", "email": "not-test@example.com" }`)),
 	)
