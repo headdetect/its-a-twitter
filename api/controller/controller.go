@@ -48,14 +48,20 @@ func JsonResponse(writer http.ResponseWriter, response []byte) {
   writer.Write(response)
 }
 
+
+func BadRequestResponse(writer http.ResponseWriter) {
+	writer.WriteHeader(http.StatusBadRequest)
+  JsonResponse(writer, []byte(`{ message: "Invalid request" }`))
+}
+
 func UnauthorizedResponse(writer http.ResponseWriter) {
 	writer.WriteHeader(http.StatusUnauthorized)
   JsonResponse(writer, []byte(`{ message: "Invalid auth token provided. Please log in" }`))
 }
 
-func BadRequestResponse(writer http.ResponseWriter) {
-	writer.WriteHeader(http.StatusBadRequest)
-  JsonResponse(writer, []byte(`{ message: "Invalid request" }`))
+func ForbiddenResponse(writer http.ResponseWriter) {
+	writer.WriteHeader(http.StatusForbidden)
+	JsonResponse(writer, []byte(`{ "message": "Nice try. You can't do that."}`))
 }
 
 func NotFoundResponse(writer http.ResponseWriter) {

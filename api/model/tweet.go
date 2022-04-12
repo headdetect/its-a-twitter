@@ -13,13 +13,12 @@ type Tweet struct {
 	Id int `json:"id"`
 	User *User `json:"user"`
 	Text string `json:"text"`
-	MediaPath string `json:"mediaPath"` // TODO: Do we replace this with a hashed version of the id?
+	MediaPath string `json:"mediaPath"` // TODO: Do we replace this with a dynamic hashed version of the id?
 
 	CreatedAt int64 `json:"createdAt"`
 }
 
 type Retweet struct {
-	Id int `json:"id"`
 	Tweet *Tweet `json:"tweet"`
 	User *User `json:"user"`
 
@@ -27,7 +26,6 @@ type Retweet struct {
 }
 
 type Reaction struct {
-	Id int `json:"id"`
 	Tweet *Tweet `json:"tweet"`
 	Reaction string `json:"reaction"`
 	User *User `json:"user"`
@@ -35,14 +33,14 @@ type Reaction struct {
 	CreatedAt int64 `json:"createdAt"`
 }
 
-func MakeTweet(userId int, text string, mediaPath string) (Tweet, error) {
+func MakeTweet(user User, text string, mediaPath string) (Tweet, error) {
 	var tweet Tweet
 
 	createdAt := time.Now().Unix()
 
 	res, err := store.DB.Exec(
 		"insert into tweets (userId, text, mediaPath, createdAt) values (?, ?, ?, ?)",
-		userId, text, mediaPath, createdAt,
+		user.Id, text, mediaPath, createdAt,
 	)
 
 	if err != nil {
@@ -55,30 +53,25 @@ func MakeTweet(userId int, text string, mediaPath string) (Tweet, error) {
 		return tweet, err
 	}
 
-	// TODO: Do we want to fetch this at all?
-	user, err := GetUserById(userId)
-
 	if err != nil {
 		return tweet, err
 	}
 
 	tweet.Id = int(id)
 	tweet.CreatedAt = createdAt
-	tweet.User = &user
+	tweet.User = &user // Use copied version of `user` //
 	tweet.Text = text
 	tweet.MediaPath = mediaPath
 
 	return tweet, err
 }
 
-func GetTweetById(tweetId int) (Tweet, error) {
-	var t Tweet
-
+func GetTweetById(tweetId int) (t Tweet, err error) {
 	t.Id = tweetId
 
 	var mediaPath sql.NullString
 
-	err := store.DB.
+	err = store.DB.
 		QueryRow(`select text, mediaPath, createdAt from tweets where id = ?`, 
 			tweetId,
 		).Scan(&t.Text, &mediaPath, &t.CreatedAt)
@@ -87,9 +80,7 @@ func GetTweetById(tweetId int) (Tweet, error) {
 		t.MediaPath = mediaPath.String
 	}
 
-	// Not checking for `err` above because if it's
-	// filled in, we can worry about that in the caller
-	return t, err
+	return
 }
 
 func (t *Tweet) GetFullMediaPath() (string, error) {
@@ -98,54 +89,54 @@ func (t *Tweet) GetFullMediaPath() (string, error) {
 	return fmt.Sprintf("%s/%s", path, t.MediaPath), nil
 }
 
-func (t *Tweet) MakeRetweet(userId int) (error) {
-	_, err := store.DB.Exec(
-		"insert into retweets (originalTweetId, userId) values (?, ?)",
+func (t *Tweet) MakeRetweet(userId int) (err error) {
+	_, err = store.DB.Exec(
+		"insert into retweets (tweetId, userId) values (?, ?)",
 		t.Id, userId,
 	)
 
-	return err
+	return
 }
 
-func (t *Tweet) DeleteRetweet(userId int) (error) {
-	_, err := store.DB.Exec(
+func (t *Tweet) DeleteRetweet(userId int) (err error) {
+	_, err = store.DB.Exec(
 		"delete from retweets where userId = ? and tweetId = ?",
 		userId, t.Id,
 	)
 
-	return err
+	return
 }
 
-func (t *Tweet) DeleteTweet() (error) {
-	_, err := store.DB.Exec(
+func (t *Tweet) DeleteTweet() (err error) {
+	_, err = store.DB.Exec(
 		"delete from tweets where id = ?",
 		t.Id,
 	)
 
-	return err
+	return
 }
 
-func (t *Tweet) MakeReaction(userId int, reaction string) (error) {
-	_, err := store.DB.Exec(
-		"insert into reactions (originalTweetId, userId, reaction) values (?, ?, ?)",
+func (t *Tweet) MakeReaction(userId int, reaction string) (err error) {
+	_, err = store.DB.Exec(
+		"insert into reactions (tweetId, userId, reaction) values (?, ?, ?)",
 		t.Id, userId, reaction,
 	)
 
-	return err
+	return
 }
 
-func (t *Tweet) DeleteReaction(userId int) (error) {
-	_, err := store.DB.Exec(
+func (t *Tweet) DeleteReaction(userId int) (err error) {
+	_, err = store.DB.Exec(
 		"delete from reactions where tweetId = ? and userId = ?",
 		t.Id, userId,
 	)
 
-	return err
+	return
 }
 
 func (t *Tweet) ReactionCount() (map[string]int, error) {
 	rows, err := store.DB.Query(
-		"select reaction, count(id) from reactions where tweetId = ? group by reaction",
+		"select reaction, count(*) from reactions where tweetId = ? group by reaction",
 		t.Id,
 	)
 
@@ -172,13 +163,11 @@ func (t *Tweet) ReactionCount() (map[string]int, error) {
 	return reactionCount, err
 }
 
-func (t *Tweet) RetweetCount() (int, error) {
-	var count int
-
-	err := store.DB.QueryRow(
-		"select count(id) from retweets where tweetId = ?",
+func (t *Tweet) RetweetCount() (count int, err error) {
+	err = store.DB.QueryRow(
+		"select count(*) from retweets where tweetId = ?",
 		t.Id,
 	).Scan(&count)
 
-	return count, err
+	return
 }

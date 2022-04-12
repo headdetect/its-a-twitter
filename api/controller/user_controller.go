@@ -20,13 +20,40 @@ type LoginResponse struct {
 
 type OwnUserResponse struct {
 	User model.User `json:"user"`
+	Followers []model.User `json:"followers"`
+	Following []model.User `json:"following"`
+	Tweets []model.Tweet `json:"tweets"`
 }
 
 type UserResponse struct {
 	User model.User `json:"user"`
-	Followers []model.User `json:"followers"`
-	Following []model.User `json:"following"`
+	FollowerCount int `json:"followerCount"`
+	FollowingCount int `json:"followingCount"`
 	Tweets []model.Tweet `json:"tweets"`
+}
+
+type RegisterUserRequest struct {
+	Username string `json:"username"`
+	Email string `json:"email"`
+
+	// [Scaling]
+	// In a production-grade app, this should be hashed from the
+	// client using the email or username as the salt.
+	// From the API side, it would then hash it again using a private salt
+	// when storing
+	Password string `json:"password"`
+}
+
+func getUser(request *http.Request) (model.User, bool) {
+	requestedUserName, exists := GetPathValue(request, 0)
+
+	if !exists {
+		return model.User{}, false
+	}
+
+	user, _, err := model.GetUserByUsername(requestedUserName)
+
+	return user, err == nil
 }
 
 func HandleUserFollowUser(writer http.ResponseWriter, request *http.Request) {
@@ -42,58 +69,29 @@ func HandleOwnUser(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
+	following, err := currentUser.GetFollowing()
+
+	if err != nil {
+		ErrorResponse(writer, err)
+		return
+	}
+
+	followers, err := currentUser.GetFollowers()
+
+	if err != nil {
+		ErrorResponse(writer, err)
+		return
+	}
+
+	tweets, err := currentUser.GetTweets()
+
+	if err != nil {
+		ErrorResponse(writer, err)
+		return
+	}
+
 	response := OwnUserResponse {
 		User: currentUser,
-	}
-
-	jsonResponse, err := json.Marshal(response)
-
-	if err != nil {
-		ErrorResponse(writer, err)
-		return
-	}
-
-	JsonResponse(writer, jsonResponse)
-}
-
-func HandleUser(writer http.ResponseWriter, request *http.Request) {
-	username, exists := GetPathValue(request, 0)
-
-	if !exists {
-		BadRequestResponse(writer)
-		return
-	}
-
-	user, err := model.GetUserByUsername(username)
-
-	if err != nil {
-		NotFoundResponse(writer)
-		return
-	}
-
-	following, err := user.GetFollowing()
-
-	if err != nil {
-		ErrorResponse(writer, err)
-		return
-	}
-
-	followers, err := user.GetFollowers()
-
-	if err != nil {
-		ErrorResponse(writer, err)
-		return
-	}
-
-	tweets, err := user.GetTweets()
-
-	if err != nil {
-		ErrorResponse(writer, err)
-		return
-	}
-
-	response := UserResponse {
-		User: user,
 		Followers: followers,
 		Following: following,
 		Tweets: tweets,
@@ -109,8 +107,73 @@ func HandleUser(writer http.ResponseWriter, request *http.Request) {
 	JsonResponse(writer, jsonResponse)
 }
 
+func HandleUser(writer http.ResponseWriter, request *http.Request) {
+	requestedUser, exists := getUser(request)
+
+	if !exists {
+		NotFoundResponse(writer)
+		return
+	}
+
+	following, err := requestedUser.GetFollowing()
+
+	if err != nil {
+		ErrorResponse(writer, err)
+		return
+	}
+
+	followers, err := requestedUser.GetFollowers()
+
+	if err != nil {
+		ErrorResponse(writer, err)
+		return
+	}
+
+	tweets, err := requestedUser.GetTweets()
+
+	if err != nil {
+		ErrorResponse(writer, err)
+		return
+	}
+
+	response := UserResponse {
+		User: requestedUser,
+		FollowerCount: len(followers),
+		FollowingCount: len(following),
+		Tweets: tweets,
+	}
+
+	jsonResponse, err := json.Marshal(response)
+
+	if err != nil {
+		ErrorResponse(writer, err)
+		return
+	}
+
+	JsonResponse(writer, jsonResponse)
+}
+
 func HandleUserRegister(writer http.ResponseWriter, request *http.Request) {
-	JsonResponse(writer, []byte(`{"message": "TODO"}`))
+	var registerUserRequest RegisterUserRequest
+
+	err := json.NewDecoder(request.Body).Decode(&registerUserRequest)
+
+	if err != nil {
+		BadRequestResponse(writer)
+		return
+	}
+	
+	hashedPassword, err := utils.HashPassword(registerUserRequest.Password)
+
+	if err != nil {
+		BadRequestResponse(writer)
+		return
+	}
+
+	if _, err := model.MakeUser(registerUserRequest.Email, registerUserRequest.Username, hashedPassword); err != nil {
+		BadRequestResponse(writer)
+		return
+	}
 }
 
 func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
@@ -123,7 +186,7 @@ func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	user, hashedPassword, err := model.GetUserWithPassByUsername(loginRequest.Username)
+	user, hashedPassword, email, err := model.GetUserByUsernameWithPass(loginRequest.Username)
 
 	if err != nil || !utils.CheckPasswordHash(loginRequest.Password, hashedPassword) {
 		UnauthorizedResponse(writer)
@@ -140,6 +203,9 @@ func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
 	// Persist through the session //
 	authToken := utils.RandomString(32)	
 
+	// Email should be explicitly assigned so it's not accidentally leaked //
+	user.Email = email
+
 	response := LoginResponse {
 		AuthToken: authToken,
 		User: user,
@@ -155,4 +221,51 @@ func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
 	JsonResponse(writer, jsonResponse)
 
 	sessions[authToken] = user
+}
+
+
+func HandleFollowUser(writer http.ResponseWriter, request *http.Request) {
+	requestedUser, exists := getUser(request)
+
+	if !exists {
+		NotFoundResponse(writer)
+		return
+	}
+
+	currentUser, err := GetCurrentUser(request)
+
+	if err != nil {
+		// Returning an error response because this shouldn't be possible w/getUser //
+		ErrorResponse(writer, err)
+		return
+	}
+
+	// TODO: Validate they can follow
+
+	if err = currentUser.FollowUser(requestedUser.Id); err != nil {
+		ErrorResponse(writer, err)
+	}
+}
+
+func HandleUnFollowUser(writer http.ResponseWriter, request *http.Request) {
+	requestedUser, exists := getUser(request)
+
+	if !exists {
+		NotFoundResponse(writer)
+		return
+	}
+
+	currentUser, err := GetCurrentUser(request)
+
+	if err != nil {
+		// Returning an error response because this shouldn't be possible //
+		ErrorResponse(writer, err)
+		return
+	}
+
+	// TODO: Validate they can remove retweet
+
+	if err = currentUser.UnFollowUser(requestedUser.Id); err != nil {
+		ErrorResponse(writer, err)
+	}
 }

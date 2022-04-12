@@ -81,18 +81,10 @@ func TestHandleAdminUser(t *testing.T) {
 }
 
 func TestHandleOwnUser(t *testing.T) {
-	response, _, err := makeAuthenticatedRequest("test", http.MethodGet, "/user/self", nil)
-
-	if err != nil {
-		t.Errorf("Error authenticating. %k\n", err)
-	}
+	response, _ := makeAuthenticatedTestRequest(t, "test", http.MethodGet, "/user/self", nil)
 
 	var actualResponse controller.UserResponse
-	body, err := parseResponse(response, &actualResponse)
-
-	if err != nil {
-		t.Fatalf("Error parsing json response. %k\nBody: %s\n", err, string(body))
-	}
+	parseTestResponse(t, response, &actualResponse)
 
 	if actualResponse.User.Username != "test" {
 		t.Errorf(
@@ -103,11 +95,78 @@ func TestHandleOwnUser(t *testing.T) {
 }
 
 func TestHandleFollow(t *testing.T) {
-	
+	// Verify can put //
+	response, _ := makeAuthenticatedTestRequest(
+		t,
+		"test", 
+		http.MethodPut, 
+		"/user/profile/lurker/follow",
+		nil,
+	)
+
+	// Verify updated //
+	response, _ = makeAuthenticatedTestRequest(t, "test", http.MethodGet, "/user/self", nil)
+	var actualResponse controller.OwnUserResponse
+	parseTestResponse(t, response, &actualResponse)
+
+	exists := false
+
+	for _, following := range actualResponse.Following {
+		if following.Username == "lurker" {
+			exists = true
+			break
+		}
+	}
+
+	if !exists {
+		t.Error("Expected 'lurker' to exist")
+	}
+
+	// Verify can delete //
+	makeAuthenticatedTestRequest(
+		t,
+		"test", 
+		http.MethodDelete, 
+		"/user/profile/lurker/follow",
+		nil,
+	)
+
+	// Verify updated //
+	response, _ = makeAuthenticatedTestRequest(t, "test", http.MethodGet, "/user/self", nil)
+	parseResponse(response, &actualResponse)
+
+	exists = false
+
+	for _, following := range actualResponse.Following {
+		if following.Username == "lurker" {
+			exists = true
+			break
+		}
+	}
+
+	if exists {
+		t.Error("Expected 'lurker' to not exist")
+	}
 }
 
 func TestHandleRegister(t *testing.T) {
-	
+	makeTestRequest(
+		t,
+		http.MethodPost, 
+		"/user/register",
+		bytes.NewReader([]byte(`{ "username": "fake", "password": "password", "email": "fake@fake.com" }`)),
+	)
+
+	var actualResponse controller.OwnUserResponse
+	response, _ := makeAuthenticatedTestRequest(t, "fake", http.MethodGet, "/user/self", nil)
+	parseResponse(response, &actualResponse)
+
+	if actualResponse.User.Username != "fake" {
+		t.Errorf(
+			"expected 'fake' got '%s'",
+			actualResponse.User.Username, 
+		)
+	}
 }
 
 func TestHandleUserLogin(t *testing.T) {
@@ -169,7 +228,7 @@ func TestHandleInvalidUserLogin(t *testing.T) {
 	response, _ := makeRequest(	
 		http.MethodPost,
 		"/user/login", 
-		bytes.NewReader([]byte(`{ "Username": "fake", "Password":"fake" }`)),
+		bytes.NewReader([]byte(`{ "username": "not-a-real-user", "password":"not-a-real-user" }`)),
 	)
 
 	if response.StatusCode != http.StatusUnauthorized {
@@ -178,13 +237,59 @@ func TestHandleInvalidUserLogin(t *testing.T) {
 }
 
 func TestHandleCannotFollowSelf(t *testing.T) {
-	
+	response, _, err := makeAuthenticatedRequest(
+		"test", 
+		http.MethodPut, 
+		"/user/profile/test/follow",
+		nil,
+	)
+
+	if err != nil {
+		t.Errorf("Error making authenticated request. %k\n", err)
+	}
+
+	if response.StatusCode != http.StatusBadRequest {
+		t.Errorf("expected Bad Request (400) got %s (%d)", response.Status, response.StatusCode)
+	}
 }
 
 func TestHandleCannotFollowInvalidUser(t *testing.T) {
-	
+	response, _, err := makeAuthenticatedRequest(
+		"test", 
+		http.MethodPut, 
+		"/user/profile/test/follow",
+		nil,
+	)
+
+	if err != nil {
+		t.Errorf("Error making authenticated request. %k\n", err)
+	}
+
+	if response.StatusCode != http.StatusBadRequest {
+		t.Errorf("expected Bad Request (400) got %s (%d)", response.Status, response.StatusCode)
+	}
 }
 
-func TestHandleCannotRegister(t *testing.T) {
-	
+func TestHandleCannotRegisterSameUsername(t *testing.T) {
+	response, _ := makeRequest(
+		http.MethodPost, 
+		"/user/register",
+		bytes.NewReader([]byte(`{ "username": "test", "password": "password", "email": "not-test@example.com" }`)),
+	)
+
+	if response.StatusCode != http.StatusBadRequest {
+		t.Errorf("expected Bad Request (400) got %s (%d)", response.Status, response.StatusCode)
+	}
+}
+
+func TestHandleCannotRegisterHaveInvalidUsername(t *testing.T) {
+	response, _ := makeRequest(
+		http.MethodPost, 
+		"/user/register",
+		bytes.NewReader([]byte(`{ "username": "a user with spaces", "password": "password", "email": "not-test@example.com" }`)),
+	)
+
+	if response.StatusCode != http.StatusBadRequest {
+		t.Errorf("expected Bad Request (400) got %s (%d)", response.Status, response.StatusCode)
+	}
 }

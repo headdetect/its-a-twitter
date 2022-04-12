@@ -75,10 +75,79 @@ func AuthenticatedRequest(loginRequest controller.LoginRequest, request *http.Re
 	return request, nil
 }
 
-func makeRequest(
+// Functions to help with testing happy paths/valid cases //
+
+func makeTestRequest(
+	t *testing.T,
 	method string, 
 	route string, 
 	body io.Reader, 
+) (*http.Response, *http.Request) {
+	writer := httptest.NewRecorder()
+	request := httptest.NewRequest(method, route, body)
+
+	controller.Serve(writer, request)
+
+	response := writer.Result()
+
+	if response.StatusCode != http.StatusOK {
+		t.Errorf("expected OK (200) got %s (%d)", response.Status, response.StatusCode)
+	}
+	
+	return response, request
+}
+
+func makeAuthenticatedTestRequest(
+	t *testing.T,
+	userName string,
+	method string, 
+	route string, 
+	body io.Reader,
+) (*http.Response, *http.Request) {
+	loginRequest := controller.LoginRequest{
+		Username: userName,
+		Password: "password",
+	}
+	
+	writer := httptest.NewRecorder()
+	request, err := AuthenticatedRequest(loginRequest, httptest.NewRequest(method, route, body))
+
+	if err != nil {
+		t.Errorf("Error authenticating. %k\n", err)
+	}
+
+	controller.Serve(writer, request)
+
+	response := writer.Result()
+
+	if response.StatusCode != http.StatusOK {
+		t.Errorf("expected OK (200) got %s (%d)", response.Status, response.StatusCode)
+	}
+
+	return response, request
+}
+
+func parseTestResponse(t *testing.T, response *http.Response, v any) {
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+
+	if err != nil {
+		t.Fatalf("Error reading body response. %k\nBody: %s\n", err, string(body))
+	}
+	
+	err = json.Unmarshal(body, &v)
+
+	if err != nil {
+		t.Fatalf("Error parsing json response. %k\nBody: %s\n", err, string(body))
+	}
+}
+
+// Functions to build own handler for response //
+func makeRequest(
+	method string, 
+	route string, 
+	body io.Reader,
 ) (*http.Response, *http.Request) {
 	writer := httptest.NewRecorder()
 	request := httptest.NewRequest(method, route, body)

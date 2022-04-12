@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -27,33 +26,36 @@ type TweetReactionRequest struct {
 	Reaction string `json:"reaction"`
 }
 
-func getTweet(request *http.Request) (model.Tweet, bool, error) {
+func getTweet(request *http.Request) (model.Tweet, bool) {
 	var tweet model.Tweet
 	requestedTweetId, exists := GetPathValue(request, 0)
 
 	if !exists {
-		return tweet, false, errors.New("Tweet ID was not specified")
+		return tweet, false
 	}
 
 	tweetId, err := strconv.Atoi(requestedTweetId)
 
 	if err != nil {
-		return tweet, false, err 
+		return tweet, false 
 	}
 
 	tweet, err = model.GetTweetById(tweetId)
 
-	return tweet, err == nil, err
+	if err != nil {
+		return tweet, false
+	}
+
+	user, _, err := model.GetUserByTweetId(tweetId)
+
+	tweet.User = &user
+
+	return tweet, true
 }
 
 func HandleGetTweet(writer http.ResponseWriter, request *http.Request) {
-	tweet, exists, err := getTweet(request)
+	tweet, exists := getTweet(request)
 	
-	if err != nil {
-		BadRequestResponse(writer)
-		return
-	}
-
 	if !exists {
 		NotFoundResponse(writer)
 		return
@@ -134,7 +136,12 @@ func HandlePostTweet(writer http.ResponseWriter, request *http.Request) {
 		mediaPath = fullFilePath 
 	}
 
-	tweet, err := model.MakeTweet(currentUser.Id, createTweetRequest.Text, mediaPath)
+	tweet, err := model.MakeTweet(currentUser, createTweetRequest.Text, mediaPath)
+
+	if err != nil {
+		ErrorResponse(writer, err)
+		return
+	}
 
 	response := SingleTweetResponse {
 		Tweet: tweet,
@@ -148,30 +155,33 @@ func HandlePostTweet(writer http.ResponseWriter, request *http.Request) {
 }
 
 func HandleDeleteTweet(writer http.ResponseWriter, request *http.Request) {
-	tweet, exists, err := getTweet(request)
-
-	if err != nil {
-		BadRequestResponse(writer)
-		return
-	}
+	tweet, exists := getTweet(request)
 
 	if !exists {
 		NotFoundResponse(writer)
 		return
 	}
 
-	//TODO: It's their own tweet
+	currentUser, err := GetCurrentUser(request)
 
-	tweet.DeleteTweet()
+	if err != nil {
+		// Returning an error response because this shouldn't be possible //
+		ErrorResponse(writer, err)
+		return
+	}
+
+  if tweet.User.Id != currentUser.Id {
+		ForbiddenResponse(writer)
+		return
+	}
+
+	if err = tweet.DeleteTweet(); err != nil {
+		BadRequestResponse(writer)
+	}
 }
 
 func HandleRetweet(writer http.ResponseWriter, request *http.Request) {
-	tweet, exists, err := getTweet(request)
-
-	if err != nil {
-		BadRequestResponse(writer)
-		return
-	}
+	tweet, exists := getTweet(request)
 
 	if !exists {
 		NotFoundResponse(writer)
@@ -186,18 +196,19 @@ func HandleRetweet(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	// TODO: Validate they can retweet
+	if tweet.User.Id == currentUser.Id {
+		// Not allowed to retweet self //
+		BadRequestResponse(writer)
+		return
+	}
 
-	tweet.MakeRetweet(currentUser.Id)
+	if err = tweet.MakeRetweet(currentUser.Id); err != nil {
+		BadRequestResponse(writer)
+	}
 }
 
 func HandleRemoveRetweet(writer http.ResponseWriter, request *http.Request) {
-	tweet, exists, err := getTweet(request)
-
-	if err != nil {
-		BadRequestResponse(writer)
-		return
-	}
+	tweet, exists := getTweet(request)
 
 	if !exists {
 		NotFoundResponse(writer)
@@ -212,18 +223,13 @@ func HandleRemoveRetweet(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	// TODO: Validate they can remove retweet
-
-	tweet.DeleteRetweet(currentUser.Id)
+	if err = tweet.DeleteRetweet(currentUser.Id); err != nil {
+		BadRequestResponse(writer)
+	}
 }
 
 func HandleReactTweet(writer http.ResponseWriter, request *http.Request) {
-	tweet, exists, err := getTweet(request)
-
-	if err != nil {
-		BadRequestResponse(writer)
-		return
-	}
+	tweet, exists := getTweet(request)
 
 	if !exists {
 		NotFoundResponse(writer)
@@ -247,18 +253,38 @@ func HandleReactTweet(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	// TODO: validate no reacts on own tweet
-
-	tweet.MakeReaction(currentUser.Id, tweetReactionRequest.Reaction)
-}
-
-func HandleRemoveReactTweet(writer http.ResponseWriter, request *http.Request) {
-	tweet, exists, err := getTweet(request)
-
-	if err != nil {
+	if tweet.User.Id == currentUser.Id {
+		// Not allowed to react to own tweet //
 		BadRequestResponse(writer)
 		return
 	}
+
+	if tweetReactionRequest.Reaction == "" {
+		BadRequestResponse(writer)
+	}
+
+	// [scaling]
+	// The valid emotes should be in some dynamic data store like a database
+	// so a new app deploy wouldn't be required to add or remove.
+	valid := false
+	for _, reaction := range []string{ "👏", "🎉", "😔", "❤️", "👍", "👎" } {
+		if reaction == tweetReactionRequest.Reaction {
+			valid = true
+			break
+		}
+	}
+
+	if !valid {
+		BadRequestResponse(writer)
+	}
+
+	if err = tweet.MakeReaction(currentUser.Id, tweetReactionRequest.Reaction); err != nil {
+		BadRequestResponse(writer)
+	}
+}
+
+func HandleRemoveReactTweet(writer http.ResponseWriter, request *http.Request) {
+	tweet, exists := getTweet(request)
 
 	if !exists {
 		NotFoundResponse(writer)
@@ -272,8 +298,8 @@ func HandleRemoveReactTweet(writer http.ResponseWriter, request *http.Request) {
 		ErrorResponse(writer, err)
 		return
 	}
-
-	// TODO: Validate
-
-	tweet.DeleteReaction(currentUser.Id)
+	
+	if err = tweet.DeleteReaction(currentUser.Id); err != nil {
+		BadRequestResponse(writer)
+	}
 }
