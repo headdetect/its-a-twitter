@@ -257,7 +257,7 @@ func TestHandleCannotFollowInvalidUser(t *testing.T) {
 	response, _, err := makeAuthenticatedRequest(
 		"test",
 		http.MethodPut,
-		"/user/profile/test/follow",
+		"/user/profile/notarealuser/follow",
 		nil,
 	)
 
@@ -265,8 +265,8 @@ func TestHandleCannotFollowInvalidUser(t *testing.T) {
 		t.Errorf("Error making authenticated request. %k\n", err)
 	}
 
-	if response.StatusCode != http.StatusBadRequest {
-		t.Errorf("expected Bad Request (400) got %s (%d)", response.Status, response.StatusCode)
+	if response.StatusCode != http.StatusNotFound {
+		t.Errorf("expected Not Found (404) got %s (%d)", response.Status, response.StatusCode)
 	}
 }
 
@@ -277,8 +277,8 @@ func TestHandleCannotRegisterSameUsername(t *testing.T) {
 		bytes.NewReader([]byte(`{ "username": "test", "password": "password", "email": "not-test@example.com" }`)),
 	)
 
-	if response.StatusCode != http.StatusBadRequest {
-		t.Errorf("expected Bad Request (400) got %s (%d)", response.Status, response.StatusCode)
+	if response.StatusCode != http.StatusConflict {
+		t.Errorf("expected Conflict (409) got %s (%d)", response.Status, response.StatusCode)
 	}
 }
 

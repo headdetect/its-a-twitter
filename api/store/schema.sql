@@ -1,6 +1,6 @@
 create table if not exists users (
   id integer not null primary key, 
-  username text not null,
+  username text not null unique,
   password text not null,
   email text not null,
   createdAt integer not null
@@ -20,7 +20,7 @@ create table if not exists tweets (
   id integer not null primary key, 
   userId integer not null,
   text text not null,
-  mediaPath string,
+  mediaPath string unique,
   createdAt integer not null,
 
   foreign key (userId) references users (id) on delete cascade

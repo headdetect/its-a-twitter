@@ -14,7 +14,7 @@ type MiddlewareFunc func(http.Handler) http.Handler
 
 var ContextKeys struct{}
 
-type route struct {
+type routeInfo struct {
 	method  string
 	path    string // Will be compiled to regex //
 	handler http.HandlerFunc
@@ -23,73 +23,100 @@ type route struct {
 	middlewares []MiddlewareFunc
 }
 
-var routes = []route{
-	// Root //
-	{method: "GET", path: "/", handler: HandleRoot},
+// A regex compiled version of the struct above //
+type Route struct {
+	method  string
+	path    *regexp.Regexp
+	handler http.HandlerFunc
 
-	// Timeline //
-	{method: "GET", path: "/timeline", handler: HandleTimeline, middlewares: []MiddlewareFunc{AuthMiddleware()}},
-
-	// Users //
-	{method: "GET", path: "/user/self", handler: HandleOwnUser, middlewares: []MiddlewareFunc{AuthMiddleware()}},
-	{method: "POST", path: "/user/login", handler: HandleUserLogin},
-	{method: "POST", path: "/user/register", handler: HandleUserRegister},
-	{method: "GET", path: "/user/profile/([^/]+)", handler: HandleUser},
-	{method: "PUT", path: "/user/profile/([^/]+)/follow", handler: HandleFollowUser, middlewares: []MiddlewareFunc{AuthMiddleware()}},
-	{method: "DELETE", path: "/user/profile/([^/]+)/follow", handler: HandleUnFollowUser, middlewares: []MiddlewareFunc{AuthMiddleware()}},
-
-	// Tweets //
-	{method: "GET", path: "/tweet/([\\d^/]+)", handler: HandleGetTweet}, // No auth required //
-	{method: "POST", path: "/tweet", handler: HandlePostTweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
-	{method: "DELETE", path: "/tweet/([\\d^/]+)", handler: HandleDeleteTweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
-	{method: "PUT", path: "/tweet/([\\d^/]+)/retweet", handler: HandleRetweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
-	{method: "DELETE", path: "/tweet/([\\d^/]+)/retweet", handler: HandleRemoveRetweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
-	{method: "PUT", path: "/tweet/([\\d^/]+)/react", handler: HandleReactTweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
-	{method: "DELETE", path: "/tweet/([\\d^/]+)/react", handler: HandleRemoveReactTweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+	middlewares []MiddlewareFunc
 }
 
-func Serve(writer http.ResponseWriter, request *http.Request) {
-	defer request.Body.Close()
+func ServeWithRoutes(routes []Route) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		defer request.Body.Close()
 
-	// Default middleware that is always enabled //
-	logMiddle := LogMiddleware()
-	corsMiddle := CorsMiddleware()
+		// Default middleware that is always enabled //
+		logMiddle := LogMiddleware()
+		corsMiddle := CorsMiddleware()
 
-	for _, route := range routes {
-		pattern := regexp.MustCompile(fmt.Sprintf("^%s$", route.path))
-		matches := pattern.FindStringSubmatch(request.URL.Path)
+		for _, route := range routes {
+			matches := route.path.FindStringSubmatch(request.URL.Path)
 
-		if len(matches) > 0 {
-			if request.Method != route.method {
-				continue
+			if len(matches) > 0 {
+				if request.Method != route.method {
+					continue
+				}
+
+				log.Println(request.Context(), ContextKeys, matches[1:])
+
+				ctx := context.WithValue(request.Context(), ContextKeys, matches[1:])
+				newContextRequest := request.WithContext(ctx)
+
+				var next http.Handler = route.handler
+
+				for i := len(route.middlewares) - 1; i >= 0; i-- {
+					ware := route.middlewares[i]
+					next = ware(next)
+				}
+
+				// Default middlewares //
+				wares := logMiddle(corsMiddle(next))
+
+				wares.ServeHTTP(writer, newContextRequest)
+
+				return
 			}
+		}
 
-			log.Println(request.Context(), ContextKeys, matches[1:])
+		http.NotFound(writer, request)
+	}
+}
 
-			ctx := context.WithValue(request.Context(), ContextKeys, matches[1:])
-			newContextRequest := request.WithContext(ctx)
+func MakeRoutes() (routes []Route) {
+	routeInfos := []routeInfo{
+		// Root //
+		{method: "GET", path: "/", handler: HandleRoot},
 
-			var next http.Handler = route.handler
+		// Timeline //
+		{method: "GET", path: "/timeline", handler: HandleTimeline, middlewares: []MiddlewareFunc{AuthMiddleware()}},
 
-			for i := len(route.middlewares) - 1; i >= 0; i-- {
-				ware := route.middlewares[i]
-				next = ware(next)
-			}
+		// Users //
+		{method: "GET", path: "/user/self", handler: HandleOwnUser, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+		{method: "POST", path: "/user/login", handler: HandleUserLogin},
+		{method: "POST", path: "/user/register", handler: HandleUserRegister},
+		{method: "GET", path: "/user/profile/([^/]+)", handler: HandleUser},
+		{method: "PUT", path: "/user/profile/([^/]+)/follow", handler: HandleFollowUser, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+		{method: "DELETE", path: "/user/profile/([^/]+)/follow", handler: HandleUnFollowUser, middlewares: []MiddlewareFunc{AuthMiddleware()}},
 
-			// Default middlewares //
-			wares := logMiddle(corsMiddle(next))
+		// Tweets //
+		{method: "GET", path: "/tweet/([\\d^/]+)", handler: HandleGetTweet}, // No auth required //
+		{method: "POST", path: "/tweet", handler: HandlePostTweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+		{method: "DELETE", path: "/tweet/([\\d^/]+)", handler: HandleDeleteTweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+		{method: "PUT", path: "/tweet/([\\d^/]+)/retweet", handler: HandleRetweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+		{method: "DELETE", path: "/tweet/([\\d^/]+)/retweet", handler: HandleRemoveRetweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+		{method: "PUT", path: "/tweet/([\\d^/]+)/react", handler: HandleReactTweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+		{method: "DELETE", path: "/tweet/([\\d^/]+)/react", handler: HandleRemoveReactTweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+	}
 
-			wares.ServeHTTP(writer, newContextRequest)
+	routes = make([]Route, len(routeInfos))
 
-			return
+	for i, info := range routeInfos {
+		routes[i] = Route{
+			method:      info.method,
+			path:        regexp.MustCompile(fmt.Sprintf("^%s$", info.path)),
+			handler:     info.handler,
+			middlewares: info.middlewares,
 		}
 	}
 
-	http.NotFound(writer, request)
+	return
 }
 
 func StartRouter() {
+	routes := MakeRoutes()
+	routerServe := ServeWithRoutes(routes)
 	port, _ := utils.GetIntOrDefault("API_PORT", 5555)
-	handler := http.HandlerFunc(Serve)
+	handler := http.HandlerFunc(routerServe)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), handler))
 }

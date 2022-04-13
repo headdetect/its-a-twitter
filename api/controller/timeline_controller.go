@@ -22,6 +22,11 @@ func HandleTimeline(writer http.ResponseWriter, request *http.Request) {
 
 	tweets, err := currentUser.GetTimeline(25)
 
+	if err != nil {
+		ErrorResponse(writer, err)
+		return
+	}
+
 	response := TimelineResponse{
 		Tweets: tweets,
 	}

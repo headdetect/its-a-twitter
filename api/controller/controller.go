@@ -68,6 +68,11 @@ func NotFoundResponse(writer http.ResponseWriter) {
 	JsonResponse(writer, []byte(`{ "message": "Specified resource was not found" }`))
 }
 
+func ConflictRequestResponse(writer http.ResponseWriter) {
+	writer.WriteHeader(http.StatusConflict)
+	JsonResponse(writer, []byte(`{ "message": "Specified resource already exists" }`))
+}
+
 func ErrorResponse(writer http.ResponseWriter, err error) {
 	writer.WriteHeader(http.StatusInternalServerError)
 	JsonResponse(writer, []byte(fmt.Sprintf(`{ "message": "We messed up somehow. Strange. We never mess up", "error": "%k" }`, err)))

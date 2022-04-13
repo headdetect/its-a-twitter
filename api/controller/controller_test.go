@@ -20,6 +20,8 @@ import (
 
 var currentUser *model.User
 
+var ControllerServe http.HandlerFunc
+
 func TestMain(m *testing.M) {
 	log.Println("Loading env")
 	err := godotenv.Load("../.env")
@@ -32,6 +34,9 @@ func TestMain(m *testing.M) {
 
 	log.Println("Loading database")
 	store.LoadDatabase(true)
+
+	routes := controller.MakeRoutes()
+	ControllerServe = controller.ServeWithRoutes(routes)
 
 	m.Run()
 
@@ -78,7 +83,7 @@ func AuthenticatedRequest(loginRequest controller.LoginRequest, request *http.Re
 // Functions to help with testing happy paths/valid cases //
 
 func makeTestRequest(
-	t *testing.T,
+	t testing.TB,
 	method string,
 	route string,
 	body io.Reader,
@@ -86,7 +91,7 @@ func makeTestRequest(
 	writer := httptest.NewRecorder()
 	request := httptest.NewRequest(method, route, body)
 
-	controller.Serve(writer, request)
+	ControllerServe(writer, request)
 
 	response := writer.Result()
 
@@ -98,7 +103,7 @@ func makeTestRequest(
 }
 
 func makeAuthenticatedTestRequest(
-	t *testing.T,
+	t testing.TB,
 	userName string,
 	method string,
 	route string,
@@ -116,7 +121,7 @@ func makeAuthenticatedTestRequest(
 		t.Errorf("Error authenticating. %k\n", err)
 	}
 
-	controller.Serve(writer, request)
+	ControllerServe(writer, request)
 
 	response := writer.Result()
 
@@ -127,7 +132,7 @@ func makeAuthenticatedTestRequest(
 	return response, request
 }
 
-func parseTestResponse(t *testing.T, response *http.Response, v any) {
+func parseTestResponse(t testing.TB, response *http.Response, v any) {
 	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
@@ -152,7 +157,7 @@ func makeRequest(
 	writer := httptest.NewRecorder()
 	request := httptest.NewRequest(method, route, body)
 
-	controller.Serve(writer, request)
+	ControllerServe(writer, request)
 
 	response := writer.Result()
 
@@ -177,7 +182,7 @@ func makeAuthenticatedRequest(
 		return nil, nil, err
 	}
 
-	controller.Serve(writer, request)
+	ControllerServe(writer, request)
 
 	response := writer.Result()
 

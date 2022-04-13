@@ -3,6 +3,8 @@ package controller
 import (
 	"encoding/json"
 	"net/http"
+	"regexp"
+	"strings"
 
 	"github.com/headdetect/its-a-twitter/api/model"
 	"github.com/headdetect/its-a-twitter/api/utils"
@@ -163,6 +165,14 @@ func HandleUserRegister(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
+	if match, err := regexp.MatchString("^[a-z0-9_-]*$", registerUserRequest.Username); !match || err != nil {
+		// This should be handled from client side. 
+		// No need to get specific on the error
+
+		BadRequestResponse(writer)
+		return
+	}
+
 	hashedPassword, err := utils.HashPassword(registerUserRequest.Password)
 
 	if err != nil {
@@ -171,8 +181,15 @@ func HandleUserRegister(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	if _, err := model.MakeUser(registerUserRequest.Email, registerUserRequest.Username, hashedPassword); err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "unique constraint failed") {
+
+			// These are traditionally reserved for PUT requests
+			// but in this case it makes sense too
+			ConflictRequestResponse(writer)
+			return
+		}
+		
 		BadRequestResponse(writer)
-		return
 	}
 }
 
@@ -239,7 +256,10 @@ func HandleFollowUser(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	// TODO: Validate they can follow
+	if requestedUser.Id == currentUser.Id {
+		BadRequestResponse(writer)
+		return
+	}
 
 	if err = currentUser.FollowUser(requestedUser.Id); err != nil {
 		ErrorResponse(writer, err)

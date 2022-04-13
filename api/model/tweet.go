@@ -38,9 +38,15 @@ func MakeTweet(user User, text string, mediaPath string) (Tweet, error) {
 
 	createdAt := time.Now().Unix()
 
+	sqlMediaPath := sql.NullString{}
+
+	if mediaPath != "" {
+		sqlMediaPath.String = mediaPath
+	}
+
 	res, err := store.DB.Exec(
 		"insert into tweets (userId, text, mediaPath, createdAt) values (?, ?, ?, ?)",
-		user.Id, text, mediaPath, createdAt,
+		user.Id, text, sqlMediaPath, createdAt,
 	)
 
 	if err != nil {
