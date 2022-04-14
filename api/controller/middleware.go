@@ -32,6 +32,13 @@ func LogMiddleware() MiddlewareFunc {
 func CorsMiddleware() MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+			// [Scaling]
+			// This should not be so permissive. It should restrict based on an approved
+			// list of origins
+			writer.Header().Set("Access-Control-Allow-Origin", "*")
+			writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+			writer.Header().Set("Access-Control-Allow-Headers", "*")
+
 			next.ServeHTTP(writer, request)
 		})
 	}

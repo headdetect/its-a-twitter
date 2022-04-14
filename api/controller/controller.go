@@ -42,7 +42,6 @@ func GetPathValue(request *http.Request, index int) (string, bool) {
 
 func JsonResponse(writer http.ResponseWriter, response []byte) {
 	writer.Header().Set("Content-Type", "application/json")
-	writer.Header().Set("Access-Control-Allow-Origin", "*")
 
 	writer.WriteHeader(http.StatusOK)
 	writer.Write(response)

@@ -6,7 +6,7 @@
  *
  * This will return the following:
  *   toFixedNoRounding(9.9999, 1) -> "9.9" which is good and makes sense
- * 
+ *
  * @param num
  * @param dec
  * @returns {string}
@@ -19,14 +19,14 @@ export function toFixedNoRounding(num, dec = 2) {
 /**
  * Returns the shorthand version of the specified number.
  * Numbers below 10k can have a single decimal.
- * 
+ *
  * Eg:
  *  - 1040830 => 1M
  *  - 3049 => 3K
  *  - 5108 => 5.1K
  *  - 9999 => 9.9k
- * @param {*} value 
- * @returns 
+ * @param {*} value
+ * @returns
  */
 export function shortHandNumber(value) {
   if (value >= 1000000000) {

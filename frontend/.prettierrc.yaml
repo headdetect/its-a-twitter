@@ -1,0 +1,15 @@
+trailingComma: "all"
+tabWidth: 2
+arrowParens: "avoid"
+
+overrides:
+  - files: "**/*.js"
+    options:
+      parser: typescript
+
+  - files: ["*.json"]
+    options:
+      parser: json5
+      quoteProps: preserve
+      singleQuote: false
+      trailingComma: all

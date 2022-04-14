@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strings"
 
 	"github.com/headdetect/its-a-twitter/api/utils"
 )
@@ -32,6 +33,17 @@ type Route struct {
 	middlewares []MiddlewareFunc
 }
 
+func serveNotFound(writer http.ResponseWriter, request *http.Request) {
+	NotFoundResponse(writer)
+}
+
+func serveOptions(options []string) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header().Add("Allow", strings.Join(options, ","))
+		writer.WriteHeader(http.StatusOK)
+	}
+}
+
 func ServeWithRoutes(routes []Route) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		defer request.Body.Close()
@@ -40,10 +52,17 @@ func ServeWithRoutes(routes []Route) http.HandlerFunc {
 		logMiddle := LogMiddleware()
 		corsMiddle := CorsMiddleware()
 
+		allowedMethods := make([]string, 1)
+
 		for _, route := range routes {
 			matches := route.path.FindStringSubmatch(request.URL.Path)
 
 			if len(matches) > 0 {
+				if request.Method == http.MethodOptions {
+					allowedMethods = append(allowedMethods, route.method)
+					continue
+				}
+
 				if request.Method != route.method {
 					continue
 				}
@@ -60,16 +79,24 @@ func ServeWithRoutes(routes []Route) http.HandlerFunc {
 					next = ware(next)
 				}
 
-				// Default middlewares //
 				wares := logMiddle(corsMiddle(next))
-
 				wares.ServeHTTP(writer, newContextRequest)
 
+				// Default middlewares //
 				return
 			}
 		}
 
-		http.NotFound(writer, request)
+		if request.Method == http.MethodOptions {
+			var next http.HandlerFunc = serveOptions(allowedMethods)
+			wares := logMiddle(corsMiddle(next))
+			wares.ServeHTTP(writer, request)
+			return
+		}
+
+		var next http.HandlerFunc = serveNotFound
+		wares := logMiddle(corsMiddle(next))
+		wares.ServeHTTP(writer, request)
 	}
 }
 
@@ -83,6 +110,7 @@ func MakeRoutes() (routes []Route) {
 
 		// Users //
 		{method: "GET", path: "/user/self", handler: HandleOwnUser, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+		{method: "PUT", path: "/user/self", handler: HandleUpdateOwnUser, middlewares: []MiddlewareFunc{AuthMiddleware()}},
 		{method: "POST", path: "/user/login", handler: HandleUserLogin},
 		{method: "POST", path: "/user/register", handler: HandleUserRegister},
 		{method: "GET", path: "/user/profile/([^/]+)", handler: HandleUser},

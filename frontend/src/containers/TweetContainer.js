@@ -1,5 +1,5 @@
 /**
- * @fileoverview Container that gives the ability to tweet, retweet, post 
+ * @fileoverview Container that gives the ability to tweet, retweet, post
  * media, fetch timelines. Do anything surrounding tweeting.
  */
 import React from "react";
@@ -13,25 +13,15 @@ export function Provider(props) {
   const { authenticatedFetch } = useHttpService();
   const userContext = UserContainer.useContext();
 
-  const tweet = React.useCallback((text, media) => {
+  const tweet = React.useCallback((text, media) => {}, []);
 
-  }, []);
+  const deleteTweet = React.useCallback(tweetId => {}, []);
 
-  const deleteTweet = React.useCallback((tweetId) => {
+  const retweet = React.useCallback(tweetId => {}, []);
 
-  }, []);
+  const fetchTimeline = React.useCallback(() => {}, []);
 
-  const retweet = React.useCallback((tweetId) => {
-
-  }, []);
-
-  const fetchTimeline = React.useCallback(() => {
-
-  }, []);
-
-  const reactToTweet = React.useCallback((tweetId) => {
-
-  }, []);
+  const reactToTweet = React.useCallback(tweetId => {}, []);
 
   return (
     <Context.Provider
@@ -40,7 +30,7 @@ export function Provider(props) {
         deleteTweet,
         retweet,
         fetchTimeline,
-        reactToTweet
+        reactToTweet,
       }}
     >
       {props.children}
@@ -50,16 +40,12 @@ export function Provider(props) {
 
 export function useContext() {
   const context = React.useContext(Context);
-  
+
   if (!context) {
     throw new Error(
-      "container can only be used in the context of a TweetContainer.Provider"
+      "container can only be used in the context of a TweetContainer.Provider",
     );
   }
 
   return context;
 }
-
-Provider.propTypes = {
-  children: PropTypes.element.isRequired,
-};

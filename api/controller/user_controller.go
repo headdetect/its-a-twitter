@@ -109,6 +109,10 @@ func HandleOwnUser(writer http.ResponseWriter, request *http.Request) {
 	JsonResponse(writer, jsonResponse)
 }
 
+func HandleUpdateOwnUser(writer http.ResponseWriter, request *http.Request) {
+
+}
+
 func HandleUser(writer http.ResponseWriter, request *http.Request) {
 	requestedUser, exists := getUser(request)
 
@@ -166,7 +170,7 @@ func HandleUserRegister(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	if match, err := regexp.MatchString("^[a-z0-9_-]*$", registerUserRequest.Username); !match || err != nil {
-		// This should be handled from client side. 
+		// This should be handled from client side.
 		// No need to get specific on the error
 
 		BadRequestResponse(writer)
@@ -188,7 +192,7 @@ func HandleUserRegister(writer http.ResponseWriter, request *http.Request) {
 			ConflictRequestResponse(writer)
 			return
 		}
-		
+
 		BadRequestResponse(writer)
 	}
 }
@@ -281,8 +285,6 @@ func HandleUnFollowUser(writer http.ResponseWriter, request *http.Request) {
 		ErrorResponse(writer, err)
 		return
 	}
-
-	// TODO: Validate they can remove retweet
 
 	if err = currentUser.UnFollowUser(requestedUser.Id); err != nil {
 		ErrorResponse(writer, err)

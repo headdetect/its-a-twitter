@@ -22,7 +22,6 @@ import (
 	suffice. Just don't plan to have this be production grade.
 */
 
-// TODO: Make this a struct and make local to that struct
 var DB *sql.DB
 
 func LoadDatabase(overwrite bool) {
