@@ -8,6 +8,20 @@ import (
 	"github.com/headdetect/its-a-twitter/api/controller"
 )
 
+// As test. UserId = 2
+
+// Follows. UserId = 1, 3
+// Tweets from followed. TweetId = 1, 2, 4, 5, 6
+// Retweets from followed. TweetId = 1 (dup), 3 (own), 7
+
+// Timeline should be:
+// tweetId, retweetUserId
+// 7, 3
+// 6, null
+// 5, null
+// 4, null
+// 2, null
+// 1, null
 func TestHandleTimeline(t *testing.T) {
 	var actualResponse controller.TimelineResponse
 	response, _ := makeAuthenticatedTestRequest(t, "test", http.MethodGet, "/timeline", nil)
@@ -27,8 +41,8 @@ func TestHandleTimeline(t *testing.T) {
 	}
 
 	for i, tweetId := range validTweetIds {
-		if tweets[i].Id != tweetId {
-			t.Errorf("Expected Tweet ID to be %d. Got %d\n", tweetId, tweets[i].Id)
+		if tweets[i].Tweet.Id != tweetId {
+			t.Errorf("Expected Tweet ID to be %d. Got %d\n", tweetId, tweets[i].Tweet.Id)
 		}
 	}
 
@@ -76,8 +90,8 @@ func TestHandleTimeline(t *testing.T) {
 	}
 
 	for i, tweetId := range validTweetIds {
-		if tweets[i].Id != tweetId {
-			t.Errorf("Expected Tweet ID to be %d. Got %d.\n", tweetId, tweets[i].Id)
+		if tweets[i].Tweet.Id != tweetId {
+			t.Errorf("Expected Tweet ID to be %d. Got %d.\n", tweetId, tweets[i].Tweet.Id)
 		}
 	}
 }

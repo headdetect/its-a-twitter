@@ -214,9 +214,9 @@ func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	for authToken, val := range sessions {
+	for authToken, val := range Sessions {
 		if val.Id == user.Id {
-			delete(sessions, authToken)
+			delete(Sessions, authToken)
 			break
 		}
 	}
@@ -241,7 +241,7 @@ func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {
 
 	JsonResponse(writer, jsonResponse)
 
-	sessions[authToken] = user
+	Sessions[authToken] = user
 }
 
 func HandleFollowUser(writer http.ResponseWriter, request *http.Request) {

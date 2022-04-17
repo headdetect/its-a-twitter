@@ -92,6 +92,10 @@ insert into retweets (userId, tweetId) values (
   3, 7
 );
 
+insert into retweets (userId, tweetId) values (
+  3, 3
+);
+
 insert into reactions (userId, tweetId, reaction) values (
   2, 1, '👏'
 );

@@ -11,24 +11,34 @@ import (
 
 type Tweet struct {
 	Id        int    `json:"id"`
-	User      *User  `json:"user"`
+	User      User   `json:"user"`
 	Text      string `json:"text"`
 	MediaPath string `json:"mediaPath"` // TODO: Do we replace this with a dynamic hashed version of the id?
 
 	CreatedAt int64 `json:"createdAt"`
 }
 
+type TimelineTweet struct {
+	Tweet Tweet `json:"tweet"`
+
+	Poster    int  `json:"poster"`
+	Retweeter *int `json:"retweeter"`
+
+	ReactionCount map[string]int `json:"reactionCount"` // A reaction & count map //
+	RetweetCount  int            `json:"retweetCount"`
+}
+
 type Retweet struct {
-	Tweet *Tweet `json:"tweet"`
-	User  *User  `json:"user"`
+	Tweet Tweet `json:"tweet"`
+	User  User  `json:"user"`
 
 	CreatedAt int64 `json:"createdAt"`
 }
 
 type Reaction struct {
-	Tweet    *Tweet `json:"tweet"`
+	Tweet    Tweet  `json:"tweet"`
 	Reaction string `json:"reaction"`
-	User     *User  `json:"user"`
+	User     User   `json:"user"`
 
 	CreatedAt int64 `json:"createdAt"`
 }
@@ -65,7 +75,7 @@ func MakeTweet(user User, text string, mediaPath string) (Tweet, error) {
 
 	tweet.Id = int(id)
 	tweet.CreatedAt = createdAt
-	tweet.User = &user // Use copied version of `user` //
+	tweet.User = user
 	tweet.Text = text
 	tweet.MediaPath = mediaPath
 

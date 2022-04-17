@@ -5,12 +5,14 @@
   --primary: #6056d1;
   
   --text: #0c0c0d;
+  --text-subtitle: #313133;
   --background: #fafafa;
   --background-dark: #f4f4f8;
   --background-darker: rgb(220, 220, 227);
+  --border: rgba(0, 0, 0, 0.16);
 }
 
-html, body, .app {
+html, body, #root, .app {
   height: 100%;
   width: 100%;
 }

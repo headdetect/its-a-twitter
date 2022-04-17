@@ -8,7 +8,10 @@ import (
 )
 
 type TimelineResponse struct {
-	Tweets []model.Tweet
+	Tweets []model.TimelineTweet `json:"tweets"`
+
+	// A list of users that are mentioned in the timeline //
+	Users []model.User `json:"users"`
 }
 
 func HandleTimeline(writer http.ResponseWriter, request *http.Request) {
@@ -20,7 +23,7 @@ func HandleTimeline(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	tweets, err := currentUser.GetTimeline(25)
+	tweets, users, err := currentUser.GetTimeline(25)
 
 	if err != nil {
 		ErrorResponse(writer, err)
@@ -29,6 +32,7 @@ func HandleTimeline(writer http.ResponseWriter, request *http.Request) {
 
 	response := TimelineResponse{
 		Tweets: tweets,
+		Users:  users,
 	}
 
 	jsonResponse, err := json.Marshal(response)

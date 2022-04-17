@@ -3,19 +3,19 @@
  * and gives the ability to log a user in otherwise.
  */
 import React from "react";
-import PropTypes from "prop-types";
-import useHttpService from "hooks/useHttpService";
 import useEffectOnce from "hooks/useEffectOnce";
+
+import * as AuthContainer from "containers/AuthContainer";
 
 export const Context = React.createContext(null);
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 export function Provider(props) {
-  const { authenticatedFetch, saveCredentials, clearCredentials } = useHttpService();
+  const { authenticatedFetch, saveCredentials } = AuthContainer.useContext();
+
   const [currentUser, setCurrentUser] = React.useState(null);
-  const [isFinishedInitializing, setIsFinishedInitializing] =
-    React.useState(false);
+  const [autoLoginStatus, setAutoLoginStatus] = React.useState("init"); // init | loading | finished | error
 
   const logout = React.useCallback(() => {
     setCurrentUser(null);
@@ -76,7 +76,7 @@ export function Provider(props) {
       const response = await authenticatedFetch(`${API_URL}/user/self`);
 
       if (response.status === 401) {
-        throw new Error("Not logged in.");
+        return null;
       }
 
       const obj = await response.json();
@@ -93,6 +93,8 @@ export function Provider(props) {
     const username = localStorage.getItem("username");
 
     if (authToken && username) {
+      setAutoLoginStatus("loading");
+
       saveCredentials(authToken, username);
 
       getOwnUser()
@@ -103,23 +105,34 @@ export function Provider(props) {
             logout();
           }
         })
-        .catch(logout)
-        .finally(() => setIsFinishedInitializing(true));
+        .catch(err => {
+          setAutoLoginStatus("error");
+        })
+        .finally(() => setAutoLoginStatus("finished"));
     } else {
-      setIsFinishedInitializing(true);
+      setAutoLoginStatus("finished");
     }
-  }, [logout, getOwnUser, saveCredentials, setIsFinishedInitializing]);
+  }, [logout, getOwnUser, saveCredentials, setAutoLoginStatus]);
+
+  const followUser = React.useCallback(tweetId => {}, []);
+  const unfollowUser = React.useCallback(tweetId => {}, []);
 
   return (
     <Context.Provider
       value={{
-        isLoggedIn: currentUser !== null,
-        currentUser,
+        // Actions //
         login,
         updateProfilePic,
+        followUser,
+        unfollowUser,
+
+        // State //
+        isLoggedIn: currentUser !== null,
+        currentUser,
+        autoLoginStatus,
       }}
     >
-      {isFinishedInitializing && props.children}
+      {props.children}
     </Context.Provider>
   );
 }

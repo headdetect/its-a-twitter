@@ -48,7 +48,7 @@ func getTweet(request *http.Request) (model.Tweet, bool) {
 
 	user, _, err := model.GetUserByTweetId(tweetId)
 
-	tweet.User = &user
+	tweet.User = user
 
 	return tweet, true
 }

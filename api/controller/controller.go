@@ -8,7 +8,7 @@ import (
 	"github.com/headdetect/its-a-twitter/api/model"
 )
 
-var sessions map[string]model.User = make(map[string]model.User) // [authToken] = user
+var Sessions map[string]model.User = make(map[string]model.User) // [authToken] = user
 
 // TODO Make these helper funcs private
 
@@ -21,7 +21,7 @@ func GetCurrentUser(request *http.Request) (model.User, error) {
 	// that is associated with the token
 	authUsername := request.Header.Get("Username")
 
-	if user, ok := sessions[authToken]; ok {
+	if user, ok := Sessions[authToken]; ok {
 		if authUsername == user.Username {
 			return user, nil
 		}

@@ -2,6 +2,7 @@ import React from "react";
 
 /**
  * Is essentially a hook that assets/throws it should be ran once.
+ * But for all intents and purposes, acts like a regular @React.useEffect}
  *
  * @param {React.EffectCallback} effect The effect to run
  * @param {React.DependencyList} deps The dependencies to pass into the hook
