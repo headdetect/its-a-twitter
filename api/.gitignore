@@ -2,4 +2,4 @@
 
 *.db
 
-./sessions.dat
+sessions.dat
