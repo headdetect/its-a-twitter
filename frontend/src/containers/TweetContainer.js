@@ -18,12 +18,6 @@ export function Provider(props) {
   const [timelineUsers, setTimelineUsers] = React.useState(undefined);
   const [timelineStatus, setTimelineStatus] = React.useState("init"); // init | loading | finished | error
 
-  const tweet = React.useCallback((text, media) => {}, []);
-
-  const deleteTweet = React.useCallback(tweetId => {}, []);
-
-  const retweet = React.useCallback(tweetId => {}, []);
-
   const refreshTimeline = React.useCallback(
     async filter => {
       setTimelineStatus("loading");
@@ -55,16 +49,131 @@ export function Provider(props) {
     [authenticatedFetch],
   );
 
-  const reactToTweet = React.useCallback(tweetId => {}, []);
-  const removeRetweet = React.useCallback(tweetId => {}, []);
-  const addReaction = React.useCallback(tweetId => {}, []);
-  const removeReaction = React.useCallback(tweetId => {}, []);
+  const tweet = React.useCallback(
+    async (text, media) => {
+      // TODO: Post medias
+
+      const response = await authenticatedFetch(`${API_URL}/tweet`, {
+        method: "POST",
+        body: JSON.stringify({ text }),
+      });
+
+      if (response.status === 401) {
+        // TODO: Make the user log-in
+        return;
+      }
+    },
+    [authenticatedFetch],
+  );
+
+  const deleteTweet = React.useCallback(
+    async tweetId => {
+      const response = await authenticatedFetch(`${API_URL}/tweet/${tweetId}`, {
+        method: "DELETE",
+      });
+
+      if (response.status === 401) {
+        // TODO: Make the user log-in
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Error deleting tweet");
+      }
+    },
+    [authenticatedFetch],
+  );
+
+  const retweet = React.useCallback(
+    async tweetId => {
+      const response = await authenticatedFetch(
+        `${API_URL}/tweet/${tweetId}/retweet`,
+        {
+          method: "PUT",
+        },
+      );
+
+      if (response.status === 401) {
+        // TODO: Make the user log-in
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Error retweeting");
+      }
+    },
+    [authenticatedFetch],
+  );
+
+  const removeRetweet = React.useCallback(
+    async tweetId => {
+      const response = await authenticatedFetch(
+        `${API_URL}/tweet/${tweetId}/retweet`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      if (response.status === 401) {
+        // TODO: Make the user log-in
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Error removing retweet");
+      }
+    },
+    [authenticatedFetch],
+  );
+
+  const addReaction = React.useCallback(
+    async (tweetId, reaction) => {
+      const response = await authenticatedFetch(
+        `${API_URL}/tweet/${tweetId}/react/${reaction}`,
+        {
+          method: "PUT",
+        },
+      );
+
+      if (response.status === 401) {
+        // TODO: Make the user log-in
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Error adding reaction");
+      }
+    },
+    [authenticatedFetch],
+  );
+
+  const removeReaction = React.useCallback(
+    async (tweetId, reaction) => {
+      const response = await authenticatedFetch(
+        `${API_URL}/tweet/${tweetId}/react/${reaction}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      if (response.status === 401) {
+        // TODO: Make the user log-in
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Error removing reaction");
+      }
+    },
+    [authenticatedFetch],
+  );
 
   React.useEffect(() => {
     // We're okay with this running multiple times. It should reload
     // the timeline every time the login state is set to true
 
     if (!isLoggedIn) {
+      // TODO: Remove this when we have un-auth'd timelines
       return;
     }
 

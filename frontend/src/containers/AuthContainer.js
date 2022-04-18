@@ -13,17 +13,22 @@ export function Provider(props) {
   });
 
   const authenticatedFetch = React.useCallback((url, options = {}) => {
-    const { headers = {}, ...otherOptions } = options;
+    try {
+      const { headers = {}, ...otherOptions } = options;
 
-    const authenticatedOptions = {
-      headers: {
-        ...authCredentials.current,
-        ...headers,
-      },
-      ...otherOptions,
-    };
+      const authenticatedOptions = {
+        headers: {
+          ...authCredentials.current,
+          ...headers,
+        },
+        ...otherOptions,
+      };
 
-    return fetch(url, authenticatedOptions);
+      return fetch(url, authenticatedOptions);
+    } catch (e) {
+      // Consume and rethrow for the caller to catch //
+      throw e;
+    }
   }, []);
 
   const saveCredentials = React.useCallback((authToken, username) => {

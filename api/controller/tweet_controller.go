@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -236,6 +237,30 @@ func HandleReactTweet(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
+	reaction, exists := GetPathValue(request, 1)
+
+	if !exists {
+		NotFoundResponse(writer)
+		return
+	}
+
+	// [scaling]
+	// The valid emotes should be in some dynamic data store like a database
+	// so a new app deploy wouldn't be required to add or remove.
+	valid := false
+	for _, r := range model.AllowedReactions {
+		if r == reaction {
+			valid = true
+			break
+		}
+	}
+
+	if !valid {
+		log.Println("Invalid reaction")
+		BadRequestResponse(writer)
+		return
+	}
+
 	currentUser, err := GetCurrentUser(request)
 
 	if err != nil {
@@ -244,41 +269,16 @@ func HandleReactTweet(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	var tweetReactionRequest TweetReactionRequest
-
-	err = json.NewDecoder(request.Body).Decode(&tweetReactionRequest)
-
-	if err != nil {
-		BadRequestResponse(writer)
-		return
-	}
-
 	if tweet.User.Id == currentUser.Id {
-		// Not allowed to react to own tweet //
+		log.Println("Cannot react on own tweet", tweet.User.Id, tweet.User.Username, tweet.Id, currentUser.Username)
+
+		// cannot react to own tweets //
 		BadRequestResponse(writer)
 		return
 	}
 
-	if tweetReactionRequest.Reaction == "" {
-		BadRequestResponse(writer)
-	}
-
-	// [scaling]
-	// The valid emotes should be in some dynamic data store like a database
-	// so a new app deploy wouldn't be required to add or remove.
-	valid := false
-	for _, reaction := range []string{"👏", "🎉", "😔", "❤️", "👍", "👎"} {
-		if reaction == tweetReactionRequest.Reaction {
-			valid = true
-			break
-		}
-	}
-
-	if !valid {
-		BadRequestResponse(writer)
-	}
-
-	if err = tweet.MakeReaction(currentUser.Id, tweetReactionRequest.Reaction); err != nil {
+	if err = tweet.MakeReaction(currentUser.Id, reaction); err != nil {
+		log.Println("Idk. Something else", err)
 		BadRequestResponse(writer)
 	}
 }
@@ -291,6 +291,29 @@ func HandleRemoveReactTweet(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
+	reaction, exists := GetPathValue(request, 1)
+
+	if !exists {
+		NotFoundResponse(writer)
+		return
+	}
+
+	// [scaling]
+	// The valid emotes should be in some dynamic data store like a database
+	// so a new app deploy wouldn't be required to add or remove.
+	valid := false
+	for _, r := range model.AllowedReactions {
+		if r == reaction {
+			valid = true
+			break
+		}
+	}
+
+	if !valid {
+		BadRequestResponse(writer)
+		return
+	}
+
 	currentUser, err := GetCurrentUser(request)
 
 	if err != nil {
@@ -299,7 +322,7 @@ func HandleRemoveReactTweet(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	if err = tweet.DeleteReaction(currentUser.Id); err != nil {
+	if err = tweet.DeleteReaction(currentUser.Id, reaction); err != nil {
 		BadRequestResponse(writer)
 	}
 }

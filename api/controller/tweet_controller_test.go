@@ -28,10 +28,10 @@ func TestHandleGetTweet(t *testing.T) {
 		)
 	}
 
-	count, ok := actualResponse.ReactionCount["🎉"]
+	count, ok := actualResponse.ReactionCount["party"]
 
 	if !ok {
-		t.Errorf("expected '🎉' to exist\n")
+		t.Errorf("expected 'party' to exist\n")
 	}
 
 	if count != 2 {
@@ -95,28 +95,28 @@ func TestHandleRetweet(t *testing.T) {
 }
 
 func TestHandleReactTweet(t *testing.T) {
-	var actualResponse controller.SingleTweetResponse
+	var initialResponse controller.SingleTweetResponse
+	response, _ := makeTestRequest(t, http.MethodGet, "/tweet/7", nil)
+	parseTestResponse(t, response, &initialResponse)
 
-	response, _ := makeTestRequest(t, http.MethodGet, "/tweet/1", nil)
-	parseTestResponse(t, response, &actualResponse)
-
-	count := actualResponse.ReactionCount["🎉"]
+	count := initialResponse.ReactionCount["party"]
 
 	// Verify can put //
 	makeAuthenticatedTestRequest(
 		t,
 		"lily",
 		http.MethodPut,
-		"/tweet/1/react",
-		bytes.NewReader([]byte(`{ "reaction": "🎉" }`)),
+		"/tweet/7/react/party",
+		nil,
 	)
 
 	// Verify updated //
-	response, _ = makeTestRequest(t, http.MethodGet, "/tweet/1", nil)
-	parseTestResponse(t, response, &actualResponse)
+	var updatedResponse controller.SingleTweetResponse
+	response, _ = makeTestRequest(t, http.MethodGet, "/tweet/7", nil)
+	parseTestResponse(t, response, &updatedResponse)
 
-	if actualResponse.ReactionCount["🎉"] != count+1 {
-		t.Errorf("Expecting %d got %d\n", count+1, actualResponse.ReactionCount["🎉"])
+	if updatedResponse.ReactionCount["party"] != count+1 {
+		t.Errorf("Expecting %d got %d\n", count+1, updatedResponse.ReactionCount["party"])
 	}
 
 	// Verify can delete //
@@ -124,16 +124,17 @@ func TestHandleReactTweet(t *testing.T) {
 		t,
 		"lily",
 		http.MethodDelete,
-		"/tweet/1/react",
+		"/tweet/7/react/party",
 		nil,
 	)
 
 	// Verify updated //
-	response, _ = makeTestRequest(t, http.MethodGet, "/tweet/1", nil)
-	parseTestResponse(t, response, &actualResponse)
+	var deletedResponse controller.SingleTweetResponse
+	response, _ = makeTestRequest(t, http.MethodGet, "/tweet/7", nil)
+	parseTestResponse(t, response, &deletedResponse)
 
-	if actualResponse.ReactionCount["🎉"] != count {
-		t.Errorf("Expecting %d got %d\n", count, actualResponse.ReactionCount["🎉"])
+	if deletedResponse.ReactionCount["party"] != count {
+		t.Errorf("Expecting %d got %d\n", count, deletedResponse.ReactionCount["party"])
 	}
 }
 
@@ -154,8 +155,8 @@ func TestHandleCannotReactOwnTweet(t *testing.T) {
 	response, _, err := makeAuthenticatedRequest(
 		"admin",
 		http.MethodPut,
-		"/tweet/1/react",
-		bytes.NewReader([]byte(`{ "reaction": "🎉" }`)),
+		"/tweet/1/react/🎉",
+		nil,
 	)
 
 	if err != nil {
@@ -171,8 +172,8 @@ func TestHandleCannotReactInvalid(t *testing.T) {
 	response, _, err := makeAuthenticatedRequest(
 		"lily",
 		http.MethodPut,
-		"/tweet/1/react",
-		bytes.NewReader([]byte(`{ "reaction": "not-a-real-reaction" }`)),
+		"/tweet/1/react/not-a-real-reaction",
+		nil,
 	)
 
 	if err != nil {
@@ -222,8 +223,8 @@ func TestHandleCannotReactInvalidTweet(t *testing.T) {
 	response, _, err := makeAuthenticatedRequest(
 		"admin",
 		http.MethodPut,
-		"/tweet/asdfasdf/react",
-		bytes.NewReader([]byte(`{ "reaction": "🎉" }`)),
+		"/tweet/asdfasdf/react/party",
+		nil,
 	)
 
 	if err != nil {
@@ -232,23 +233,6 @@ func TestHandleCannotReactInvalidTweet(t *testing.T) {
 
 	if response.StatusCode != http.StatusNotFound {
 		t.Errorf("expected Not Found (404) got %s (%d)", response.Status, response.StatusCode)
-	}
-}
-
-func TestHandleCannotReactWithNothing(t *testing.T) {
-	response, _, err := makeAuthenticatedRequest(
-		"admin",
-		http.MethodPut,
-		"/tweet/2/react",
-		nil,
-	)
-
-	if err != nil {
-		t.Errorf("Error making authenticated request. %k\n", err)
-	}
-
-	if response.StatusCode != http.StatusBadRequest {
-		t.Errorf("expected Bad Request (400) got %s (%d)", response.Status, response.StatusCode)
 	}
 }
 

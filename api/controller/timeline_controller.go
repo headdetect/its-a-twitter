@@ -10,8 +10,8 @@ import (
 type TimelineResponse struct {
 	Tweets []model.TimelineTweet `json:"tweets"`
 
-	// A list of users that are mentioned in the timeline //
-	Users []model.User `json:"users"`
+	// A map of users (id : user) that are mentioned in the timeline //
+	Users map[int]model.User `json:"users"`
 }
 
 func HandleTimeline(writer http.ResponseWriter, request *http.Request) {
@@ -23,7 +23,7 @@ func HandleTimeline(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	tweets, users, err := currentUser.GetTimeline(25)
+	tweets, users, err := model.GetTimeline(currentUser.Id, 25)
 
 	if err != nil {
 		ErrorResponse(writer, err)

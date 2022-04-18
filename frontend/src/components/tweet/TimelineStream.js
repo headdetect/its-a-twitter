@@ -27,9 +27,30 @@ export default function TimelineStream(props) {
 
     return (
       <div className="timeline-stream">
-        {timeline.map(tweet => (
-          <Tweet key={tweet.id} tweet={tweet} retweets={0} reactions={0} />
-        ))}
+        {timeline.map(timelineTweet => {
+          const user = timelineUsers[timelineTweet.posterUserId];
+          const retweetUser = timelineUsers[timelineTweet.retweeterUserId];
+          const {
+            tweet,
+            reactionCount,
+            retweetCount,
+            userReactions,
+            userRetweeted,
+          } = timelineTweet;
+
+          return (
+            <Tweet
+              key={tweet.id}
+              tweet={tweet}
+              user={user}
+              retweetUser={retweetUser}
+              retweets={retweetCount}
+              reactions={reactionCount}
+              userReactions={userReactions}
+              userRetweeted={userRetweeted}
+            />
+          );
+        })}
       </div>
     );
   }

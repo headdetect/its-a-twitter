@@ -7,7 +7,7 @@ import LoginForm from "components/user/LoginForm";
 import RegistrationForm from "components/user/RegistrationForm";
 
 export default function Page({ children, title = "" }) {
-  const { isLoggedIn, currentUser } = UserContainer.useContext();
+  const { isLoggedIn, currentUser, logout } = UserContainer.useContext();
 
   const [userPanelType, setUserPanelType] = React.useState(null);
 
@@ -24,7 +24,10 @@ export default function Page({ children, title = "" }) {
           {title && <h1>{title}</h1>}
 
           {isLoggedIn ? (
-            <>Hi {currentUser.username}</>
+            <div>
+              Hi {currentUser.username}.{" "}
+              <button onClick={() => logout()}>Log out?</button>
+            </div>
           ) : (
             <div>
               <button onClick={() => setUserPanelType("login")}>Log in</button>

@@ -18,16 +18,6 @@ type Tweet struct {
 	CreatedAt int64 `json:"createdAt"`
 }
 
-type TimelineTweet struct {
-	Tweet Tweet `json:"tweet"`
-
-	Poster    int  `json:"poster"`
-	Retweeter *int `json:"retweeter"`
-
-	ReactionCount map[string]int `json:"reactionCount"` // A reaction & count map //
-	RetweetCount  int            `json:"retweetCount"`
-}
-
 type Retweet struct {
 	Tweet Tweet `json:"tweet"`
 	User  User  `json:"user"`
@@ -42,6 +32,9 @@ type Reaction struct {
 
 	CreatedAt int64 `json:"createdAt"`
 }
+
+// It's technically not a const, but we treat it as one //
+var AllowedReactions = [...]string{"clap", "party", "sad", "heart", "thumbsup", "thumbsdown"}
 
 func MakeTweet(user User, text string, mediaPath string) (Tweet, error) {
 	var tweet Tweet
@@ -141,10 +134,10 @@ func (t *Tweet) MakeReaction(userId int, reaction string) (err error) {
 	return
 }
 
-func (t *Tweet) DeleteReaction(userId int) (err error) {
+func (t *Tweet) DeleteReaction(userId int, reaction string) (err error) {
 	_, err = store.DB.Exec(
-		"delete from reactions where tweetId = ? and userId = ?",
-		t.Id, userId,
+		"delete from reactions where tweetId = ? and userId = ? and reaction = ?",
+		t.Id, userId, reaction,
 	)
 
 	return
@@ -186,4 +179,42 @@ func (t *Tweet) RetweetCount() (count int, err error) {
 	).Scan(&count)
 
 	return
+}
+
+func (t *Tweet) UserRetweeted(userId int) (bool, error) {
+	var count int
+
+	err := store.DB.QueryRow(
+		"select count(*) from retweets where tweetId = ? and userId = ?",
+		t.Id, userId,
+	).Scan(&count)
+
+	return count == 1, err
+}
+
+func (t *Tweet) UserReactions(userId int) ([]string, error) {
+	reactions := make([]string, 0)
+
+	rows, err := store.DB.Query(
+		"select reaction from reactions where tweetId = ? and userId = ?",
+		t.Id, userId,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var reaction string
+
+		if err = rows.Scan(&reaction); err != nil {
+			return nil, err
+		}
+
+		reactions = append(reactions, reaction)
+	}
+
+	return reactions, err
 }

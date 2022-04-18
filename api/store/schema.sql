@@ -43,6 +43,4 @@ create table if not exists reactions (
 
   foreign key (userId) references users (id) on delete cascade
   foreign key (tweetId) references tweets (id) on delete cascade
-
-  primary key (userId, tweetId)
 );

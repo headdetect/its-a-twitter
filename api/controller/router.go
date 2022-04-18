@@ -123,8 +123,8 @@ func MakeRoutes() (routes []Route) {
 		{method: "DELETE", path: "/tweet/([\\d^/]+)", handler: HandleDeleteTweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
 		{method: "PUT", path: "/tweet/([\\d^/]+)/retweet", handler: HandleRetweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
 		{method: "DELETE", path: "/tweet/([\\d^/]+)/retweet", handler: HandleRemoveRetweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
-		{method: "PUT", path: "/tweet/([\\d^/]+)/react", handler: HandleReactTweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
-		{method: "DELETE", path: "/tweet/([\\d^/]+)/react", handler: HandleRemoveReactTweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+		{method: "PUT", path: "/tweet/([\\d^/]+)/react/([^/]+)", handler: HandleReactTweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+		{method: "DELETE", path: "/tweet/([\\d^/]+)/react/([^/]+)", handler: HandleRemoveReactTweet, middlewares: []MiddlewareFunc{AuthMiddleware()}},
 	}
 
 	routes = make([]Route, len(routeInfos))

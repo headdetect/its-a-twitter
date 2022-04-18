@@ -122,6 +122,7 @@ export function Provider(props) {
       value={{
         // Actions //
         login,
+        logout,
         updateProfilePic,
         followUser,
         unfollowUser,
