@@ -5,7 +5,7 @@ import Tweet from "components/tweet/Tweet";
 
 import "./TimelineStream.css";
 
-export default function TimelineStream(props) {
+export default function TimelineStream() {
   const { timelineStatus, timeline, timelineUsers } =
     TweetContainer.useContext();
 

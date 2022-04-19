@@ -3,7 +3,6 @@
  * and gives the ability to log a user in otherwise.
  */
 import React from "react";
-import useEffectOnce from "hooks/useEffectOnce";
 
 import * as AuthContainer from "containers/AuthContainer";
 
@@ -11,129 +10,77 @@ export const Context = React.createContext(null);
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-export function Provider(props) {
-  const { authenticatedFetch, saveCredentials } = AuthContainer.useContext();
+export function Provider({ children, profileUsername = null }) {
+  const { authenticatedFetch, saveCredentials, loggedInUser } =
+    AuthContainer.useContext();
 
-  const [currentUser, setCurrentUser] = React.useState(null);
-  const [autoLoginStatus, setAutoLoginStatus] = React.useState("init"); // init | loading | finished | error
+  const [profileUser, setProfileUser] = React.useState(undefined);
+  const [profileUserStatus, setProfileUserStatus] = React.useState("loading"); // loading | finished | error
 
-  const logout = React.useCallback(() => {
-    setCurrentUser(null);
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("username");
-  }, []);
+  const [loggedInUserFollowing, setLoggedInUserFollowing] = React.useState([]);
 
-  const login = React.useCallback(
-    async (username, password) => {
-      if (currentUser) {
-        // Log out first //
-        logout();
-      }
-
-      let response;
-
-      try {
-        response = await fetch(`${API_URL}/user/login`, {
-          method: "POST",
-          body: JSON.stringify({
-            username,
-            password,
-          }),
-        });
-      } catch (e) {
-        console.error(e);
-        throw new Error("There was a problem logging in. Try again.");
-      }
-
-      if (response.status === 401) {
-        throw new Error("Invalid username or password.");
-      }
-
-      try {
-        const { user, authToken } = await response.json();
-
-        if (!user || !authToken) {
-          // Bubbles up to this try's catch //
-          throw new Error();
-        }
-
-        localStorage.setItem("authToken", authToken);
-        localStorage.setItem("username", user.username);
-        setCurrentUser(user);
-      } catch (e) {
-        throw new Error("Server sent some weird stuff back. Try again.");
-      }
-    },
-    [currentUser, logout],
+  const followingUser = React.useMemo(
+    () =>
+      profileUser
+        ? Boolean(loggedInUserFollowing.find(f => f.id === profileUser.id))
+        : false,
+    [loggedInUserFollowing, profileUser],
   );
 
-  const updateProfilePic = React.useCallback(async pic => {
-    // TODO
-  }, []);
+  const updateProfilePic = React.useCallback(async pic => {}, []);
+  const followUser = React.useCallback(async username => {}, []);
+  const unfollowUser = React.useCallback(async username => {}, []);
 
-  const getOwnUser = React.useCallback(async () => {
-    try {
-      const response = await authenticatedFetch(`${API_URL}/user/self`);
+  const loadProfileUser = React.useCallback(
+    async username => {
+      try {
+        const response = await authenticatedFetch(
+          `${API_URL}/user/profile/${username}`,
+        );
 
-      if (response.status === 401) {
-        return null;
+        if (response.status === 401) {
+          setProfileUserStatus("error");
+          return;
+        }
+
+        const obj = await response.json();
+
+        if (obj.user) {
+          setProfileUser(obj.user);
+          setProfileUserStatus("finished");
+        } else {
+          setProfileUserStatus("error");
+        }
+      } catch (e) {
+        setProfileUserStatus("error");
       }
+    },
+    [authenticatedFetch],
+  );
 
-      const obj = await response.json();
-
-      return obj;
-    } catch (e) {
-      console.error(e);
-      throw new Error("There was a problem logging in. Try again.");
+  React.useEffect(() => {
+    if (profileUsername) {
+      loadProfileUser(profileUsername);
     }
-  }, [authenticatedFetch]);
 
-  useEffectOnce(() => {
-    const authToken = localStorage.getItem("authToken");
-    const username = localStorage.getItem("username");
-
-    if (authToken && username) {
-      setAutoLoginStatus("loading");
-
-      saveCredentials(authToken, username);
-
-      getOwnUser()
-        .then(user => {
-          if (user?.user) {
-            setCurrentUser(user.user);
-          } else {
-            logout();
-          }
-        })
-        .catch(err => {
-          setAutoLoginStatus("error");
-        })
-        .finally(() => setAutoLoginStatus("finished"));
-    } else {
-      setAutoLoginStatus("finished");
-    }
-  }, [logout, getOwnUser, saveCredentials, setAutoLoginStatus]);
-
-  const followUser = React.useCallback(tweetId => {}, []);
-  const unfollowUser = React.useCallback(tweetId => {}, []);
+    // TODO: Get all of the logged in user's followers
+  }, [profileUsername, loadProfileUser]);
 
   return (
     <Context.Provider
       value={{
         // Actions //
-        login,
-        logout,
         updateProfilePic,
         followUser,
         unfollowUser,
 
         // State //
-        isLoggedIn: currentUser !== null,
-        currentUser,
-        autoLoginStatus,
+        profileUser,
+        profileUserStatus,
+        followingUser,
       }}
     >
-      {props.children}
+      {children}
     </Context.Provider>
   );
 }

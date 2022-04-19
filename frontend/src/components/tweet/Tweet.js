@@ -1,6 +1,6 @@
 import React from "react";
 
-import * as UserContainer from "containers/UserContainer";
+import * as AuthContainer from "containers/AuthContainer";
 import * as TweetContainer from "containers/TweetContainer";
 
 import "./Tweet.css";
@@ -26,7 +26,7 @@ export default function Tweet({
   userReactions = [],
   userRetweeted,
 }) {
-  const userContext = UserContainer.useContext();
+  const authContext = AuthContainer.useContext();
   const tweetContext = TweetContainer.useContext();
 
   const handleRetweet = async () => {
@@ -78,7 +78,7 @@ export default function Tweet({
             ))}
           </div>
           <button>share</button>
-          {user.id === userContext.currentUser.id && (
+          {user.id === authContext.loggedInUser.id && (
             <button onClick={handleDeleteTweet}>delete</button>
           )}
         </div>

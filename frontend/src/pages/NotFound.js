@@ -11,25 +11,19 @@ import CraftTweet from "components/tweet/CraftTweet";
 export default function Timeline() {
   return (
     <AuthContainer.Provider>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          height: "100%",
-          width: "100%",
-        }}
-      >
-        <UserContainer.Provider>
-          <Page title="Timeline">
-            <TweetContainer.Provider>
-              <CraftTweet />
-
-              <TimelineStream />
-            </TweetContainer.Provider>
-          </Page>
-        </UserContainer.Provider>
-      </div>
+      <UserContainer.Provider>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            height: "100%",
+            width: "100%",
+          }}
+        >
+          <Page>Idk how you got here bruv</Page>
+        </div>
+      </UserContainer.Provider>
     </AuthContainer.Provider>
   );
 }

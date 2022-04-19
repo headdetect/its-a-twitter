@@ -5,10 +5,10 @@ import * as UserContainer from "containers/UserContainer";
 import * as TweetContainer from "containers/TweetContainer";
 
 import TimelineStream from "components/tweet/TimelineStream";
+import ProfileInfo from "components/user/ProfileInfo";
 import Page from "components/Page";
-import CraftTweet from "components/tweet/CraftTweet";
 
-export default function Timeline() {
+export default function Profile({ username }) {
   return (
     <AuthContainer.Provider>
       <div
@@ -20,11 +20,10 @@ export default function Timeline() {
           width: "100%",
         }}
       >
-        <UserContainer.Provider>
-          <Page title="Timeline">
+        <UserContainer.Provider profileUsername={username}>
+          <Page title={`@${username}`}>
             <TweetContainer.Provider>
-              <CraftTweet />
-
+              <ProfileInfo />
               <TimelineStream />
             </TweetContainer.Provider>
           </Page>

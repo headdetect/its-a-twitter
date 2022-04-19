@@ -10,21 +10,19 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 export const Context = React.createContext(null);
 
-export function Provider(props) {
-  const { authenticatedFetch } = AuthContainer.useContext();
-  const { isLoggedIn, currentUser } = UserContainer.useContext();
+export function Provider({ children }) {
+  const { authenticatedFetch, isLoggedIn, loggedInUser } =
+    AuthContainer.useContext();
 
   const [timeline, setTimeline] = React.useState(undefined);
   const [timelineUsers, setTimelineUsers] = React.useState(undefined);
-  const [timelineStatus, setTimelineStatus] = React.useState("init"); // init | loading | finished | error
+  const [timelineStatus, setTimelineStatus] = React.useState("loading"); // loading | finished | error
 
   const refreshTimeline = React.useCallback(
-    async filter => {
-      setTimelineStatus("loading");
-
+    async username => {
       try {
         const response = await authenticatedFetch(
-          `${API_URL}/timeline${filter ? `?filter=${filter}` : ""}`,
+          `${API_URL}/timeline${username ? `/${username}` : ""}`,
         );
 
         if (response.status === 401) {
@@ -71,7 +69,7 @@ export function Provider(props) {
 
       const timelineTweet = {
         tweet: body.tweet,
-        posterUserId: currentUser.id,
+        posterUserId: loggedInUser.id,
         reactionCount: {},
         retweetCount: 0,
         retweeterUserId: null,
@@ -81,7 +79,7 @@ export function Provider(props) {
 
       setTimeline(oldTimeline => [timelineTweet, ...oldTimeline]);
     },
-    [authenticatedFetch, currentUser],
+    [authenticatedFetch, loggedInUser],
   );
 
   const deleteTweet = React.useCallback(
@@ -252,7 +250,7 @@ export function Provider(props) {
     // the timeline every time the login state is set to true
 
     if (!isLoggedIn) {
-      // TODO: Remove this when we have un-auth'd timelines
+      setTimeline([]);
       return;
     }
 
@@ -277,7 +275,7 @@ export function Provider(props) {
         timelineStatus,
       }}
     >
-      {props.children}
+      {children}
     </Context.Provider>
   );
 }
