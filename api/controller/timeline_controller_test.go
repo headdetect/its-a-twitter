@@ -12,7 +12,7 @@ import (
 
 // Follows. UserId = 1, 3
 // Tweets from followed. TweetId = 1, 2, 4, 5, 6
-// Retweets from followed. TweetId = 1 (dup), 3 (own), 7
+// Retweets from followed. TweetId = 1 (dup), 3, 7
 
 // Timeline should be:
 // tweetId, retweetUserId
@@ -20,6 +20,7 @@ import (
 // 6, null
 // 5, null
 // 4, null
+// 3, null
 // 2, null
 // 1, null
 func TestHandleTimeline(t *testing.T) {
@@ -30,7 +31,7 @@ func TestHandleTimeline(t *testing.T) {
 	tweets := actualResponse.Tweets
 
 	// Verify state from seeded value //
-	validTweetIds := []int{7, 6, 5, 4, 2, 1}
+	validTweetIds := []int{7, 6, 5, 4, 3, 2, 1}
 
 	if len(tweets) != len(validTweetIds) {
 		t.Errorf(

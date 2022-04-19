@@ -1,0 +1,10 @@
+.craft-tweet-container {
+  width: 100%;
+  max-width: 600px;
+  
+  padding: calc(var(--spacing) * 2);
+}
+
+.craft-tweet {
+  margin-bottom: var(--spacing);
+}

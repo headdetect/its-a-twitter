@@ -12,7 +12,7 @@ export const Context = React.createContext(null);
 
 export function Provider(props) {
   const { authenticatedFetch } = AuthContainer.useContext();
-  const { isLoggedIn } = UserContainer.useContext();
+  const { isLoggedIn, currentUser } = UserContainer.useContext();
 
   const [timeline, setTimeline] = React.useState(undefined);
   const [timelineUsers, setTimelineUsers] = React.useState(undefined);
@@ -62,8 +62,26 @@ export function Provider(props) {
         // TODO: Make the user log-in
         return;
       }
+
+      const body = await response.json();
+
+      if (!body.tweet) {
+        throw new Error("Server returned something unexpected");
+      }
+
+      const timelineTweet = {
+        tweet: body.tweet,
+        posterUserId: currentUser.id,
+        reactionCount: {},
+        retweetCount: 0,
+        retweeterUserId: null,
+        userReactions: [],
+        userRetweeted: false,
+      };
+
+      setTimeline(oldTimeline => [timelineTweet, ...oldTimeline]);
     },
-    [authenticatedFetch],
+    [authenticatedFetch, currentUser],
   );
 
   const deleteTweet = React.useCallback(
@@ -80,6 +98,10 @@ export function Provider(props) {
       if (!response.ok) {
         throw new Error("Error deleting tweet");
       }
+
+      setTimeline(oldTimeline =>
+        oldTimeline.filter(t => t.tweet.id !== tweetId),
+      );
     },
     [authenticatedFetch],
   );
@@ -101,6 +123,18 @@ export function Provider(props) {
       if (!response.ok) {
         throw new Error("Error retweeting");
       }
+
+      setTimeline(line =>
+        line.map(t => {
+          if (t.tweet.id !== tweetId) return t;
+
+          return {
+            ...t,
+            userRetweeted: true,
+            retweetCount: t.retweetCount + 1,
+          };
+        }),
+      );
     },
     [authenticatedFetch],
   );
@@ -122,6 +156,18 @@ export function Provider(props) {
       if (!response.ok) {
         throw new Error("Error removing retweet");
       }
+
+      setTimeline(line =>
+        line.map(t => {
+          if (t.tweet.id !== tweetId) return t;
+
+          return {
+            ...t,
+            userRetweeted: false,
+            retweetCount: t.retweetCount - 1,
+          };
+        }),
+      );
     },
     [authenticatedFetch],
   );
@@ -143,6 +189,24 @@ export function Provider(props) {
       if (!response.ok) {
         throw new Error("Error adding reaction");
       }
+
+      setTimeline(line =>
+        line.map(t => {
+          if (t.tweet.id !== tweetId) return t;
+
+          return {
+            ...t,
+            userReactions: [
+              ...t.userReactions.filter(r => r !== reaction), // filter out any in case they exists //
+              reaction,
+            ],
+            reactionCount: {
+              ...t.reactionCount,
+              [`${reaction}`]: (t.reactionCount[reaction] || 0) + 1,
+            },
+          };
+        }),
+      );
     },
     [authenticatedFetch],
   );
@@ -164,6 +228,21 @@ export function Provider(props) {
       if (!response.ok) {
         throw new Error("Error removing reaction");
       }
+
+      setTimeline(line =>
+        line.map(t => {
+          if (t.tweet.id !== tweetId) return t;
+
+          return {
+            ...t,
+            userReactions: t.userReactions.filter(r => r !== reaction),
+            reactionCount: {
+              ...t.reactionCount,
+              [`${reaction}`]: t.reactionCount[reaction] - 1,
+            },
+          };
+        }),
+      );
     },
     [authenticatedFetch],
   );

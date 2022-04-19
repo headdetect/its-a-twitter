@@ -47,15 +47,14 @@ func GetTimeline(userId int, count int) ([]TimelineTweet, map[int]User, error) {
 					from tweets t
 					join follows f on f.followedUserId = t.userId
 					join users u on f.followedUserId = u.id
-					where f.userId = $1
+					where f.userId = $1 or t.userId = $1
 				union
 				select rt.tweetId as tweetId, f.followedUserId as retweeterId
 					from follows f
 					join retweets rt on rt.userId = f.followedUserId
 					where f.userId = $1
-			) followedTweets on followedTweets.tweetId = t.id
+			) followedTweets on followedTweets.tweetId = t.id or t.userId = $1
 			join users u on u.id = t.userId
-			where t.userId != $1
 			group by t.id
 			order by t.createdAt desc`,
 			userId,
