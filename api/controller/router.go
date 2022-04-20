@@ -52,7 +52,7 @@ func ServeWithRoutes(routes []Route) http.HandlerFunc {
 		logMiddle := LogMiddleware()
 		corsMiddle := CorsMiddleware()
 
-		allowedMethods := make([]string, 1)
+		allowedMethods := make([]string, 0)
 
 		for _, route := range routes {
 			matches := route.path.FindStringSubmatch(request.URL.Path)

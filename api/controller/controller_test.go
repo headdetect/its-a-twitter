@@ -43,6 +43,18 @@ func TestMain(m *testing.M) {
 	os.Exit(0)
 }
 
+func TestOptionRequest(t *testing.T) {
+	response, _ := makeRequest(
+		http.MethodOptions,
+		"/user/self",
+		nil,
+	)
+
+	if response.Header.Get("Allow") != "GET,PUT" {
+		t.Errorf("expected 'GET,PUT' got %s", response.Header.Get("Allow"))
+	}
+}
+
 func login(request controller.LoginRequest) (controller.LoginResponse, *http.Response, error) {
 	response, _ := makeRequest(
 		http.MethodPost,
