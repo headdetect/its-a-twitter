@@ -46,7 +46,7 @@ export function Provider({ children, profileUsername = null }) {
         const obj = await response.json();
 
         if (obj.user) {
-          setProfileUser(obj.user);
+          setProfileUser(obj);
           setProfileUserStatus("finished");
         } else {
           setProfileUserStatus("error");

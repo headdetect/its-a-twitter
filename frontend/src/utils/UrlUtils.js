@@ -160,7 +160,7 @@ export function insertAnchorElements(text, anchorStyle = {}) {
           rel="noopener noreferrer"
         >
           {link}
-        </a>
+        </a>,
       );
     } else {
       // The link is invalid, treat as regular text //

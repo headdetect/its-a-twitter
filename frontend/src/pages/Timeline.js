@@ -32,33 +32,49 @@ export function Presenter() {
 }
 
 function Timeline() {
-  const authContext = AuthContainer.useContext();
-  const tweetContext = TweetContainer.useContext();
+  const { isLoggedIn } = AuthContainer.useContext();
+  const {
+    setTimeline,
+    refreshTimeline,
+    timelineStatus,
+    timeline,
+    timelineUsers,
+    ...tweetActions
+  } = TweetContainer.useContext();
 
-  if (tweetContext.timelineStatus === "loading") {
+  React.useEffect(() => {
+    // We're okay with this running multiple times. It should reload
+    // the timeline every time the login state is set to true
+
+    if (!isLoggedIn) {
+      setTimeline([]);
+      return;
+    }
+
+    refreshTimeline();
+  }, [setTimeline, refreshTimeline, isLoggedIn]);
+
+  if (timelineStatus === "loading") {
     return <>Loading...</>;
   }
 
   if (
-    tweetContext.timelineStatus === "error" ||
-    (tweetContext.timelineStatus === "finished" && !tweetContext.timeline)
+    timelineStatus === "error" ||
+    (timelineStatus === "finished" && !timeline)
   ) {
     return <>TODO: Error loading them hoes</>;
   }
 
   return (
     <>
-      <CraftTweet onTweet={tweetContext.tweet} />
+      <CraftTweet onTweet={tweetActions.tweet} />
 
       <div className="timeline-stream">
-        {tweetContext.timeline.length === 0 && (
-          <>There&apos;s nothing here :(</>
-        )}
+        {timeline.length === 0 && <>There&apos;s nothing here :(</>}
 
-        {tweetContext.timeline.map(timelineTweet => {
-          const user = tweetContext.timelineUsers[timelineTweet.posterUserId];
-          const retweetUser =
-            tweetContext.timelineUsers[timelineTweet.retweeterUserId];
+        {timeline.map(timelineTweet => {
+          const user = timelineUsers[timelineTweet.posterUserId];
+          const retweetUser = timelineUsers[timelineTweet.retweeterUserId];
 
           return (
             <Tweet
@@ -66,13 +82,12 @@ function Timeline() {
               user={user}
               timelineTweet={timelineTweet}
               retweetUser={retweetUser}
-              isOwnTweet={user.id === authContext.loggedInUser.id}
               // Actions //
-              onRemoveRetweet={tweetContext.removeRetweet}
-              onRetweet={tweetContext.retweet}
-              onRemoveReaction={tweetContext.removeReaction}
-              onReaction={tweetContext.addReaction}
-              onDeleteTweet={tweetContext.deleteTweet}
+              onRemoveRetweet={tweetActions.removeRetweet}
+              onRetweet={tweetActions.retweet}
+              onRemoveReaction={tweetActions.removeReaction}
+              onReaction={tweetActions.addReaction}
+              onDeleteTweet={tweetActions.deleteTweet}
             />
           );
         })}

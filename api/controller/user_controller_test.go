@@ -9,8 +9,8 @@ import (
 )
 
 func TestHandleTestUser(t *testing.T) {
-	response, _ := makeRequest(http.MethodGet, "/user/profile/test", nil)
-	var actualResponse controller.UserResponse
+	response, _ := makeTestRequest(t, http.MethodGet, "/user/profile/basic", nil)
+	var actualResponse controller.SmallProfileUserResponse
 	body, err := parseResponse(response, &actualResponse)
 
 	if err != nil {
@@ -25,16 +25,30 @@ func TestHandleTestUser(t *testing.T) {
 		)
 	}
 
-	// Verify tweets //
+	if actualResponse.FollowerCount != 2 {
+		t.Errorf(
+			"expected 2 got %d",
+			actualResponse.FollowerCount,
+		)
+	}
 
-	// Verify followers //
+	if actualResponse.FollowingCount != 1 {
+		t.Errorf(
+			"expected 1 got %d",
+			actualResponse.FollowingCount,
+		)
+	}
 
-	// Verify followed //
+	for _, tweet := range actualResponse.Timeline.Tweets {
+		if !tweet.UserRetweeted {
+			t.Errorf("expected false got true")
+		}
+	}
 }
 
-func TestHandleLurkerUser(t *testing.T) {
-	response, _ := makeRequest(http.MethodGet, "/user/profile/lurker", nil)
-	var actualResponse controller.UserResponse
+func TestHandleTestUserLoggedIn(t *testing.T) {
+	response, _ := makeAuthenticatedTestRequest(t, "admin", http.MethodGet, "/user/profile/test", nil)
+	var actualResponse controller.ProfileUserResponse
 	body, err := parseResponse(response, &actualResponse)
 
 	if err != nil {
@@ -42,48 +56,32 @@ func TestHandleLurkerUser(t *testing.T) {
 	}
 
 	// Verify user //
-	if actualResponse.User.Username != "lurker" {
+	if actualResponse.User.Username != "test" {
 		t.Errorf(
-			"expected lurker got %s",
+			"expected test got %s",
 			actualResponse.User.Username,
 		)
 	}
 
-	// Verify tweets //
-
-	// Verify followers //
-
-	// Verify followed //
-}
-
-func TestHandleAdminUser(t *testing.T) {
-	response, _ := makeRequest(http.MethodGet, "/user/profile/admin", nil)
-	var actualResponse controller.UserResponse
-	body, err := parseResponse(response, &actualResponse)
-
-	if err != nil {
-		t.Fatalf("Error parsing json response. %k\nBody: %s\n", err, string(body))
-	}
-
-	// Verify user //
-	if actualResponse.User.Username != "admin" {
+	if len(actualResponse.Followers) != 0 {
 		t.Errorf(
-			"expected admin got %s",
-			actualResponse.User.Username,
+			"expected 0 got %d",
+			len(actualResponse.Followers),
 		)
 	}
 
-	// Verify tweets //
-
-	// Verify followers //
-
-	// Verify followed //
+	if len(actualResponse.Following) != 2 {
+		t.Errorf(
+			"expected 2 got %d",
+			len(actualResponse.Following),
+		)
+	}
 }
 
 func TestHandleOwnUser(t *testing.T) {
 	response, _ := makeAuthenticatedTestRequest(t, "test", http.MethodGet, "/user/self", nil)
 
-	var actualResponse controller.UserResponse
+	var actualResponse controller.ProfileUserResponse
 	parseTestResponse(t, response, &actualResponse)
 
 	if actualResponse.User.Username != "test" {
@@ -106,7 +104,7 @@ func TestHandleFollow(t *testing.T) {
 
 	// Verify updated //
 	response, _ = makeAuthenticatedTestRequest(t, "test", http.MethodGet, "/user/self", nil)
-	var actualResponse controller.OwnUserResponse
+	var actualResponse controller.ProfileUserResponse
 	parseTestResponse(t, response, &actualResponse)
 
 	exists := false
@@ -157,7 +155,7 @@ func TestHandleRegister(t *testing.T) {
 		bytes.NewReader([]byte(`{ "username": "fake", "password": "password", "email": "fake@fake.com" }`)),
 	)
 
-	var actualResponse controller.OwnUserResponse
+	var actualResponse controller.ProfileUserResponse
 	response, _ := makeAuthenticatedTestRequest(t, "fake", http.MethodGet, "/user/self", nil)
 	parseResponse(response, &actualResponse)
 

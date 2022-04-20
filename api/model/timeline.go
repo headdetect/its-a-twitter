@@ -32,7 +32,6 @@ type TimelineTweet struct {
 func GetTimeline(userId int, count int) ([]TimelineTweet, map[int]User, error) {
 	// N.B First query is to get the tweets, the second one is to get any users that are linked
 	// to those tweets (user retweeted or tweeted).
-
 	tweets := make([]TimelineTweet, 0)
 	users := make(map[int]User)
 
@@ -133,6 +132,135 @@ func GetTimeline(userId int, count int) ([]TimelineTweet, map[int]User, error) {
 		tweets[i].UserRetweeted = userRetweeted
 		tweets[i].RetweetCount = retweetCount
 		tweets[i].ReactionCount = reactionCount
+	}
+
+	if len(userIds) == 0 {
+		return tweets, users, nil
+	}
+
+	userRows, err := store.DB.
+		Query(`
+			select u.id, u.username, u.createdAt
+			from users u
+			where u.id in (?`+strings.Repeat(",?", len(userIds)-1)+`)`,
+			userIds...,
+		)
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	defer userRows.Close()
+	for userRows.Next() {
+		var u User
+
+		err = userRows.Scan(
+			&u.Id, &u.Username, &u.CreatedAt,
+		)
+
+		if err != nil {
+			return nil, nil, err
+		}
+
+		users[u.Id] = u
+	}
+
+	return tweets, users, nil
+}
+
+func GetTimelineByUser(user User, loggedInUser *User) ([]TimelineTweet, map[int]User, error) {
+	// N.B First query is to get the tweets, the second one is to get any users that are linked
+	// to those tweets (user retweeted or tweeted).
+	tweets := make([]TimelineTweet, 0)
+	users := make(map[int]User)
+
+	/*
+	 * Get all the tweets and retweets from user
+	 */
+	rows, err := store.DB.
+		Query(`
+			select 
+				t.id, t.text, t.mediaPath, t.createdAt, 
+				t.userId
+			from tweets t
+			left join retweets r on r.tweetId = t.id
+			where t.userId = $1 or r.userId = $1
+			group by t.id
+			order by t.createdAt DESC`,
+			user.Id,
+		)
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	defer rows.Close()
+
+	userIds := make([]interface{}, 0)
+
+	for rows.Next() {
+		var t TimelineTweet
+		var mediaPath sql.NullString
+
+		err = rows.Scan(
+			&t.Tweet.Id, &t.Tweet.Text, &mediaPath, &t.Tweet.CreatedAt, // Tweet properties //
+			&t.Poster,
+		)
+
+		if err != nil {
+			return nil, nil, err
+		}
+
+		if mediaPath.Valid {
+			t.Tweet.MediaPath = mediaPath.String
+		}
+
+		if t.Poster != user.Id {
+			// This is a retweet //
+			userIds = append(userIds, t.Poster)
+		}
+
+		// N.B: We don't attach the user to the tweet, because the caller
+		// should already have access to the user via the users list
+		tweets = append(tweets, t)
+	}
+
+	// [Scaling]
+	// Bad to make multiple queries like this.
+	// This should be just one query that gets values we're after
+	// in one swoop instead of n number of queries.
+	// But in this specific use case, it'll do.
+	for i := 0; i < len(tweets); i++ {
+		retweetCount, err := tweets[i].Tweet.RetweetCount()
+		if err != nil {
+			return nil, nil, err
+		}
+
+		reactionCount, err := tweets[i].Tweet.ReactionCount()
+		if err != nil {
+			return nil, nil, err
+		}
+
+		tweets[i].RetweetCount = retweetCount
+		tweets[i].ReactionCount = reactionCount
+
+		if loggedInUser != nil {
+			userReactions, err := tweets[i].Tweet.UserReactions(loggedInUser.Id)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			userRetweeted, err := tweets[i].Tweet.UserRetweeted(loggedInUser.Id)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			tweets[i].UserReactions = userReactions
+			tweets[i].UserRetweeted = userRetweeted
+		} else {
+			tweets[i].UserReactions = make([]string, 0)
+			tweets[i].UserRetweeted = false
+		}
 	}
 
 	if len(userIds) == 0 {

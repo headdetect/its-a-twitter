@@ -20,18 +20,23 @@ type LoginResponse struct {
 	User      model.User `json:"user"`
 }
 
-type OwnUserResponse struct {
-	User      model.User    `json:"user"`
-	Followers []model.User  `json:"followers"`
-	Following []model.User  `json:"following"`
-	Tweets    []model.Tweet `json:"tweets"`
+type profileTimeline struct {
+	Tweets []model.TimelineTweet `json:"tweets"`
+	Users  map[int]model.User    `json:"users"`
 }
 
-type UserResponse struct {
-	User           model.User    `json:"user"`
-	FollowerCount  int           `json:"followerCount"`
-	FollowingCount int           `json:"followingCount"`
-	Tweets         []model.Tweet `json:"tweets"`
+type ProfileUserResponse struct {
+	User      model.User      `json:"user"`
+	Followers []model.User    `json:"followers"`
+	Following []model.User    `json:"following"`
+	Timeline  profileTimeline `json:"timeline"`
+}
+
+type SmallProfileUserResponse struct {
+	User           model.User      `json:"user"`
+	FollowerCount  int             `json:"followerCount"`
+	FollowingCount int             `json:"followingCount"`
+	Timeline       profileTimeline `json:"timeline"`
 }
 
 type RegisterUserRequest struct {
@@ -85,18 +90,21 @@ func HandleOwnUser(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	tweets, err := currentUser.GetTweets()
+	tweets, usersFromTweets, err := model.GetTimelineByUser(currentUser, nil)
 
 	if err != nil {
 		ErrorResponse(writer, err)
 		return
 	}
 
-	response := OwnUserResponse{
+	response := ProfileUserResponse{
 		User:      currentUser,
 		Followers: followers,
 		Following: following,
-		Tweets:    tweets,
+		Timeline: profileTimeline{
+			Tweets: tweets,
+			Users:  usersFromTweets,
+		},
 	}
 
 	jsonResponse, err := json.Marshal(response)
@@ -135,18 +143,44 @@ func HandleUser(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	tweets, err := requestedUser.GetTweets()
+	currentUser, err := GetCurrentUser(request)
 
-	if err != nil {
-		ErrorResponse(writer, err)
-		return
-	}
+	var response any
 
-	response := UserResponse{
-		User:           requestedUser,
-		FollowerCount:  len(followers),
-		FollowingCount: len(following),
-		Tweets:         tweets,
+	if err == nil {
+		tweets, usersFromTweets, err := model.GetTimelineByUser(requestedUser, &currentUser)
+
+		if err != nil {
+			ErrorResponse(writer, err)
+			return
+		}
+
+		response = ProfileUserResponse{
+			User:      requestedUser,
+			Followers: followers,
+			Following: following,
+			Timeline: profileTimeline{
+				Tweets: tweets,
+				Users:  usersFromTweets,
+			},
+		}
+	} else {
+		tweets, usersFromTweets, err := model.GetTimelineByUser(requestedUser, nil)
+
+		if err != nil {
+			ErrorResponse(writer, err)
+			return
+		}
+
+		response = SmallProfileUserResponse{
+			User:           requestedUser,
+			FollowerCount:  len(followers),
+			FollowingCount: len(following),
+			Timeline: profileTimeline{
+				Tweets: tweets,
+				Users:  usersFromTweets,
+			},
+		}
 	}
 
 	jsonResponse, err := json.Marshal(response)

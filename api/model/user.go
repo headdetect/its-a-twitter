@@ -1,7 +1,6 @@
 package model
 
 import (
-	"database/sql"
 	"fmt"
 	"time"
 
@@ -49,10 +48,10 @@ func GetUserById(id int) (user User, email string, err error) {
 
 func GetUserByUsername(username string) (user User, email string, err error) {
 	err = store.DB.QueryRow(
-		"select id, username, email, createdAt from users where username = ? limit 1",
+		"select id, username, createdAt from users where username = ? limit 1",
 		username,
 	).Scan(
-		&user.Id, &user.Username, &user.Email, &user.CreatedAt,
+		&user.Id, &user.Username, &user.CreatedAt,
 	)
 
 	return
@@ -195,40 +194,4 @@ func (u *User) GetFollowing() ([]User, error) {
 	}
 
 	return following, nil
-}
-
-func (u *User) GetTweets() ([]Tweet, error) {
-	rows, err := store.DB.
-		Query(`select id, text, mediaPath, createdAt from tweets where userId = ?`,
-			u.Id,
-		)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
-
-	tweets := []Tweet{}
-
-	for rows.Next() {
-		var t Tweet
-		var mediaPath sql.NullString
-		err := rows.Scan(&t.Id, &t.Text, &mediaPath, &t.CreatedAt)
-
-		if err != nil {
-			return nil, err
-		}
-
-		if mediaPath.Valid {
-			t.MediaPath = mediaPath.String
-		}
-
-		// Note: We don't attach the user to the tweet, because the caller
-		// should already have access to the user
-
-		tweets = append(tweets, t)
-	}
-
-	return tweets, nil
 }

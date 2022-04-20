@@ -3,24 +3,27 @@ import React from "react";
 export default function ProfileInfo({
   profileUser,
   isFollowingUser,
+  canFollowUser,
 
   onFollowUser = _ => {},
   onUnfollowUser = _ => {},
 }) {
   const handleChangeFollow = () => {
     if (isFollowingUser) {
-      onUnfollowUser(profileUser.id);
+      onUnfollowUser(profileUser.user.id);
     } else {
-      onFollowUser(profileUser.id);
+      onFollowUser(profileUser.user.id);
     }
   };
 
   return (
     <div>
-      This is @{profileUser.username}.
-      <button onClick={handleChangeFollow}>
-        {isFollowingUser ? "Unfollow" : "Follow"}
-      </button>
+      This is @{profileUser.user.username}.
+      {canFollowUser && (
+        <button onClick={handleChangeFollow}>
+          {isFollowingUser ? "Unfollow" : "Follow"}
+        </button>
+      )}
     </div>
   );
 }

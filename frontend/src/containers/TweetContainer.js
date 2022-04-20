@@ -244,18 +244,6 @@ export function Provider({ children }) {
     [authenticatedFetch],
   );
 
-  React.useEffect(() => {
-    // We're okay with this running multiple times. It should reload
-    // the timeline every time the login state is set to true
-
-    if (!isLoggedIn) {
-      setTimeline([]);
-      return;
-    }
-
-    refreshTimeline();
-  }, [refreshTimeline, isLoggedIn]);
-
   return (
     <Context.Provider
       value={{

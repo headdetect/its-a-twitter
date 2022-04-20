@@ -11,7 +11,7 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 export function Provider({ children }) {
   const [loggedInUser, setLoggedInUser] = React.useState(null);
-  const [autoLoginStatus, setAutoLoginStatus] = React.useState("init"); // init | loading | finished | error
+  const [autoLoginStatus, setAutoLoginStatus] = React.useState("loading"); // loading | finished | error
 
   const authCredentials = React.useRef({
     username: null,

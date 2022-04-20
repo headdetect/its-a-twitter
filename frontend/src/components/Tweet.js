@@ -1,5 +1,7 @@
 import React from "react";
 
+import * as AuthContainer from "containers/AuthContainer";
+
 import "./Tweet.css";
 
 const REACTION_MAP = {
@@ -17,7 +19,6 @@ export default function Tweet({
   timelineTweet,
   user,
   retweetUser,
-  isOwnTweet,
 
   onRemoveRetweet = _ => {},
   onRetweet = _ => {},
@@ -25,6 +26,8 @@ export default function Tweet({
   onReaction = (_, __) => {},
   onDeleteTweet = _ => {},
 }) {
+  const { loggedInUser } = AuthContainer.useContext();
+
   const { tweet, reactionCount, retweetCount, userReactions, userRetweeted } =
     timelineTweet;
 
@@ -93,7 +96,9 @@ export default function Tweet({
             ))}
           </div>
           <button>share</button>
-          {isOwnTweet && <button onClick={handleDeleteTweet}>delete</button>}
+          {loggedInUser && loggedInUser.id === user.id && (
+            <button onClick={handleDeleteTweet}>Delete</button>
+          )}
         </div>
       </div>
     </div>
