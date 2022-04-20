@@ -1,13 +1,14 @@
 import React from "react";
 
 import * as AuthContainer from "containers/AuthContainer";
+import LoginForm from "components/LoginForm";
+import RegistrationForm from "components/RegistrationForm";
 
 import "./Page.css";
-import LoginForm from "components/user/LoginForm";
-import RegistrationForm from "components/user/RegistrationForm";
 
 export default function Page({ children, title = "" }) {
-  const { isLoggedIn, loggedInUser, logout } = AuthContainer.useContext();
+  const { isLoggedIn, loggedInUser, logout, login } =
+    AuthContainer.useContext();
 
   const [userPanelType, setUserPanelType] = React.useState(null);
 
@@ -41,7 +42,7 @@ export default function Page({ children, title = "" }) {
 
       {userPanelType && (
         <div className="panel">
-          {userPanelType === "login" && <LoginForm />}
+          {userPanelType === "login" && <LoginForm onLogin={login} />}
           {userPanelType === "register" && <RegistrationForm />}
         </div>
       )}

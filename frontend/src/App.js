@@ -2,9 +2,9 @@ import * as React from "react";
 
 import "./App.css";
 
-import NotFound from "./pages/NotFound";
-import Profile from "./pages/Profile";
-import Timeline from "./pages/Timeline";
+import * as NotFound from "./pages/NotFound";
+import * as Profile from "./pages/Profile";
+import * as Timeline from "./pages/Timeline";
 
 function Route() {
   const path = window.location.pathname;
@@ -15,22 +15,22 @@ function Route() {
   }
 
   if (path === "/timeline") {
-    return <Timeline />;
+    return <Timeline.Presenter />;
   }
 
   if (path.startsWith("/profile") && segments.length >= 2) {
     const [_, atUsername] = segments;
 
     if (!atUsername.startsWith("@")) {
-      return <NotFound />;
+      return <NotFound.Presenter />;
     }
 
     const username = atUsername.substring(1);
 
-    return <Profile username={username} />;
+    return <Profile.Presenter username={username} />;
   }
 
-  return <NotFound />;
+  return <NotFound.Presenter />;
 }
 
 function App() {

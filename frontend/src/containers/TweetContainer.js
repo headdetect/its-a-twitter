@@ -4,7 +4,6 @@
  */
 import React from "react";
 import * as AuthContainer from "containers/AuthContainer";
-import * as UserContainer from "containers/UserContainer";
 
 const API_URL = process.env.REACT_APP_API_URL;
 

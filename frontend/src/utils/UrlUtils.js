@@ -1,3 +1,4 @@
+import React from "react";
 
 /**
  * A list of common TLDs according to me, compiled by different sources.
@@ -39,11 +40,11 @@ export const COMMON_TLDS = [
 
 /**
  * Updates the specified query param with a new value.
- * 
+ *
  * @param {*} key The key of the value to update. Will create KV pair if not exist.
- * @param {*} value. The updated value. Leave blank or set to null to delete the param.
+ * @param {*} value The updated value. Leave blank or set to null to delete the param.
  * @param {*} uri The URI of the query param you'd like to update
- * @returns 
+ * @returns the url string
  */
 export function updateQueryParameter(key, value, uri = window.location.href) {
   const currentUrl = new URL(uri);
@@ -98,7 +99,7 @@ export function tryParseUrl(tryLink, quickLink = true) {
      * For guaranteed links to parse, prefix the schema to the link.
      */
     if (
-      COMMON_TLDS.find((tld) => url.hostname.endsWith(tld)) &&
+      COMMON_TLDS.find(tld => url.hostname.endsWith(tld)) &&
       hadToInsertSchema &&
       quickLink
     ) {

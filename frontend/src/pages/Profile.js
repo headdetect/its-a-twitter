@@ -1,14 +1,13 @@
 import React from "react";
 
 import * as AuthContainer from "containers/AuthContainer";
-import * as UserContainer from "containers/UserContainer";
+import * as ProfileContainer from "containers/ProfileContainer";
 import * as TweetContainer from "containers/TweetContainer";
 
-import TimelineStream from "components/tweet/TimelineStream";
-import ProfileInfo from "components/user/ProfileInfo";
+import ProfileInfo from "components/ProfileInfo";
 import Page from "components/Page";
 
-export default function Profile({ username }) {
+export function Presenter({ username }) {
   return (
     <AuthContainer.Provider>
       <div
@@ -20,15 +19,44 @@ export default function Profile({ username }) {
           width: "100%",
         }}
       >
-        <UserContainer.Provider profileUsername={username}>
-          <Page title={`@${username}`}>
+        <Page title={`@${username}`}>
+          <ProfileContainer.Provider profileUsername={username}>
             <TweetContainer.Provider>
-              <ProfileInfo />
-              <TimelineStream />
+              <Profile />
             </TweetContainer.Provider>
-          </Page>
-        </UserContainer.Provider>
+          </ProfileContainer.Provider>
+        </Page>
       </div>
     </AuthContainer.Provider>
+  );
+}
+
+function Profile() {
+  const profileContext = ProfileContainer.useContext();
+
+  if (profileContext.profileUserStatus === "loading") {
+    return <>Loading...</>;
+  }
+
+  if (profileContext.profileUserStatus === "error") {
+    return <>Error fetching user</>;
+  }
+
+  if (profileContext.profileUserStatus !== "finished") {
+    return (
+      <>Unknown profile state specified: {profileContext.profileUserStatus}</>
+    );
+  }
+
+  return (
+    <>
+      <ProfileInfo
+        profileUser={profileContext.profileUserStatus}
+        isFollowingUser={false}
+        onFollowUser={profileContext.profileUserStatus}
+        onUnfollowUser={profileContext.profileUserStatus}
+      />
+      TODO: Add dem tweets boy
+    </>
   );
 }
