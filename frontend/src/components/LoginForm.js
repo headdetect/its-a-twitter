@@ -2,7 +2,8 @@ import * as React from "react";
 
 import * as AuthContainer from "containers/AuthContainer";
 
-export default function LoginForm({ onLogin }) {
+export default function LoginForm() {
+  const { login } = AuthContainer.useContext();
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
@@ -11,18 +12,29 @@ export default function LoginForm({ onLogin }) {
   const handleSubmit = React.useCallback(
     async e => {
       e.preventDefault();
-      setIsLoading(true);
+
+      if (!username) {
+        setError("Username field is empty");
+        return;
+      }
+
+      if (!password) {
+        setError("Password field is empty");
+        return;
+      }
+
       setError(null);
+      setIsLoading(true);
 
       try {
-        await onLogin(username, password);
+        await login(username, password);
       } catch (e) {
         setError(String(e));
       }
 
       setIsLoading(false);
     },
-    [username, password, onLogin],
+    [username, password, login],
   );
 
   return (
