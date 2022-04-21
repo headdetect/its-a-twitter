@@ -7,8 +7,7 @@ import RegistrationForm from "components/RegistrationForm";
 import "./Page.css";
 
 export default function Page({ children, title = "" }) {
-  const { isLoggedIn, loggedInUser, logout, login } =
-    AuthContainer.useContext();
+  const { isLoggedIn, loggedInUser, logout } = AuthContainer.useContext();
 
   const [userPanelType, setUserPanelType] = React.useState(null);
 
@@ -42,7 +41,7 @@ export default function Page({ children, title = "" }) {
 
       {userPanelType && (
         <div className="panel">
-          {userPanelType === "login" && <LoginForm onLogin={login} />}
+          {userPanelType === "login" && <LoginForm />}
           {userPanelType === "register" && <RegistrationForm />}
         </div>
       )}

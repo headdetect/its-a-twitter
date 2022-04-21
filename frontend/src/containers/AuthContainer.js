@@ -86,12 +86,13 @@ export function Provider({ children }) {
 
         localStorage.setItem("authToken", authToken);
         localStorage.setItem("username", user.username);
+        saveCredentials(authToken, user.username);
         setLoggedInUser(user);
       } catch (e) {
         throw new Error("Server sent some weird stuff back. Try again.");
       }
     },
-    [loggedInUser, logout],
+    [loggedInUser, logout, saveCredentials],
   );
 
   const getOwnUser = React.useCallback(async () => {

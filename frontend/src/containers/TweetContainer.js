@@ -10,40 +10,44 @@ const API_URL = process.env.REACT_APP_API_URL;
 export const Context = React.createContext(null);
 
 export function Provider({ children }) {
-  const { authenticatedFetch, loggedInUser } = AuthContainer.useContext();
+  const { authenticatedFetch, loggedInUser, isLoggedIn } =
+    AuthContainer.useContext();
 
   const [timeline, setTimeline] = React.useState(undefined);
   const [timelineUsers, setTimelineUsers] = React.useState(undefined);
-  const [timelineStatus, setTimelineStatus] = React.useState("loading"); // loading | finished | error
+  const [timelineStatus, setTimelineStatus] = React.useState("loading"); // loading | finished | error | not-logged-in
 
-  const refreshTimeline = React.useCallback(
-    async username => {
-      try {
-        const response = await authenticatedFetch(
-          `${API_URL}/timeline${username ? `/${username}` : ""}`,
-        );
+  const refreshTimeline = React.useCallback(async () => {
+    // We're okay with this running multiple times. It should reload
+    // the timeline every time the login state is set to true
+    if (!isLoggedIn) {
+      setTimelineStatus("not-logged-in");
+      return;
+    }
 
-        if (response.status === 401) {
-          setTimelineStatus("error");
-          return;
-        }
+    try {
+      const response = await authenticatedFetch(`${API_URL}/timeline`);
 
-        const obj = await response.json();
+      if (response.status === 401) {
+        setTimeline([]);
+        setTimelineStatus("not-logged-in");
+        return;
+      }
 
-        if (obj.tweets && obj.users) {
-          setTimeline(obj.tweets);
-          setTimelineUsers(obj.users);
+      const obj = await response.json();
 
-          setTimelineStatus("finished");
-        } else {
-          setTimelineStatus("error");
-        }
-      } catch (e) {
+      if (obj.tweets && obj.users) {
+        setTimeline(obj.tweets);
+        setTimelineUsers(obj.users);
+
+        setTimelineStatus("finished");
+      } else {
         setTimelineStatus("error");
       }
-    },
-    [authenticatedFetch],
-  );
+    } catch (e) {
+      setTimelineStatus("error");
+    }
+  }, [authenticatedFetch, isLoggedIn]);
 
   const tweet = React.useCallback(
     async (text, media) => {

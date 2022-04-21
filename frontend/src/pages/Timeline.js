@@ -32,7 +32,6 @@ export function Presenter() {
 }
 
 function Timeline() {
-  const { isLoggedIn } = AuthContainer.useContext();
   const {
     setTimeline,
     refreshTimeline,
@@ -43,19 +42,15 @@ function Timeline() {
   } = TweetContainer.useContext();
 
   React.useEffect(() => {
-    // We're okay with this running multiple times. It should reload
-    // the timeline every time the login state is set to true
-
-    if (!isLoggedIn) {
-      setTimeline([]);
-      return;
-    }
-
     refreshTimeline();
-  }, [setTimeline, refreshTimeline, isLoggedIn]);
+  }, [refreshTimeline]);
 
   if (timelineStatus === "loading") {
     return <>Loading...</>;
+  }
+
+  if (timelineStatus === "not-logged-in") {
+    return <>You need to login in order to see tweets</>;
   }
 
   if (
