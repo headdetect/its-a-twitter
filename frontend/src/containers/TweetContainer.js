@@ -10,8 +10,7 @@ const API_URL = process.env.REACT_APP_API_URL;
 export const Context = React.createContext(null);
 
 export function Provider({ children }) {
-  const { authenticatedFetch, isLoggedIn, loggedInUser } =
-    AuthContainer.useContext();
+  const { authenticatedFetch, loggedInUser } = AuthContainer.useContext();
 
   const [timeline, setTimeline] = React.useState(undefined);
   const [timelineUsers, setTimelineUsers] = React.useState(undefined);
@@ -255,6 +254,7 @@ export function Provider({ children }) {
         refreshTimeline,
         addReaction,
         removeReaction,
+        setTimeline,
 
         // States //
         timeline,

@@ -1,6 +1,7 @@
 import React from "react";
 
 import * as AuthContainer from "containers/AuthContainer";
+import * as TimeUtils from "utils/TimeUtils";
 
 import "./Tweet.css";
 
@@ -71,7 +72,7 @@ export default function Tweet({
           <a href={`/profile/@${user.username}`} rel="noopener noreferrer">
             @{user.username}
           </a>{" "}
-          - 22h
+          - {TimeUtils.toAgoString(new Date(tweet.createdAt * 1000))}
         </span>
         <p>{tweet.text}</p>
 
