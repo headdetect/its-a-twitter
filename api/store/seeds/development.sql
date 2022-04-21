@@ -128,13 +128,13 @@ insert into retweets (userId, tweetId) values (
 );
 
 insert into reactions (userId, tweetId, reaction) values (
-  2, 1, '👏'
+  2, 1, 'clap'
 );
 
 insert into reactions (userId, tweetId, reaction) values (
-  3, 1, '🎉'
+  3, 1, 'party'
 );
 
 insert into reactions (userId, tweetId, reaction) values (
-  4, 1, '🎉'
+  4, 1, 'party'
 );

@@ -21,7 +21,7 @@ export default function Page({ children, title = "" }) {
     <>
       <div className="navbar">
         <div className="navbar-content">
-          {title && <h1>{title}</h1>}
+          <div>{title && <h1>{title}</h1>}</div>
 
           {isLoggedIn ? (
             <div>

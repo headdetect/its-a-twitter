@@ -49,10 +49,6 @@ function Timeline() {
     return <>Loading...</>;
   }
 
-  if (timelineStatus === "not-logged-in") {
-    return <>You need to login in order to see tweets</>;
-  }
-
   if (
     timelineStatus === "error" ||
     (timelineStatus === "finished" && !timeline)

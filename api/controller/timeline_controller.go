@@ -17,13 +17,15 @@ type TimelineResponse struct {
 func HandleTimeline(writer http.ResponseWriter, request *http.Request) {
 	currentUser, err := GetCurrentUser(request)
 
-	if err != nil {
-		// Returning an error response because this shouldn't be possible //
-		ErrorResponse(writer, err)
-		return
-	}
+	var tweets []model.TimelineTweet
+	var users map[int]model.User
 
-	tweets, users, err := model.GetTimeline(currentUser.Id, 25)
+	if err != nil {
+		// The user is unauthenticated //
+		tweets, users, err = model.GetFeatured()
+	} else {
+		tweets, users, err = model.GetTimeline(currentUser.Id)
+	}
 
 	if err != nil {
 		ErrorResponse(writer, err)

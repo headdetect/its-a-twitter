@@ -20,17 +20,16 @@ export function Provider({ children }) {
   const refreshTimeline = React.useCallback(async () => {
     // We're okay with this running multiple times. It should reload
     // the timeline every time the login state is set to true
-    if (!isLoggedIn) {
-      setTimelineStatus("not-logged-in");
-      return;
-    }
-
     try {
-      const response = await authenticatedFetch(`${API_URL}/timeline`);
+      let response;
+      if (isLoggedIn)
+        response = await authenticatedFetch(`${API_URL}/timeline`);
+      else response = await fetch(`${API_URL}/timeline`);
 
       if (response.status === 401) {
+        debugger;
         setTimeline([]);
-        setTimelineStatus("not-logged-in");
+        setTimelineStatus("error");
         return;
       }
 

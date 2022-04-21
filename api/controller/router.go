@@ -106,7 +106,7 @@ func MakeRoutes() (routes []Route) {
 		{method: "GET", path: "/", handler: HandleRoot},
 
 		// Timeline //
-		{method: "GET", path: "/timeline", handler: HandleTimeline, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+		{method: "GET", path: "/timeline", handler: HandleTimeline},
 
 		// Users //
 		{method: "GET", path: "/user/self", handler: HandleOwnUser, middlewares: []MiddlewareFunc{AuthMiddleware()}},
