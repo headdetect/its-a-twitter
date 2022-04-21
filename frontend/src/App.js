@@ -5,6 +5,7 @@ import "./App.css";
 import * as NotFound from "./pages/NotFound";
 import * as Profile from "./pages/Profile";
 import * as Timeline from "./pages/Timeline";
+import * as SingleTweet from "./pages/SingleTweet";
 
 function Route() {
   const path = window.location.pathname;
@@ -28,6 +29,12 @@ function Route() {
     const username = atUsername.substring(1);
 
     return <Profile.Presenter username={username} />;
+  }
+
+  if (path.startsWith("/tweet") && segments.length >= 2) {
+    const [_, tweetId] = segments;
+
+    return <SingleTweet.Presenter tweetId={tweetId} />;
   }
 
   return <NotFound.Presenter />;

@@ -13,11 +13,11 @@ type TimelineTweet struct {
 	Poster    int  `json:"posterUserId"`
 	Retweeter *int `json:"retweeterUserId"`
 
-	ReactionCount map[string]int `json:"reactionCount"` // A reaction & count map //
-	RetweetCount  int            `json:"retweetCount"`
+	ReactionCount map[string]int `json:"reactionCount,omitempty"` // A reaction & count map //
+	RetweetCount  int            `json:"retweetCount,omitempty"`
 
-	UserReactions []string `json:"userReactions"` // A list of reactions //
-	UserRetweeted bool     `json:"userRetweeted"`
+	UserReactions []string `json:"userReactions,omitempty"` // A list of reactions //
+	UserRetweeted bool     `json:"userRetweeted,omitempty"`
 }
 
 func fillTimelineMeta(tweets *[]TimelineTweet, asUserId int, showUserInteractions bool) (err error) {

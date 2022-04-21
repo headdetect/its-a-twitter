@@ -14,9 +14,7 @@ import (
 )
 
 type SingleTweetResponse struct {
-	Tweet         model.Tweet    `json:"tweet"`
-	ReactionCount map[string]int `json:"reactionCount"` // A reaction & count map //
-	RetweetCount  int            `json:"retweetCount"`
+	TimelineTweet model.TimelineTweet `json:"tweet"`
 }
 
 type CreateTweetRequest struct {
@@ -77,9 +75,12 @@ func HandleGetTweet(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	response := SingleTweetResponse{
-		Tweet:         tweet,
-		RetweetCount:  retweetCount,
-		ReactionCount: reactionCount,
+		TimelineTweet: model.TimelineTweet{
+			Tweet:         tweet,
+			Poster:        tweet.User.Id,
+			ReactionCount: reactionCount,
+			RetweetCount:  retweetCount,
+		},
 	}
 
 	jsonResponse, err := json.Marshal(response)
@@ -145,7 +146,10 @@ func HandlePostTweet(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	response := SingleTweetResponse{
-		Tweet: tweet,
+		TimelineTweet: model.TimelineTweet{
+			Tweet:  tweet,
+			Poster: currentUser.Id,
+		},
 	}
 
 	if jsonResponse, err := json.Marshal(response); err == nil {

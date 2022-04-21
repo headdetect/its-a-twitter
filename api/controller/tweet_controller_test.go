@@ -14,21 +14,21 @@ func TestHandleGetTweet(t *testing.T) {
 	var actualResponse controller.SingleTweetResponse
 	parseTestResponse(t, response, &actualResponse)
 
-	if actualResponse.Tweet.Id != 1 {
+	if actualResponse.TimelineTweet.Tweet.Id != 1 {
 		t.Errorf(
 			"expected id:1 got id:%d\n",
-			actualResponse.Tweet.Id,
+			actualResponse.TimelineTweet.Tweet.Id,
 		)
 	}
 
-	if actualResponse.Tweet.Text != "First tweet ever" {
+	if actualResponse.TimelineTweet.Tweet.Text != "First tweet ever" {
 		t.Errorf(
 			"expected 'First tweet ever' got '%s'\n",
-			actualResponse.Tweet.Text,
+			actualResponse.TimelineTweet.Tweet.Text,
 		)
 	}
 
-	count, ok := actualResponse.ReactionCount["party"]
+	count, ok := actualResponse.TimelineTweet.ReactionCount["party"]
 
 	if !ok {
 		t.Errorf("expected 'party' to exist\n")
@@ -38,8 +38,8 @@ func TestHandleGetTweet(t *testing.T) {
 		t.Errorf("expected 2 got %d\n", count)
 	}
 
-	if actualResponse.RetweetCount != 2 {
-		t.Errorf("expected 2 got %d\n", actualResponse.RetweetCount)
+	if actualResponse.TimelineTweet.RetweetCount != 2 {
+		t.Errorf("expected 2 got %d\n", actualResponse.TimelineTweet.RetweetCount)
 	}
 }
 
@@ -55,10 +55,10 @@ func TestHandlePostTweet(t *testing.T) {
 	var parsedResponse controller.SingleTweetResponse
 	parseTestResponse(t, response, &parsedResponse)
 
-	if parsedResponse.Tweet.Text != "Tweet Tweet" {
+	if parsedResponse.TimelineTweet.Tweet.Text != "Tweet Tweet" {
 		t.Errorf(
 			"expected 'Tweet Tweet' got %s.",
-			parsedResponse.Tweet.Text,
+			parsedResponse.TimelineTweet.Tweet.Text,
 		)
 	}
 }
@@ -69,7 +69,7 @@ func TestHandleRetweet(t *testing.T) {
 	response, _ := makeRequest(http.MethodGet, "/tweet/1", nil)
 	parseTestResponse(t, response, &actualResponse)
 
-	count := actualResponse.RetweetCount
+	count := actualResponse.TimelineTweet.RetweetCount
 
 	// Verify can put //
 	makeAuthenticatedTestRequest(t, "lily", http.MethodPut, "/tweet/1/retweet", nil)
@@ -78,8 +78,8 @@ func TestHandleRetweet(t *testing.T) {
 	response, _ = makeTestRequest(t, http.MethodGet, "/tweet/1", nil)
 	parseTestResponse(t, response, &actualResponse)
 
-	if actualResponse.RetweetCount != count+1 {
-		t.Errorf("Expecting %d got %d\n", count+1, actualResponse.RetweetCount)
+	if actualResponse.TimelineTweet.RetweetCount != count+1 {
+		t.Errorf("Expecting %d got %d\n", count+1, actualResponse.TimelineTweet.RetweetCount)
 	}
 
 	// Verify can delete //
@@ -89,8 +89,8 @@ func TestHandleRetweet(t *testing.T) {
 	response, _ = makeTestRequest(t, http.MethodGet, "/tweet/1", nil)
 	parseTestResponse(t, response, &actualResponse)
 
-	if actualResponse.RetweetCount != count {
-		t.Errorf("Expecting %d got %d\n", count, actualResponse.RetweetCount)
+	if actualResponse.TimelineTweet.RetweetCount != count {
+		t.Errorf("Expecting %d got %d\n", count, actualResponse.TimelineTweet.RetweetCount)
 	}
 }
 
@@ -99,7 +99,7 @@ func TestHandleReactTweet(t *testing.T) {
 	response, _ := makeTestRequest(t, http.MethodGet, "/tweet/7", nil)
 	parseTestResponse(t, response, &initialResponse)
 
-	count := initialResponse.ReactionCount["party"]
+	count := initialResponse.TimelineTweet.ReactionCount["party"]
 
 	// Verify can put //
 	makeAuthenticatedTestRequest(
@@ -115,8 +115,8 @@ func TestHandleReactTweet(t *testing.T) {
 	response, _ = makeTestRequest(t, http.MethodGet, "/tweet/7", nil)
 	parseTestResponse(t, response, &updatedResponse)
 
-	if updatedResponse.ReactionCount["party"] != count+1 {
-		t.Errorf("Expecting %d got %d\n", count+1, updatedResponse.ReactionCount["party"])
+	if updatedResponse.TimelineTweet.ReactionCount["party"] != count+1 {
+		t.Errorf("Expecting %d got %d\n", count+1, updatedResponse.TimelineTweet.ReactionCount["party"])
 	}
 
 	// Verify can delete //
@@ -133,8 +133,8 @@ func TestHandleReactTweet(t *testing.T) {
 	response, _ = makeTestRequest(t, http.MethodGet, "/tweet/7", nil)
 	parseTestResponse(t, response, &deletedResponse)
 
-	if deletedResponse.ReactionCount["party"] != count {
-		t.Errorf("Expecting %d got %d\n", count, deletedResponse.ReactionCount["party"])
+	if deletedResponse.TimelineTweet.ReactionCount["party"] != count {
+		t.Errorf("Expecting %d got %d\n", count, deletedResponse.TimelineTweet.ReactionCount["party"])
 	}
 }
 

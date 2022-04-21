@@ -19,7 +19,7 @@ const ALLOWED_REACTIONS = Object.keys(REACTION_MAP);
 export default function Tweet({
   timelineTweet,
   user,
-  retweetUser,
+  retweetUser = null,
 
   onRemoveRetweet = _ => {},
   onRetweet = _ => {},
@@ -27,10 +27,15 @@ export default function Tweet({
   onReaction = (_, __) => {},
   onDeleteTweet = _ => {},
 }) {
-  const { loggedInUser } = AuthContainer.useContext();
+  const { loggedInUser, isLoggedIn } = AuthContainer.useContext();
 
-  const { tweet, reactionCount, retweetCount, userReactions, userRetweeted } =
-    timelineTweet;
+  const {
+    tweet,
+    reactionCount = {},
+    retweetCount = 0,
+    userReactions = [],
+    userRetweeted = false,
+  } = timelineTweet;
 
   const handleRetweet = async () => {
     if (userRetweeted) {
@@ -80,6 +85,7 @@ export default function Tweet({
           <button
             onClick={handleRetweet}
             style={{ color: userRetweeted ? "green" : "black" }}
+            disabled={!isLoggedIn}
           >
             retweet {retweetCount}
           </button>
@@ -91,6 +97,7 @@ export default function Tweet({
                 style={{
                   color: userReactions.includes(r) ? "green" : "black",
                 }}
+                disabled={!isLoggedIn}
               >
                 {REACTION_MAP[r]} {reactionCount[r] || 0}
               </button>

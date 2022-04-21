@@ -13,8 +13,8 @@ export function Provider({ children }) {
   const { authenticatedFetch, loggedInUser, isLoggedIn } =
     AuthContainer.useContext();
 
-  const [timeline, setTimeline] = React.useState(undefined);
-  const [timelineUsers, setTimelineUsers] = React.useState(undefined);
+  const [timeline, setTimeline] = React.useState([]);
+  const [timelineUsers, setTimelineUsers] = React.useState([]);
   const [timelineStatus, setTimelineStatus] = React.useState("loading"); // loading | finished | error | not-logged-in
 
   const refreshTimeline = React.useCallback(async () => {
@@ -48,7 +48,7 @@ export function Provider({ children }) {
     }
   }, [authenticatedFetch, isLoggedIn]);
 
-  const tweet = React.useCallback(
+  const submitTweet = React.useCallback(
     async (text, media) => {
       // TODO: Post medias
 
@@ -81,6 +81,24 @@ export function Provider({ children }) {
       setTimeline(oldTimeline => [timelineTweet, ...oldTimeline]);
     },
     [authenticatedFetch, loggedInUser],
+  );
+
+  const getTweet = React.useCallback(
+    async tweetId => {
+      let response;
+      if (isLoggedIn)
+        response = await authenticatedFetch(`${API_URL}/tweet/${tweetId}`);
+      else response = await fetch(`${API_URL}/tweet/${tweetId}`);
+
+      const body = await response.json();
+
+      if (body.tweet) {
+        return body;
+      }
+
+      throw new Error("Malformed response was returned from the server");
+    },
+    [authenticatedFetch, isLoggedIn],
   );
 
   const deleteTweet = React.useCallback(
@@ -250,7 +268,8 @@ export function Provider({ children }) {
     <Context.Provider
       value={{
         // Actions //
-        tweet,
+        submitTweet,
+        getTweet,
         deleteTweet,
         retweet,
         removeRetweet,
