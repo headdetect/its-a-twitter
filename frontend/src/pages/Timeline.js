@@ -35,7 +35,7 @@ function Timeline() {
   const { isLoggedIn } = AuthContainer.useContext();
   const {
     setTimeline,
-    refreshTimeline,
+    fetchAndStoreTimeline,
     timelineStatus,
     timeline,
     timelineUsers,
@@ -43,8 +43,8 @@ function Timeline() {
   } = TweetContainer.useContext();
 
   React.useEffect(() => {
-    refreshTimeline();
-  }, [refreshTimeline]);
+    fetchAndStoreTimeline();
+  }, [fetchAndStoreTimeline]);
 
   if (timelineStatus === "loading") {
     return <>Loading...</>;

@@ -57,6 +57,8 @@ export default function Tweet({
     onDeleteTweet(tweet.id);
   };
 
+  const isOwnTweet = loggedInUser && loggedInUser.id === user.id;
+
   return (
     <div className="tweet">
       <img src="" alt={`${user.username}'s profile`} />
@@ -85,7 +87,7 @@ export default function Tweet({
           <button
             onClick={handleRetweet}
             style={{ color: userRetweeted ? "green" : "black" }}
-            disabled={!isLoggedIn}
+            disabled={!isLoggedIn || isOwnTweet}
           >
             retweet {retweetCount}
           </button>
@@ -97,16 +99,14 @@ export default function Tweet({
                 style={{
                   color: userReactions.includes(r) ? "green" : "black",
                 }}
-                disabled={!isLoggedIn}
+                disabled={!isLoggedIn || isOwnTweet}
               >
                 {REACTION_MAP[r]} {reactionCount[r] || 0}
               </button>
             ))}
           </div>
           <button>share</button>
-          {loggedInUser && loggedInUser.id === user.id && (
-            <button onClick={handleDeleteTweet}>Delete</button>
-          )}
+          {isOwnTweet && <button onClick={handleDeleteTweet}>Delete</button>}
         </div>
       </div>
     </div>

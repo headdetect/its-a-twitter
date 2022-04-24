@@ -67,13 +67,10 @@ function Profile() {
     return <>Cannot find profile</>;
   }
 
-  const isOwnProfile = profileUser.user.id === loggedInUser?.id;
-
   return (
     <>
       <ProfileInfo
         profileUser={profileUser}
-        canFollowUser={isLoggedIn && !isOwnProfile}
         onFollowUser={followUser}
         onUnfollowUser={unfollowUser}
       />

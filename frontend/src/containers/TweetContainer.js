@@ -17,7 +17,7 @@ export function Provider({ children }) {
   const [timelineUsers, setTimelineUsers] = React.useState([]);
   const [timelineStatus, setTimelineStatus] = React.useState("loading"); // loading | finished | error | not-logged-in
 
-  const loadOwnTimeline = React.useCallback(async () => {
+  const fetchAndStoreTimeline = React.useCallback(async () => {
     // We're okay with this running multiple times. It should reload
     // the timeline every time the login state is set to true
     try {
@@ -273,7 +273,7 @@ export function Provider({ children }) {
         deleteTweet,
         retweet,
         removeRetweet,
-        loadOwnTimeline,
+        fetchAndStoreTimeline,
         addReaction,
         removeReaction,
         setTimeline,
