@@ -37,10 +37,19 @@ export function Presenter({ username }) {
 
 function Profile() {
   const { loggedInUser, isLoggedIn } = AuthContainer.useContext();
-  const tweetActions = TweetContainer.useContext(); // Just using the actions //
+  const { timeline, setTimeline, ...tweetActions } =
+    TweetContainer.useContext(); // Just using the actions //
 
   const { profileUser, profileUserStatus, followUser, unfollowUser } =
     ProfileContainer.useContext();
+
+  React.useEffect(() => {
+    if (!profileUser) {
+      return;
+    }
+
+    setTimeline(profileUser.timeline.tweets);
+  }, [setTimeline, profileUser]);
 
   if (profileUserStatus === "loading") {
     return <>Loading...</>;
@@ -56,10 +65,6 @@ function Profile() {
 
   if (!profileUser) {
     return <>Cannot find profile</>;
-  }
-
-  if (!profileUser?.timeline?.tweets) {
-    return <>Error loading tweets</>;
   }
 
   const isOwnProfile = profileUser.user.id === loggedInUser?.id;
@@ -78,11 +83,9 @@ function Profile() {
       />
 
       <div className="timeline-stream">
-        {profileUser.timeline.tweets.length === 0 && (
-          <>There&apos;s nothing here :(</>
-        )}
+        {timeline.length === 0 && <>There&apos;s nothing here :(</>}
 
-        {profileUser.timeline.tweets.map(timelineTweet => {
+        {timeline.map(timelineTweet => {
           // N.b If the originalTweetUser is not null, then this user is a retweeter
           const originalTweetUser =
             profileUser.timeline.users[timelineTweet.posterUserId];

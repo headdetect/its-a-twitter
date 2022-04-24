@@ -17,7 +17,7 @@ export function Provider({ children }) {
   const [timelineUsers, setTimelineUsers] = React.useState([]);
   const [timelineStatus, setTimelineStatus] = React.useState("loading"); // loading | finished | error | not-logged-in
 
-  const refreshTimeline = React.useCallback(async () => {
+  const loadOwnTimeline = React.useCallback(async () => {
     // We're okay with this running multiple times. It should reload
     // the timeline every time the login state is set to true
     try {
@@ -148,7 +148,7 @@ export function Provider({ children }) {
           return {
             ...t,
             userRetweeted: true,
-            retweetCount: t.retweetCount + 1,
+            retweetCount: (t.retweetCount || 0) + 1,
           };
         }),
       );
@@ -214,12 +214,12 @@ export function Provider({ children }) {
           return {
             ...t,
             userReactions: [
-              ...t.userReactions.filter(r => r !== reaction), // filter out any in case they exists //
+              ...(t.userReactions?.filter(r => r !== reaction) || []), // filter out any in case they exists //
               reaction,
             ],
             reactionCount: {
               ...t.reactionCount,
-              [`${reaction}`]: (t.reactionCount[reaction] || 0) + 1,
+              [`${reaction}`]: (t.reactionCount?.[reaction] || 0) + 1,
             },
           };
         }),
@@ -252,7 +252,7 @@ export function Provider({ children }) {
 
           return {
             ...t,
-            userReactions: t.userReactions.filter(r => r !== reaction),
+            userReactions: t.userReactions?.filter(r => r !== reaction) || [],
             reactionCount: {
               ...t.reactionCount,
               [`${reaction}`]: t.reactionCount[reaction] - 1,
@@ -273,7 +273,7 @@ export function Provider({ children }) {
         deleteTweet,
         retweet,
         removeRetweet,
-        refreshTimeline,
+        loadOwnTimeline,
         addReaction,
         removeReaction,
         setTimeline,

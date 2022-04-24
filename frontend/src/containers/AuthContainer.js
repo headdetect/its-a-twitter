@@ -150,10 +150,10 @@ export function Provider({ children }) {
         // State //
         isLoggedIn: loggedInUser !== null,
         loggedInUser,
-        autoLoginStatus,
       }}
     >
-      {children}
+      {/* Prevent rendering if we're not ready for attempted authenticated requests */}
+      {autoLoginStatus !== "loading" && children}
     </Context.Provider>
   );
 }

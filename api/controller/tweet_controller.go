@@ -74,12 +74,31 @@ func HandleGetTweet(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
+	var userReactions []string
+	var userRetweeted bool
+
+	if currentUser, err := GetCurrentUser(request); err == nil {
+		userReactions, err = tweet.UserReactions(currentUser.Id)
+		if err != nil {
+			ErrorResponse(writer, err)
+			return
+		}
+
+		userRetweeted, err = tweet.UserRetweeted(currentUser.Id)
+		if err != nil {
+			ErrorResponse(writer, err)
+			return
+		}
+	}
+
 	response := SingleTweetResponse{
 		TimelineTweet: model.TimelineTweet{
 			Tweet:         tweet,
 			Poster:        tweet.User.Id,
 			ReactionCount: reactionCount,
 			RetweetCount:  retweetCount,
+			UserReactions: userReactions,
+			UserRetweeted: userRetweeted,
 		},
 	}
 

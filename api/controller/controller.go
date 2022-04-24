@@ -13,7 +13,7 @@ var Sessions map[string]model.User = make(map[string]model.User) // [authToken] 
 // TODO Make these helper funcs private
 
 func GetCurrentUser(request *http.Request) (model.User, error) {
-	authToken := request.Header.Get("AuthToken")
+	authToken := request.Header.Get("Authtoken")
 
 	// The auth username is a sort of 'public key'
 	// so people can't just brute-force a token.
