@@ -17,19 +17,61 @@ export function Provider({ children, profileUsername = null }) {
   const [profileUser, setProfileUser] = React.useState(undefined);
   const [profileUserStatus, setProfileUserStatus] = React.useState("loading"); // loading | finished | error
 
-  const [loggedInUserFollowing, setLoggedInUserFollowing] = React.useState([]);
-
-  const followingUser = React.useMemo(
-    () =>
-      profileUser
-        ? Boolean(loggedInUserFollowing.find(f => f.id === profileUser.id))
-        : false,
-    [loggedInUserFollowing, profileUser],
-  );
-
   const updateProfilePic = React.useCallback(async pic => {}, []);
-  const followUser = React.useCallback(async username => {}, []);
-  const unfollowUser = React.useCallback(async username => {}, []);
+
+  const followUser = React.useCallback(
+    async username => {
+      const response = await authenticatedFetch(
+        `${API_URL}/user/profile/${username}/follow`,
+        {
+          method: "PUT",
+        },
+      );
+
+      if (response.status === 401) {
+        // TODO: Make the user log-in
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Error following user");
+      }
+
+      setProfileUser(oldProfileUser => ({
+        ...oldProfileUser,
+        followers: [...oldProfileUser.followers, loggedInUser],
+      }));
+    },
+    [authenticatedFetch, loggedInUser],
+  );
+  const unfollowUser = React.useCallback(
+    async username => {
+      const response = await authenticatedFetch(
+        `${API_URL}/user/profile/${username}/follow`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      if (response.status === 401) {
+        // TODO: Make the user log-in
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Error unfollowing user");
+      }
+
+      setProfileUser(oldProfileUser => ({
+        ...oldProfileUser,
+        followers:
+          oldProfileUser.followers?.filter(
+            u => u.username !== loggedInUser.username,
+          ) ?? [],
+      }));
+    },
+    [authenticatedFetch, loggedInUser],
+  );
 
   const loadProfileUser = React.useCallback(
     async username => {
@@ -77,7 +119,6 @@ export function Provider({ children, profileUsername = null }) {
         // State //
         profileUser,
         profileUserStatus,
-        followingUser,
       }}
     >
       {children}

@@ -1,18 +1,37 @@
 import React from "react";
 
+import * as AuthContainer from "containers/AuthContainer";
+
 export default function ProfileInfo({
   profileUser,
-  isFollowingUser,
   canFollowUser,
 
   onFollowUser = _ => {},
   onUnfollowUser = _ => {},
 }) {
+  const { loggedInUser } = AuthContainer.useContext();
+
+  const profileFollowingLoggedInUser = React.useMemo(
+    () =>
+      profileUser?.following
+        ? Boolean(profileUser.following.find(f => f.id === loggedInUser.id))
+        : false,
+    [profileUser, loggedInUser],
+  );
+
+  const loggedInUserFollowingProfile = React.useMemo(
+    () =>
+      profileUser?.followers
+        ? Boolean(profileUser.followers.find(f => f.id === loggedInUser.id))
+        : false,
+    [profileUser, loggedInUser],
+  );
+
   const handleChangeFollow = () => {
-    if (isFollowingUser) {
-      onUnfollowUser(profileUser.user.id);
+    if (loggedInUserFollowingProfile) {
+      onUnfollowUser(profileUser.user.username);
     } else {
-      onFollowUser(profileUser.user.id);
+      onFollowUser(profileUser.user.username);
     }
   };
 
@@ -21,8 +40,11 @@ export default function ProfileInfo({
       This is @{profileUser.user.username}.
       {canFollowUser && (
         <button onClick={handleChangeFollow}>
-          {isFollowingUser ? "Unfollow" : "Follow"}
+          {loggedInUserFollowingProfile ? "Unfollow" : "Follow"}
         </button>
+      )}
+      {profileFollowingLoggedInUser && (
+        <>@{profileUser.user.username} follows you</>
       )}
     </div>
   );

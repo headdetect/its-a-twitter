@@ -73,10 +73,6 @@ function Profile() {
     <>
       <ProfileInfo
         profileUser={profileUser}
-        isFollowingUser={
-          profileUser.followers &&
-          Boolean(profileUser.followers.find(u => u.id === loggedInUser.id))
-        }
         canFollowUser={isLoggedIn && !isOwnProfile}
         onFollowUser={followUser}
         onUnfollowUser={unfollowUser}

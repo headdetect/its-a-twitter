@@ -214,7 +214,7 @@ export function Provider({ children }) {
           return {
             ...t,
             userReactions: [
-              ...(t.userReactions?.filter(r => r !== reaction) || []), // filter out any in case they exists //
+              ...(t.userReactions?.filter(r => r !== reaction) ?? []), // filter out any in case they exists //
               reaction,
             ],
             reactionCount: {
@@ -252,7 +252,7 @@ export function Provider({ children }) {
 
           return {
             ...t,
-            userReactions: t.userReactions?.filter(r => r !== reaction) || [],
+            userReactions: t.userReactions?.filter(r => r !== reaction) ?? [],
             reactionCount: {
               ...t.reactionCount,
               [`${reaction}`]: t.reactionCount[reaction] - 1,
