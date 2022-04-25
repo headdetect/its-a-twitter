@@ -13,7 +13,7 @@ export default function CraftTweet({ onTweet = async (_, __) => {} }) {
   const fileInputRef = React.useRef(null);
 
   const handleSubmitTweet = async () => {
-    if (!ACCEPTABLE_MIME_TYPES.includes(file.type)) {
+    if (file && !ACCEPTABLE_MIME_TYPES.includes(file.type)) {
       setError(
         "This file type is not allowed. You must choose an image type (gif, png, jpeg)",
       );

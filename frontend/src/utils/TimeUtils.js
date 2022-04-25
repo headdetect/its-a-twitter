@@ -40,29 +40,32 @@ const agoSmallFormat = new Intl.DateTimeFormat(userLocal ?? "en-US", {
 export function toAgoString(dateTime) {
   const now = new Date();
 
-  if (now.getMilliseconds() - dateTime.getMilliseconds() < 0) {
+  if (now.getTime() - dateTime.getTime() < 0) {
     return "In the future";
   }
 
-  const dateDifference = Math.floor(
-    (now.getTime() - dateTime.getTime()) / (1000 * 3600 * 24),
-  );
+  if (now.getTime() - dateTime.getTime() < 60e3) {
+    return `${Math.floor((now.getTime() - dateTime.getTime()) / 1000)}s`;
+  }
+
+  const dateDifference =
+    (now.getTime() - dateTime.getTime()) / (1000 * 3600 * 24);
 
   const hourDifference = dateDifference * 24;
 
   // Difference is less than 1h //
   if (hourDifference < 1) {
-    return `${now.getMinutes() - dateTime.getMinutes()}m`;
+    return `${Math.ceil(hourDifference * 60)}m`;
   }
 
   // Difference is less than 24h //
   if (hourDifference < 24) {
-    return `${now.getHours() - dateTime.getHours()}h`;
+    return `${Math.ceil(hourDifference)}h`;
   }
 
   // Difference is less than 28d //
-  if (dateDifference <= 28) {
-    return `${dateDifference}d`;
+  if (Math.floor(dateDifference) <= 28) {
+    return `${Math.ceil(dateDifference)}d`;
   }
 
   // Years are the same //

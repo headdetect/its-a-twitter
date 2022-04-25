@@ -42,9 +42,21 @@ function Timeline() {
     ...tweetActions
   } = TweetContainer.useContext();
 
+  const [updatedAt, setUpdatedAt] = React.useState(new Date());
+
   React.useEffect(() => {
     fetchAndStoreTimeline();
   }, [fetchAndStoreTimeline]);
+
+  React.useEffect(() => {
+    const updateTimestampsInterval = setInterval(() => {
+      setUpdatedAt(new Date());
+    }, 30e3); // Every 30 seconds //
+
+    return () => {
+      clearInterval(updateTimestampsInterval);
+    };
+  });
 
   if (timelineStatus === "loading") {
     return <>Loading...</>;
@@ -68,9 +80,12 @@ function Timeline() {
           const user = timelineUsers[timelineTweet.posterUserId];
           const retweetUser = timelineUsers[timelineTweet.retweeterUserId];
 
+          const isRecent =
+            Date.now() - timelineTweet.tweet.createdAt < 1e3 * 60 * 60; // 1hr //
+
           return (
             <Tweet
-              key={timelineTweet.tweet.id}
+              key={timelineTweet.tweet.id + (isRecent ? updatedAt : 0)} // Force the most recent ones to re-render
               user={user}
               timelineTweet={timelineTweet}
               retweetUser={retweetUser}
