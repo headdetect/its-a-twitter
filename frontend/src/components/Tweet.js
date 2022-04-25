@@ -5,6 +5,8 @@ import * as TimeUtils from "utils/TimeUtils";
 
 import "./Tweet.css";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const REACTION_MAP = {
   clap: "👏",
   party: "🎉",
@@ -82,6 +84,10 @@ export default function Tweet({
           - {TimeUtils.toAgoString(new Date(tweet.createdAt * 1000))}
         </span>
         <p>{tweet.text}</p>
+
+        {tweet.mediaPath && (
+          <img src={`${API_URL}/asset/${tweet.mediaPath}`} alt="tweet media" />
+        )}
 
         <div className="tweet-actions">
           <button

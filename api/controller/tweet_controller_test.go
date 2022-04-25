@@ -1,8 +1,11 @@
 package controller_test
 
 import (
-	"bytes"
+	"fmt"
 	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/headdetect/its-a-twitter/api/controller"
@@ -44,13 +47,33 @@ func TestHandleGetTweet(t *testing.T) {
 }
 
 func TestHandlePostTweet(t *testing.T) {
-	response, _ := makeAuthenticatedTestRequest(
-		t,
-		"lurker",
+	loginRequest := controller.LoginRequest{
+		Username: "lurker",
+		Password: "password",
+	}
+
+	writer := httptest.NewRecorder()
+	request := httptest.NewRequest(
 		http.MethodPost,
 		"/tweet",
-		bytes.NewReader([]byte(`{ "text": "Tweet Tweet" }`)),
+		strings.NewReader(fmt.Sprintf("text=%s", url.QueryEscape(`Tweet Tweet`))),
 	)
+
+	err := AuthenticatedRequest(loginRequest, request)
+
+	if err != nil {
+		t.Errorf("Error authenticating. %k\n", err)
+	}
+
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+	ControllerServe(writer, request)
+
+	response := writer.Result()
+
+	if response.StatusCode != http.StatusOK {
+		t.Errorf("expected OK (200) got %s (%d)", response.Status, response.StatusCode)
+	}
 
 	var parsedResponse controller.SingleTweetResponse
 	parseTestResponse(t, response, &parsedResponse)

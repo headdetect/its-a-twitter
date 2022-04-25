@@ -6,10 +6,12 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
 	"github.com/headdetect/its-a-twitter/api/controller"
 	"github.com/headdetect/its-a-twitter/api/store"
+	"github.com/headdetect/its-a-twitter/api/utils"
 
 	"github.com/joho/godotenv"
 )
@@ -50,6 +52,15 @@ func main() {
 
 	if err != nil {
 		log.Fatal("Error loading .env file")
+	}
+
+	assetsPath, _ := utils.GetStringOrDefault("MEDIA_PATH", "./assets/media")
+	newPath := filepath.Join(".", assetsPath)
+	err = os.MkdirAll(newPath, os.ModePerm)
+
+	if err != nil {
+		log.Fatal("Error making assets directory")
+		log.Fatal(err)
 	}
 
 	log.Println("Loading database")

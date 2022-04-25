@@ -27,7 +27,6 @@ export function Provider({ children }) {
       else response = await fetch(`${API_URL}/timeline`);
 
       if (response.status === 401) {
-        debugger;
         setTimeline([]);
         setTimelineStatus("error");
         return;
@@ -50,11 +49,13 @@ export function Provider({ children }) {
 
   const submitTweet = React.useCallback(
     async (text, media) => {
-      // TODO: Post medias
+      const formData = new FormData();
+      formData.append("file", media);
+      formData.append("text", text);
 
       const response = await authenticatedFetch(`${API_URL}/tweet`, {
         method: "POST",
-        body: JSON.stringify({ text }),
+        body: formData,
       });
 
       if (response.status === 401) {
@@ -69,13 +70,16 @@ export function Provider({ children }) {
       }
 
       const timelineTweet = {
-        tweet: body.tweet,
+        // Defaults //
         posterUserId: loggedInUser.id,
         reactionCount: {},
         retweetCount: 0,
         retweeterUserId: null,
         userReactions: [],
         userRetweeted: false,
+
+        // Results //
+        ...body.tweet,
       };
 
       setTimeline(oldTimeline => [timelineTweet, ...oldTimeline]);

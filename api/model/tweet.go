@@ -41,10 +41,13 @@ func MakeTweet(user User, text string, mediaPath string) (Tweet, error) {
 
 	createdAt := time.Now().Unix()
 
-	sqlMediaPath := sql.NullString{}
+	var sqlMediaPath sql.NullString
 
 	if mediaPath != "" {
-		sqlMediaPath.String = mediaPath
+		sqlMediaPath = sql.NullString{
+			String: mediaPath,
+			Valid:  true,
+		}
 	}
 
 	res, err := store.DB.Exec(

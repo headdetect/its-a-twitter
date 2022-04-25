@@ -59,7 +59,7 @@ function Timeline() {
 
   return (
     <>
-      {isLoggedIn && <CraftTweet onTweet={tweetActions.tweet} />}
+      {isLoggedIn && <CraftTweet onTweet={tweetActions.submitTweet} />}
 
       <div className="timeline-stream">
         {timeline.length === 0 && <>There&apos;s nothing here :(</>}

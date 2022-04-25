@@ -105,6 +105,9 @@ func MakeRoutes() (routes []Route) {
 		// Root //
 		{method: "GET", path: "/", handler: HandleRoot},
 
+		// Assets //
+		{method: "GET", path: "/asset/([^/]+)", handler: HandleAsset},
+
 		// Timeline //
 		{method: "GET", path: "/timeline", handler: HandleTimeline},
 

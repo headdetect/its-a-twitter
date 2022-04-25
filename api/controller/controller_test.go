@@ -79,17 +79,17 @@ func login(request controller.LoginRequest) (controller.LoginResponse, *http.Res
 	return actualResponse, response, err
 }
 
-func AuthenticatedRequest(loginRequest controller.LoginRequest, request *http.Request) (*http.Request, error) {
+func AuthenticatedRequest(loginRequest controller.LoginRequest, request *http.Request) error {
 	loginResponse, _, err := login(loginRequest)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	request.Header.Add("AuthToken", loginResponse.AuthToken)
 	request.Header.Add("Username", loginResponse.User.Username)
 
-	return request, nil
+	return nil
 }
 
 // Functions to help with testing happy paths/valid cases //
@@ -127,7 +127,8 @@ func makeAuthenticatedTestRequest(
 	}
 
 	writer := httptest.NewRecorder()
-	request, err := AuthenticatedRequest(loginRequest, httptest.NewRequest(method, route, body))
+	request := httptest.NewRequest(method, route, body)
+	err := AuthenticatedRequest(loginRequest, request)
 
 	if err != nil {
 		t.Errorf("Error authenticating. %k\n", err)
@@ -188,7 +189,8 @@ func makeAuthenticatedRequest(
 	}
 
 	writer := httptest.NewRecorder()
-	request, err := AuthenticatedRequest(loginRequest, httptest.NewRequest(method, route, body))
+	request := httptest.NewRequest(method, route, body)
+	err := AuthenticatedRequest(loginRequest, request)
 
 	if err != nil {
 		return nil, nil, err
