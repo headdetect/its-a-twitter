@@ -7,3 +7,5 @@ sessions.dat
 assets/media/
 
 __debug_bin
+
+./api

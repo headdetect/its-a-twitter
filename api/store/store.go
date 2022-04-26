@@ -64,7 +64,8 @@ func SeedDatabase(files ...string) {
 		sql, err := os.ReadFile(file)
 
 		if err != nil {
-			log.Fatal(err)
+			log.Println("Could not find seed file: ", file)
+			continue
 		}
 
 		_, err = DB.Exec(string(sql))

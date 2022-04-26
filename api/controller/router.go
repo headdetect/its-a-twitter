@@ -147,7 +147,7 @@ func MakeRoutes() (routes []Route) {
 func StartRouter() {
 	routes := MakeRoutes()
 	routerServe := ServeWithRoutes(routes)
-	port, _ := utils.GetIntOrDefault("API_PORT", 5555)
+	port, _ := utils.GetIntOrDefault("PORT", 5555)
 	handler := http.HandlerFunc(routerServe)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), handler))
 }
