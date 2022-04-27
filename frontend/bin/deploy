@@ -17,6 +17,12 @@ if [ "$answer" == "${answer#[Yy]}" ] || [ "$answer" == "" ]; then
   exit 4
 fi
 
+return_to_master() {
+  git checkout master
+}
+
+trap 'return_to_master' ERR
+
 # checkout & reset state to latest
 git checkout build
 git fetch origin
@@ -39,7 +45,7 @@ mv build/* ../docs
   cd .. && \
   git add . && \
   git commit -am "gh-pages build" && \
-  git push origin build \
+  git push origin build -f \
 )
 
 echo "Deployed to github"
