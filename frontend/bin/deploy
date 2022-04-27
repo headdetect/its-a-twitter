@@ -49,3 +49,5 @@ mv build/* ../docs
 )
 
 echo "Deployed to github"
+
+return_to_master
