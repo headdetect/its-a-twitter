@@ -5,20 +5,22 @@ IFS=$'\n\t'
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )"/.. &> /dev/null && pwd )
 TARGET_DIR=$(basename "$SCRIPT_DIR")
 
-[ $(git rev-parse --abbrev-ref HEAD) == "master" ] || { echo "This command must be ran on the master branch" 1>&2; exit 1; }
-[ $(basename "`pwd`") == $TARGET_DIR ] || { echo "This command must be ran in the '/frontend' directory" 1>&2; exit 1; }
+[ $(git rev-parse --abbrev-ref HEAD) == "master" ] || { echo "Operation aborted. This command must be ran on the master branch" 1>&2; exit 1; }
+[ $(basename "`pwd`") == $TARGET_DIR ] || { echo "Operation aborted. This command must be ran in the '/frontend' directory" 1>&2; exit 2; }
+[[ `git status --porcelain` ]] && { echo "Operation aborted. You have pending changes. Either stash them or commit them" 1>&2; exit 3; }
 
 read -p "This will reset this branch to master and deploy. Continue? (y/N) " -n 1 answer
 echo ""
 
 if [ "$answer" == "${answer#[Yy]}" ] || [ "$answer" == "" ]; then
-  echo "Operation aborted. No changes were made." 1>&2; 
-  exit 2
+  echo "Operation aborted. User declined deploy." 1>&2; 
+  exit 4
 fi
 
-# reset state to latest
-# git fetch origin
-# git reset --hard origin/master
+# checkout & reset state to latest
+git checkout build
+git fetch origin
+git reset --hard origin/master
 echo "Reset HEAD to origin/master"
 
 # build the app
