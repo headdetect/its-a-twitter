@@ -1,18 +1,23 @@
 #!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
 
-echo -n "This will reset this branch to master and deploy. Continue? (y/N) "
-read answer
+read -p "This will reset this branch to master and deploy. Continue? (y/N) " -n 1 answer
+echo ""
 
-if [ "$answer" != "${answer#[Nn]}" ] || ["$answer" != ""]; then
-  exit 0
+if [ "$answer" == "${answer#[Yy]}" ] || [ "$answer" == "" ]; then
+  echo "Operation aborted. No changes were made." 1>&2; 
+  exit 1
 fi
 
 # reset state to latest
-git fetch origin
-git reset --hard origin/master
+# git fetch origin
+# git reset --hard origin/master
+echo "Reset HEAD to origin/master"
 
 # build the app
 npm run build
+echo "Built application pack"
 
 # Clear /docs
 rm -rf ../docs
@@ -21,9 +26,13 @@ mkdir -p ../docs
 # move to /docs
 mv build/* ../docs
 
-cd ..
-
 # commit & push changes
-git add .
-git commit -am "gh-pages build"
-git push origin build
+( \
+  cd .. && \
+  git add . && \
+  git commit -am "gh-pages build" && \
+  git push origin build \
+)
+
+echo "Deployed to github"
+
