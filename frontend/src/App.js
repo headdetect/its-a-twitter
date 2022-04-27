@@ -7,34 +7,49 @@ import * as Profile from "./pages/Profile";
 import * as Timeline from "./pages/Timeline";
 import * as SingleTweet from "./pages/SingleTweet";
 
+const BASE_ROUTE = process.env.REACT_APP_BASE_ROUTE ?? "";
+
 function Route() {
   const path = window.location.pathname;
-  const segments = path.split("/").filter(p => Boolean(p));
+  const segments = path
+    .split("/")
+    .filter(p => Boolean(p) && p != BASE_ROUTE.substring(1));
 
-  if (path === "/") {
-    location.pathname = "/timeline";
-  }
+  const [root, secondary = null] = segments;
 
-  if (path === "/timeline") {
-    return <Timeline.Presenter />;
-  }
+  const routes = {
+    "": () => {
+      location.pathname = "/timeline";
 
-  if (path.startsWith("/profile") && segments.length >= 2) {
-    const [_, atUsername] = segments;
+      return null;
+    },
+    timeline: () => <Timeline.Presenter />,
+    profile: () => {
+      if (!secondary || !secondary.startsWith("@")) {
+        return <NotFound.Presenter />;
+      }
 
-    if (!atUsername.startsWith("@")) {
-      return <NotFound.Presenter />;
+      const username = secondary.substring(1);
+
+      return <Profile.Presenter username={username} />;
+    },
+    tweet: () => {
+      if (!secondary) {
+        return <NotFound.Presenter />;
+      }
+
+      return <SingleTweet.Presenter tweetId={+secondary} />;
+    },
+  };
+
+  const component = routes[root];
+
+  if (component) {
+    const result = component();
+
+    if (result) {
+      return result;
     }
-
-    const username = atUsername.substring(1);
-
-    return <Profile.Presenter username={username} />;
-  }
-
-  if (path.startsWith("/tweet") && segments.length >= 2) {
-    const [_, tweetId] = segments;
-
-    return <SingleTweet.Presenter tweetId={tweetId} />;
   }
 
   return <NotFound.Presenter />;
