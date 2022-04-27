@@ -2,12 +2,18 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )"/.. &> /dev/null && pwd )
+TARGET_DIR=$(basename "$SCRIPT_DIR")
+
+[ $(git rev-parse --abbrev-ref HEAD) == "master" ] || { echo "This command must be ran on the master branch" 1>&2; exit 1; }
+[ $(basename "`pwd`") == $TARGET_DIR ] || { echo "This command must be ran in the '/frontend' directory" 1>&2; exit 1; }
+
 read -p "This will reset this branch to master and deploy. Continue? (y/N) " -n 1 answer
 echo ""
 
 if [ "$answer" == "${answer#[Yy]}" ] || [ "$answer" == "" ]; then
   echo "Operation aborted. No changes were made." 1>&2; 
-  exit 1
+  exit 2
 fi
 
 # reset state to latest
@@ -35,4 +41,3 @@ mv build/* ../docs
 )
 
 echo "Deployed to github"
-
