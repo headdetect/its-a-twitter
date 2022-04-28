@@ -29,7 +29,7 @@ func TestMain(m *testing.M) {
 	os.Setenv("STORE_PATH", "../store")
 
 	if err != nil {
-		log.Fatalf("Error loading env. Error %k\n", err)
+		log.Printf("Error loading env. Error %k. Skipping\n", err)
 	}
 
 	log.Println("Loading database")
