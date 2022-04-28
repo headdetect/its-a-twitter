@@ -2,17 +2,78 @@
   --spacing: 8px;
   --content-width: 900px;
 
-  --primary: #6056d1;
+  --primary: #8d1eef;
   
-  --text: #0c0c0d;
-  --text-subtitle: #313133;
-  --background: #fafafa;
-  --background-dark: #f4f4f8;
-  --background-darker: rgb(220, 220, 227);
-  --border: rgba(0, 0, 0, 0.16);
+  --text: #f6f6f8;
+  --text-subtitle: #afafb7;
+  --link: #3a32cd;
+  --link-hover: #554eda;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --shadow: drop-shadow(0 0 8px rgba(0, 0, 0, 0.16));
+
+  /* Levels */
+  --basement: #081820;
+  --ground: #2b3943;
+  --attic: #3e494f;
+
+  /* Levels w/hover */
+  --basement-hover: #081820;
+  --ground-hover: #485965;
+  --attic-hover: #525e64;
+
+  --action-hover: rgba(255, 255, 255, 0.08);
 }
 
 html, body, #root, .app {
   height: 100%;
   width: 100%;
+
+  background: var(--basement);
+  color: var(--text);
+
+  font-size: 16px;
+}
+
+/* Button reset */
+button {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+
+  font-size: 16px;
+
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+
+  padding: 0;
+  margin: 0;
+
+  transition: background-color 150ms cubic-bezier(0.65, 0.05, 0.36, 1);
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+
+  transition: color 150ms cubic-bezier(0.65, 0.05, 0.36, 1);
+}
+
+a:hover {
+  color: var(--link-hover);
+}
+
+.btn {
+  background: var(--attic);
+
+  border-radius: 16px;
+  padding: var(--spacing);
+}
+
+.btn:hover {
+  background: var(--attic-hover);
 }

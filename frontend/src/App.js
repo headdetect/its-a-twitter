@@ -7,7 +7,33 @@ import * as Profile from "./pages/Profile";
 import * as Timeline from "./pages/Timeline";
 import * as SingleTweet from "./pages/SingleTweet";
 
+import { library } from "@fortawesome/fontawesome-svg-core";
+import {
+  faKiwiBird,
+  faCaretDown,
+  faUser,
+  faImage,
+  faShareSquare,
+  faSignInAlt,
+  faSignOutAlt,
+  faFileAlt,
+} from "@fortawesome/free-solid-svg-icons";
+import { faGithub } from "@fortawesome/free-brands-svg-icons";
+
 const BASE_ROUTE = process.env.REACT_APP_BASE_ROUTE ?? "";
+
+library.add(
+  faKiwiBird,
+  faCaretDown,
+  faUser,
+  faImage,
+  faShareSquare,
+  faSignInAlt,
+  faSignOutAlt,
+  faFileAlt,
+
+  faGithub,
+);
 
 function Route() {
   const path = window.location.pathname;
@@ -15,7 +41,7 @@ function Route() {
     .split("/")
     .filter(p => Boolean(p) && p != BASE_ROUTE.substring(1));
 
-  const [root, secondary = null] = segments;
+  const [root = "", secondary = null] = segments;
 
   const routes = {
     "": () => {
