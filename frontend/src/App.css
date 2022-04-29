@@ -7,20 +7,22 @@
   --text: #f6f6f8;
   --text-subtitle: #afafb7;
   --link: #3a32cd;
-  --link-hover: #554eda;
+  --link-hover: #6861f0;
 
   --border: rgba(255, 255, 255, 0.08);
   --shadow: drop-shadow(0 0 8px rgba(0, 0, 0, 0.16));
 
   /* Levels */
-  --basement: #081820;
-  --ground: #2b3943;
-  --attic: #3e494f;
+  --basement: hsl(228, 7%, 9%);
+  --ground: hsl(231, 7%, 15%);
+  --attic: hsl(232, 7%, 20%);
+  --roof: hsl(232, 7%, 98%);
 
   /* Levels w/hover */
-  --basement-hover: #081820;
-  --ground-hover: #485965;
-  --attic-hover: #525e64;
+  --basement-hover: hsl(232, 7%, 6%);
+  --ground-hover: hsl(232, 7%, 6%);
+  --attic-hover: hsl(231, 7%, 97%);
+  --roof-hover: #ffffff;
 
   --action-hover: rgba(255, 255, 255, 0.08);
 }
@@ -70,10 +72,19 @@ a:hover {
 .btn {
   background: var(--attic);
 
-  border-radius: 16px;
-  padding: var(--spacing);
+  border-radius: 10px;
+  padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 2);
 }
 
 .btn:hover {
   background: var(--attic-hover);
+  filter: var(--shadow);
+}
+
+.btn.btn-light {
+  background: var(--roof);
+}
+
+.btn.btn-light:hover {
+  background: var(--roof-hover);
 }

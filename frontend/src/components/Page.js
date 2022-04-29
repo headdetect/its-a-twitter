@@ -81,9 +81,12 @@ export default function Page({ children, title = "" }) {
     <>
       <div className="navbar">
         <div className="navbar-content">
-          <div>
-            <FontAwesomeIcon icon="kiwi-bird" />
-            {title && <h1>{title}</h1>}
+          <div className="navbar-title">
+            <a href="/timeline">
+              <FontAwesomeIcon icon="kiwi-bird" />
+            </a>
+
+            {title}
           </div>
 
           {isLoggedIn ? (
@@ -99,9 +102,14 @@ export default function Page({ children, title = "" }) {
               )}
             </div>
           ) : (
-            <div className="user-login">
-              <button onClick={() => setUserPanelType("login")}>Log in</button>
-              <button onClick={() => setUserPanelType("register")}>
+            <div className="user-login-register">
+              <button className="btn" onClick={() => setUserPanelType("login")}>
+                Log in
+              </button>
+              <button
+                className="btn"
+                onClick={() => setUserPanelType("register")}
+              >
                 Register
               </button>
             </div>

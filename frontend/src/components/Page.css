@@ -22,6 +22,27 @@
   padding: 0;
 }
 
+.navbar-title {
+  display: flex;
+  flex-direction: row;
+
+  align-items: center;
+
+  font-size: 1.5rem;
+
+  font-weight: bold;
+}
+
+.navbar-title a {
+  color: var(--text);
+  font-size: 2rem;
+  margin-right: calc(var(--spacing) * 2);
+}
+
+.navbar-title a:hover {
+  color: var(--link);
+}
+
 
 .panel {
   position: fixed;
@@ -42,6 +63,8 @@
 .panel .visible {
   right: 0;
 }
+
+
 
 .user-profile {
   position: relative;
@@ -118,4 +141,8 @@
   color: var(--text-subtitle);
 
   margin-left: calc(var(--spacing) * 0.5);
+}
+
+.user-login-register button {
+  margin: 0 calc(var(--spacing) * 0.5);
 }
