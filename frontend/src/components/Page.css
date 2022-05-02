@@ -80,20 +80,13 @@
   filter: var(--shadow);
 }
 
-.user-profile img {
-  width: 25px;
-  height: 25px;
-  border-radius: 100%;
-
-  margin-right: calc(var(--spacing) * 1.5);
-}
-
 .user-profile button > svg {
   margin-left: calc(var(--spacing) * 2.5);
   margin-right: calc(var(--spacing) * 1.5);
 }
 
 .user-panel-popover {
+  z-index: 100;
   top: calc(100% + var(--spacing));
   right: 0;
   min-width: 150px;

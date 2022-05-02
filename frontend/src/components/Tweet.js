@@ -104,10 +104,20 @@ export default function Tweet({
           >
             @{retweetUser.username}
           </a>
-          <span>Retweeted</span>
+          <span>retweeted</span>
         </div>
       )}
       <div className="tweet">
+        {isOwnTweet && (
+          <button
+            className="btn btn-delete-tweet"
+            title="Delete tweet"
+            onClick={handleDeleteTweet}
+          >
+            <FontAwesomeIcon icon="trash" />
+          </button>
+        )}
+
         <UserAvatar
           user={user}
           style={{ marginRight: "calc(var(--spacing) * 2.5)" }}
@@ -121,8 +131,6 @@ export default function Tweet({
               {TimeUtils.toAgoString(new Date(tweet.createdAt * 1000))}
             </a>
           </div>
-
-          {isOwnTweet && <button onClick={handleDeleteTweet}>Delete</button>}
 
           <p>{tweet.text}</p>
 

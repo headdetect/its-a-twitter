@@ -6,6 +6,9 @@
   --content-width: 900px;
 
   --primary: #8d1eef;
+  --success: #80ef1e;
+  --warning: #efbe1e;
+  --danger: #f21c09;
   
   --text: #f6f6f8;
   --text-subtitle: #94949c;
@@ -65,7 +68,13 @@ button {
   padding: 0;
   margin: 0;
 
-  transition: background-color 150ms cubic-bezier(0.65, 0.05, 0.36, 1);
+  font-variant-numeric: tabular-nums;
+
+  transition: 
+    background-color 150ms cubic-bezier(0.65, 0.05, 0.36, 1),
+    color 150ms cubic-bezier(0.65, 0.05, 0.36, 1),
+    width 150ms cubic-bezier(0.65, 0.05, 0.36, 1), /* eg. if you retweet and the count goes from 9 -> 10 */
+    border-color 150ms cubic-bezier(0.65, 0.05, 0.36, 1);
 }
 
 a {
