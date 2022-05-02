@@ -4,6 +4,8 @@ import * as AuthContainer from "containers/AuthContainer";
 import * as TimeUtils from "utils/TimeUtils";
 
 import "./Tweet.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import UserAvatar from "components/UserAvatar";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -30,6 +32,33 @@ export default function Tweet({
   onDeleteTweet = _ => {},
 }) {
   const { loggedInUser, isLoggedIn } = AuthContainer.useContext();
+  const [titles, setTitles] = React.useState({
+    reaction: "Add a reaction",
+    share: "Share this tweet",
+    retweet: "Retweet",
+  });
+
+  const isOwnTweet = loggedInUser && loggedInUser.id === user.id;
+
+  React.useEffect(() => {
+    if (!loggedInUser) {
+      setTitles(t => ({
+        ...t,
+        reaction: "Must be logged in to react",
+        retweet: "Must be logged in to retweet",
+      }));
+
+      return;
+    }
+
+    if (isOwnTweet) {
+      setTitles(t => ({
+        ...t,
+        reaction: "Cannot react to your own tweet",
+        retweet: "Cannot retweet your own tweet",
+      }));
+    }
+  }, [loggedInUser, isOwnTweet]);
 
   const {
     tweet,
@@ -59,62 +88,81 @@ export default function Tweet({
     onDeleteTweet(tweet.id);
   };
 
-  const isOwnTweet = loggedInUser && loggedInUser.id === user.id;
-
   return (
-    <div className="tweet">
-      <img src="" alt={`${user.username}'s profile`} />
-      <div className="tweet-content">
-        {retweetUser && (
-          <div>
-            Retweeted from:{" "}
-            <a
-              href={`/profile/@${retweetUser.username}`}
-              rel="noopener noreferrer"
-            >
-              @{retweetUser.username}
+    <>
+      {retweetUser && (
+        <div className="retweet">
+          <UserAvatar
+            user={retweetUser}
+            size={25}
+            style={{ marginRight: "var(--spacing)" }}
+          />
+
+          <a
+            href={`/profile/@${retweetUser.username}`}
+            rel="noopener noreferrer"
+          >
+            @{retweetUser.username}
+          </a>
+          <span>Retweeted</span>
+        </div>
+      )}
+      <div className="tweet">
+        <UserAvatar
+          user={user}
+          style={{ marginRight: "calc(var(--spacing) * 2.5)" }}
+        />
+        <div className="tweet-content">
+          <div className="user-info">
+            <a className="user-link" href={`/profile/@${user.username}`}>
+              @{user.username}
+            </a>
+            <a className="tweet-link" href={`/tweet/${tweet.id}`}>
+              {TimeUtils.toAgoString(new Date(tweet.createdAt * 1000))}
             </a>
           </div>
-        )}
-        <span>
-          {" "}
-          <a href={`/profile/@${user.username}`} rel="noopener noreferrer">
-            @{user.username}
-          </a>{" "}
-          - {TimeUtils.toAgoString(new Date(tweet.createdAt * 1000))}
-        </span>
-        <p>{tweet.text}</p>
 
-        {tweet.mediaPath && (
-          <img src={`${API_URL}/asset/${tweet.mediaPath}`} alt="tweet media" />
-        )}
-
-        <div className="tweet-actions">
-          <button
-            onClick={handleRetweet}
-            style={{ color: userRetweeted ? "green" : "black" }}
-            disabled={!isLoggedIn || isOwnTweet}
-          >
-            retweet {retweetCount}
-          </button>
-          <div>
-            {ALLOWED_REACTIONS.map(r => (
-              <button
-                key={r}
-                onClick={() => handleReact(r)}
-                style={{
-                  color: userReactions.includes(r) ? "green" : "black",
-                }}
-                disabled={!isLoggedIn || isOwnTweet}
-              >
-                {REACTION_MAP[r]} {reactionCount[r] || 0}
-              </button>
-            ))}
-          </div>
-          <button>share</button>
           {isOwnTweet && <button onClick={handleDeleteTweet}>Delete</button>}
+
+          <p>{tweet.text}</p>
+
+          {tweet.mediaPath && (
+            <img
+              src={`${API_URL}/asset/${tweet.mediaPath}`}
+              alt="tweet media"
+            />
+          )}
+
+          <div className="tweet-actions">
+            <button
+              onClick={handleRetweet}
+              className={`btn btn-tweet-action ${
+                userRetweeted ? "selected" : ""
+              }`}
+              disabled={!isLoggedIn || isOwnTweet}
+              title={titles.retweet}
+            >
+              <FontAwesomeIcon icon="retweet" /> <span>{retweetCount}</span>
+            </button>
+
+            <div className="tweet-reactions">
+              {ALLOWED_REACTIONS.map(r => (
+                <button
+                  key={r}
+                  disabled={!isLoggedIn || isOwnTweet}
+                  onClick={() => handleReact(r)}
+                  className={`btn btn-tweet-reaction ${
+                    userReactions.includes(r) ? "selected" : ""
+                  }`}
+                  title={titles.reaction}
+                >
+                  {REACTION_MAP[r]} {reactionCount[r] || 0}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -1,16 +1,22 @@
 :root {
+  /* Activate Dark Mode 🌙 */
+  color-scheme: dark;
+
   --spacing: 8px;
   --content-width: 900px;
 
   --primary: #8d1eef;
   
   --text: #f6f6f8;
-  --text-subtitle: #afafb7;
+  --text-subtitle: #94949c;
+  --text-roof: #151516;
+  --text-disabled: rgba(255, 255, 255, 0.40);
   --link: #3a32cd;
   --link-hover: #6861f0;
 
   --border: rgba(255, 255, 255, 0.08);
   --shadow: drop-shadow(0 0 8px rgba(0, 0, 0, 0.16));
+  --disabled: rgba(255, 255, 255, 0.16);
 
   /* Levels */
   --basement: hsl(228, 7%, 9%);
@@ -21,10 +27,14 @@
   /* Levels w/hover */
   --basement-hover: hsl(232, 7%, 6%);
   --ground-hover: hsl(232, 7%, 6%);
-  --attic-hover: hsl(231, 7%, 97%);
+  --attic-hover: hsl(232, 7%, 28%);
   --roof-hover: #ffffff;
 
   --action-hover: rgba(255, 255, 255, 0.08);
+}
+
+html {
+  overflow-y: scroll;
 }
 
 html, body, #root, .app {
@@ -76,7 +86,12 @@ a:hover {
   padding: calc(var(--spacing) * 1.5) calc(var(--spacing) * 2);
 }
 
-.btn:hover {
+.btn:disabled {
+  background: var(--disabled);
+  color: var(--text-disabled);
+}
+
+.btn:hover:not(:disabled) {
   background: var(--attic-hover);
   filter: var(--shadow);
 }
@@ -85,6 +100,11 @@ a:hover {
   background: var(--roof);
 }
 
-.btn.btn-light:hover {
+.btn.btn-light:hover:not(:disabled) {
   background: var(--roof-hover);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  background: var(--disabled);
 }

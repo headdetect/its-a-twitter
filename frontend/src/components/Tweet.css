@@ -1,28 +1,140 @@
 .tweet {
-  width: 100%;
   display: flex;
+  position: relative;
 
-  border-radius: 25px;
+  border-radius: 16px;
 
   padding: calc(var(--spacing) * 3);
+  padding-bottom: calc(var(--spacing) * 5);
 
   margin-top: calc(var(--spacing) * 3);
-  margin-bottom: calc(var(--spacing) * 3);
+  margin-bottom: calc(var(--spacing) * 8);
 
-  background: var(--ground)
+  background: var(--ground);
 }
 
-.tweet img {
-  flex: 0;
+.retweet {
+  background: var(--attic);
+  border-radius: 16px;
+
+  font-size: 1.2rem;
+
+  padding: calc(var(--spacing) * 2);
+  padding-bottom: calc(var(--spacing) * 5);
+
+  margin-top: calc(var(--spacing) * 3);
   
-  width: 50px;
-  height: 50px;
+  /*
+   * Taken from .tweet and made 
+   * negative + bottom padding. 
+   * So it can overlap 
+   */
+  margin-bottom: calc(var(--spacing) * -6);
+
+  display: flex;
+  align-items: center;
+}
+
+.retweet a {
+  color: var(--text-subtitle);
+  margin-right: 6px; /* not following --spacing guidelines on purpose. This isn't bound by typical spacing */
+}
+
+.retweet a:hover {
+  color: var(--link-hover);
+}
+
+.retweet span {
+  color: var(--text-subtitle);
+}
+
+.tweet .btn-tweet-menu {
+  opacity: 0;
+}
+
+.tweet:hover .btn-tweet-menu {
+  opacity: 1;
 }
 
 .tweet .tweet-content {
   flex: 1 1 auto;
 }
 
-.tweet .tweet-content span {
+.tweet .tweet-content .user-info .user-link {
+  color: var(--text);
+  font-size: 1.25rem;
+
+  display: block;
+  margin-bottom: var(--spacing);
+}
+
+.tweet .tweet-content .user-info .user-link:hover {
+  color: var(--link-hover);
+}
+
+.tweet .tweet-content .user-info .tweet-link {
   color: var(--text-subtitle);
+  display: block;
+
+  font-size: 0.85rem;
+}
+
+.tweet .tweet-content .user-info .tweet-link:hover {
+  color: var(--link-hover);
+}
+
+.tweet .tweet-content p {
+  font-size: 1.1rem;
+  padding-right: calc(var(--spacing) * 3);
+}
+
+.tweet .tweet-content img {
+  max-width: 400px;
+  padding-right: calc(var(--spacing) * 3);
+}
+
+/** Actions **/
+
+.tweet .tweet-actions {
+  display: flex;
+  align-items: center;
+
+  margin-top: calc(var(--spacing) * 4);
+}
+
+.tweet .tweet-actions .btn-tweet-action {
+  margin-right: var(--spacing);
+}
+
+.tweet .tweet-actions .btn-tweet-action.selected {
+  color: var(--primary);
+  background: #2c2339;
+  border: 1px solid var(--primary);
+}
+
+.tweet .tweet-actions .btn-tweet-action span {
+  margin-left: var(--spacing);
+}
+
+.tweet .tweet-reactions .btn-tweet-reaction {
+  background: var(--ground);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+
+  margin-right: var(--spacing);
+  padding: var(--spacing);
+
+  font-size: 0.85rem;
+  color: var(--text-subtitle);
+}
+
+/** Reactions **/
+.tweet .tweet-reactions .btn-tweet-reaction:hover:not(:disabled) {
+  background: var(--ground-hover);
+}
+
+.tweet .tweet-reactions .btn-tweet-reaction.selected {
+  color: var(--primary);
+  background: #2c2339;
+  border-color: var(--primary);
 }

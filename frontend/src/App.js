@@ -17,6 +17,7 @@ import {
   faSignInAlt,
   faSignOutAlt,
   faFileAlt,
+  faRetweet,
 } from "@fortawesome/free-solid-svg-icons";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 
@@ -31,6 +32,7 @@ library.add(
   faSignInAlt,
   faSignOutAlt,
   faFileAlt,
+  faRetweet,
 
   faGithub,
 );

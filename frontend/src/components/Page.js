@@ -17,7 +17,7 @@ function UserPanelPopover({ onClose, ...theRest }) {
   useClickedOutside(ref, onClose);
 
   return (
-    <div className="user-panel-popup" ref={ref} {...theRest}>
+    <div className="user-panel-popover" ref={ref} {...theRest}>
       <ul>
         <li className="section-header">Profile</li>
         <li>

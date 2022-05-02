@@ -4,7 +4,6 @@
 
   padding: calc(var(--spacing) * 2) 0;
   width: 100%;
-  height: 50px;
 }
 
 .navbar-content {
@@ -94,7 +93,7 @@
   margin-right: calc(var(--spacing) * 1.5);
 }
 
-.user-panel-popup {
+.user-panel-popover {
   top: calc(100% + var(--spacing));
   right: 0;
   min-width: 150px;
@@ -108,18 +107,18 @@
   padding: calc(var(--spacing) * 1.5);
 }
 
-.user-panel-popup ul {
+.user-panel-popover ul {
   margin: 0;
   padding: 0;
 
   list-style: none;
 }
 
-.user-panel-popup ul li a:hover {
+.user-panel-popover ul li a:hover {
   background: var(--action-hover);
 }
 
-.user-panel-popup ul li>a {
+.user-panel-popover ul li>a {
   display: block;
 
   color: var(--text);
@@ -128,11 +127,11 @@
   border-radius: 8px;
 }
 
-.user-panel-popup ul li>a svg {
+.user-panel-popover ul li>a svg {
   margin-right: calc(var(--spacing) * 1.5);
 }
 
-.user-panel-popup ul li.section-header {
+.user-panel-popover ul li.section-header {
   cursor: initial;
 
   font-size: 12px;
