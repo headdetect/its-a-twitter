@@ -65,6 +65,8 @@
   flex-direction: column;
 
   width: fit-content;
+
+  margin-bottom: calc(var(--spacing) * 2);
 }
 
 .tweet .tweet-content .user-info a.user-link {
@@ -72,7 +74,7 @@
   font-size: 1.25rem;
 
   display: inline-block;
-  margin-bottom: var(--spacing);
+  margin-bottom: calc(var(--spacing) * 0.5);
 }
 
 .tweet .tweet-content .user-info a.user-link:hover {
@@ -92,12 +94,16 @@
 
 .tweet .tweet-content p {
   font-size: 1.1rem;
-  padding-right: calc(var(--spacing) * 3);
+  padding-right: calc(var(--spacing) * 5);
+  margin-bottom: var(--spacing);
 }
 
 .tweet .tweet-content img {
+  margin-right: calc(var(--spacing) * 5);
+  border-radius: 4px;
+
   max-width: 400px;
-  padding-right: calc(var(--spacing) * 3);
+  max-height: 400px;
 }
 
 /** Actions **/

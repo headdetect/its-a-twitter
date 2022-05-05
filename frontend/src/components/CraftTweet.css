@@ -2,9 +2,105 @@
   width: 100%;
   max-width: 600px;
   
-  padding: calc(var(--spacing) * 2);
+  margin: calc(var(--spacing) * 2) 0;
 }
 
 .craft-tweet {
   margin-bottom: var(--spacing);
+  padding-bottom: calc(var(--spacing) * 3);
+}
+
+.craft-tweet .tweet-editor {
+  position: relative;
+}
+
+.craft-tweet .tweet-editor textarea {
+  font-size: 1.1rem;
+
+  /* Has to be in pixels for our auto-height calculations */
+  line-height: 22px;
+  
+  height: 0;
+
+  background: var(--attic);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: calc(var(--spacing) * 2);
+
+  width: 100%;
+  outline: 0;
+
+  resize: none;
+}
+
+.craft-tweet .tweet-editor .count {
+  margin-top: calc(var(--spacing) * 0.25);
+
+  display: inline-block;
+
+  opacity: 1;
+  transition: opacity 150ms cubic-bezier(0.65, 0.05, 0.36, 1);
+  text-align: right;
+  font-weight: bold;
+}
+
+.craft-tweet .tweet-editor .count.empty {
+  opacity: 0;
+}
+
+.craft-tweet .tweet-editor .count.too-much {
+  color: var(--danger);
+}
+
+.craft-tweet .media-preview {
+  margin-top: calc(var(--spacing) * 2);
+}
+
+.craft-tweet .media-preview img {
+  max-width: 400px;
+  max-height: 400px;
+
+  border-radius: 4px;
+}
+
+.craft-tweet .actions {
+  display: flex;
+
+  justify-content: space-between;
+
+  margin-top: calc(var(--spacing) * 2);
+}
+
+.craft-tweet .actions input {
+  user-select: none;
+  display: none;
+}
+
+.craft-tweet .actions .btn-upload:hover svg {
+  color: var(--success);
+  filter: var(--glow-success);
+}
+
+.craft-tweet .actions .btn-upload svg {
+  margin-right: var(--spacing);
+
+  transition: color 150ms cubic-bezier(0.65, 0.05, 0.36, 1);
+}
+
+.craft-tweet .actions .btn-post {
+  opacity: 1;
+  background: var(--primary);
+  filter: var(--shadow);
+
+  color: white;
+
+}
+
+.craft-tweet .actions .btn-post:hover {
+  filter: var(--glow-primary);
+}
+
+.craft-tweet .actions .btn-post:disabled {
+  opacity: 0.7;
+  filter: none;
 }

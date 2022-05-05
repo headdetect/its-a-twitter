@@ -14,6 +14,10 @@ import (
 	"github.com/headdetect/its-a-twitter/api/utils"
 )
 
+const (
+	MAX_TWEET_CHARS = 250
+)
+
 var (
 	ACCEPTABLE_MIME_TYPES = []string{"image/jpeg", "image/jpg", "image/png", "image/gif"}
 )
@@ -171,6 +175,12 @@ func HandlePostTweet(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	text := request.FormValue("text")
+
+	if len(text) >= MAX_TWEET_CHARS {
+		// Returning an error response because this shouldn't be possible //
+		BadRequestResponse(writer)
+		return
+	}
 
 	currentUser, err := GetCurrentUser(request)
 

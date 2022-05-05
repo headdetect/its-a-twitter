@@ -2,5 +2,30 @@
   width: 100%;
   max-width: 600px;
 
-  padding: calc(var(--spacing) * 2);
+  padding: calc(var(--spacing) * 2) 0;
+}
+
+.divider {
+  position: relative;
+
+  width: 90%;
+  max-width: 600px;
+
+  border-bottom: 1px solid var(--border);
+
+  margin-top: calc(var(--spacing) * 5);
+}
+
+.divider span {
+  position: absolute;
+  background: var(--basement);
+  padding: 0 calc(var(--spacing) * 2);
+  display: inline-block;
+
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: var(--text-subtitle);
+
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

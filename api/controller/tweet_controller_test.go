@@ -56,7 +56,7 @@ func TestHandlePostTweet(t *testing.T) {
 	request := httptest.NewRequest(
 		http.MethodPost,
 		"/tweet",
-		strings.NewReader(fmt.Sprintf("text=%s", url.QueryEscape(`Tweet Tweet`))),
+		strings.NewReader(fmt.Sprintf("text=%s", url.QueryEscape("Tweet Tweet"))),
 	)
 
 	err := AuthenticatedRequest(loginRequest, request)
@@ -273,5 +273,37 @@ func TestHandleCannotRetweetInvalidTweet(t *testing.T) {
 
 	if response.StatusCode != http.StatusNotFound {
 		t.Errorf("expected Not Found (404) got %s (%d)", response.Status, response.StatusCode)
+	}
+}
+
+func TestHandlePostLongTweet(t *testing.T) {
+	loginRequest := controller.LoginRequest{
+		Username: "lurker",
+		Password: "password",
+	}
+
+	writer := httptest.NewRecorder()
+	request := httptest.NewRequest(
+		http.MethodPost,
+		"/tweet",
+		strings.NewReader(
+			fmt.Sprintf("text=%s", url.QueryEscape(strings.Repeat("Tweet Tweet", 100))),
+		),
+	)
+
+	err := AuthenticatedRequest(loginRequest, request)
+
+	if err != nil {
+		t.Errorf("Error authenticating. %k\n", err)
+	}
+
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+	ControllerServe(writer, request)
+
+	response := writer.Result()
+
+	if response.StatusCode != http.StatusBadRequest {
+		t.Errorf("expected OK (400) got %s (%d)", response.Status, response.StatusCode)
 	}
 }

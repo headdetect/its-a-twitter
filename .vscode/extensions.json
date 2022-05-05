@@ -1,0 +1,5 @@
+{
+  "recommendations": [
+    "golang.go-nightly" // Needed until this is merged & release on main channel: https://github.com/golang/vscode-go/issues/2171
+  ]
+}
