@@ -1,0 +1,23 @@
+.profile-form {
+  width: 100%;
+}
+
+.profile-form .title {
+  font-size: 2rem;
+  
+  margin-bottom: calc(var(--spacing) * 5);
+}
+
+.profile-form form .input-group {
+  margin-bottom: calc(var(--spacing) * 2);
+}
+
+.profile-form form .alert {
+  margin-top: calc(var(--spacing) * 2);
+  margin-bottom: calc(var(--spacing) * 2);
+}
+
+.profile-form .profile-form-action {
+  margin-top: calc(var(--spacing) * 4);
+  text-align: right;
+}
