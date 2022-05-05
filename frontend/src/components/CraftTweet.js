@@ -17,7 +17,6 @@ export default function CraftTweet({ onTweet = async (_, __) => {} }) {
 
   const [text, setText] = React.useState("");
   const [mediaPreview, setMediaPreview] = React.useState("");
-  const [file, setFile] = React.useState(null);
   const [error, setError] = React.useState(null);
 
   const fileInputRef = React.useRef(null);
@@ -54,40 +53,9 @@ export default function CraftTweet({ onTweet = async (_, __) => {} }) {
     updateTextAreaHeight();
   }, [text, updateTextAreaHeight]);
 
-  React.useEffect(() => {
-    if (!fileInputRef.current) {
-      return undefined;
-    }
+  const handleSubmitTweet = async e => {
+    const [file] = e.target.files;
 
-    // So we can access if this changes during unmount //
-    const ref = fileInputRef.current;
-
-    const handle = e => {
-      const [file] = e.target.files;
-
-      if (!ACCEPTABLE_MIME_TYPES.includes(file.type)) {
-        setError("Only images are acceptable");
-        return;
-      }
-
-      setError(null);
-
-      // Convert to base64 so we can put in the image previewer //
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onloadend = () => {
-        setMediaPreview(String(reader.result));
-      };
-    };
-
-    ref.addEventListener("change", handle);
-
-    return () => {
-      ref?.removeEventListener("change", handle);
-    };
-  }); // no deps on purpose //
-
-  const handleSubmitTweet = async () => {
     if (file && !ACCEPTABLE_MIME_TYPES.includes(file.type)) {
       setError(
         "This file type is not allowed. You must choose an image type (gif, png, jpeg)",
@@ -98,12 +66,29 @@ export default function CraftTweet({ onTweet = async (_, __) => {} }) {
 
     setText("");
     setMediaPreview("");
-    setFile(null);
     setError(null);
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+  };
+
+  const handleImageChanged = e => {
+    const [file] = e.target.files;
+
+    if (!ACCEPTABLE_MIME_TYPES.includes(file.type)) {
+      setError("Only images are acceptable");
+      return;
+    }
+
+    setError(null);
+
+    // Convert to base64 so we can put in the image previewer //
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = () => {
+      setMediaPreview(String(reader.result));
+    };
   };
 
   const handleUploadImage = () => {
@@ -153,8 +138,7 @@ export default function CraftTweet({ onTweet = async (_, __) => {} }) {
           <div className="actions">
             <input
               type="file"
-              style={{ display: "hidden" }}
-              onChange={e => setFile(e.target.files?.[0])}
+              onChange={handleImageChanged}
               multiple={false}
               accept={ACCEPTABLE_MIME_TYPES.join(", ")}
               ref={fileInputRef}
@@ -169,7 +153,8 @@ export default function CraftTweet({ onTweet = async (_, __) => {} }) {
               className="btn btn-post"
               onClick={handleSubmitTweet}
               disabled={
-                !file && (text.trim() === "" || text.trim().length > MAX_CHARS)
+                !mediaPreview &&
+                (text.trim() === "" || text.trim().length > MAX_CHARS)
               }
             >
               Post

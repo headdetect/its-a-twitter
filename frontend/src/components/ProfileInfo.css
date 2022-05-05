@@ -1,0 +1,122 @@
+.profile-info {
+  display: flex;
+  position: relative;
+
+  width: 100%;
+  max-width: var(--content-width);
+
+  border-radius: 16px;
+  
+  padding: calc(var(--spacing) * 3);
+  
+  margin: calc(var(--spacing) * 6) 0;
+  
+  background: var(--ground);
+}
+
+.profile-info .profile-avatar {
+  position: absolute;
+
+  width: 100px;
+  height: 100px;
+
+  top: -50px;
+  left: calc(var(--spacing) * 2);
+}
+
+
+.profile-info .profile-avatar .upload-image {
+  position: absolute;
+  z-index: 100;
+  width: 100px;
+  height: 100px;
+  border-radius: 100%;
+
+  background: var(--action-mask);
+  color: var(--text);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  opacity: 0;
+
+  transition: opacity 150ms cubic-bezier(0.65, 0.05, 0.36, 1);
+
+  cursor: pointer;
+  pointer-events: none;
+  
+  padding: var(--spacing);
+
+}
+
+.profile-info .profile-avatar:hover .upload-image {
+  opacity: 1;
+}
+
+.profile-info .profile-avatar img {
+  filter: var(--shadow);
+}
+
+.profile-info .profile-avatar input {
+  user-select: none;
+  display: none;
+}
+
+.profile-info .profile-content {
+  margin-top: 50px; /* To offset the height of the image */
+}
+
+.profile-info .profile-content .user span {
+  display: inline-block;
+
+  font-size: 1.3rem;
+
+  margin-right: var(--spacing);
+}
+
+.profile-info .profile-content .user .subtitle {
+  font-size: 1rem;
+  color: var(--text-subtitle);
+
+  background: var(--basement);
+  border-radius: 8px;
+  padding: calc(var(--spacing) * 0.5) var(--spacing);
+}
+
+.profile-info .profile-content .joined {
+  display: block;
+  font-size: 1.1rem;
+  
+  color: var(--text-subtitle);
+
+  margin-top: calc(var(--spacing) * 2);
+}
+
+.profile-info .profile-content .joined svg {
+  margin-right: var(--spacing);
+  color: var(--text-subtitle);
+}
+
+.profile-info .profile-content .follow-counts {
+  margin-top: calc(var(--spacing) * 2);
+  color: var(--text-subtitle);
+}
+
+.profile-info .profile-content .follow-counts span {
+  display: inline-block;
+  margin-right: calc(var(--spacing) * 3);
+}
+
+.profile-info .profile-content .follow-counts strong {
+  color: white;
+}
+
+
+.profile-info .profile-actions {
+  position: absolute;
+
+  top: calc(var(--spacing)  * 2);
+  right: calc(var(--spacing) * 2);
+}

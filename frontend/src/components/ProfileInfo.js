@@ -1,6 +1,12 @@
 import React from "react";
 
 import * as AuthContainer from "containers/AuthContainer";
+import UserAvatar from "components/UserAvatar";
+
+import "./ProfileInfo.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+const ACCEPTABLE_MIME_TYPES = ["image/jpeg", "image/gif", "image/png"];
 
 export default function ProfileInfo({
   profileUser,
@@ -8,7 +14,10 @@ export default function ProfileInfo({
   onFollowUser = _ => {},
   onUnfollowUser = _ => {},
 }) {
-  const { isLoggedIn, loggedInUser } = AuthContainer.useContext();
+  const { isLoggedIn, loggedInUser, setLoggedInUser } =
+    AuthContainer.useContext();
+
+  const fileInputRef = React.useRef(null);
 
   const isOwnProfile = profileUser.user.id === loggedInUser?.id;
 
@@ -28,6 +37,17 @@ export default function ProfileInfo({
     [profileUser, loggedInUser],
   );
 
+  const handleProfileImageChanged = e => {
+    const [file] = e.target.files;
+
+    if (!ACCEPTABLE_MIME_TYPES.includes(file.type)) {
+      // Silent rejection //
+      return;
+    }
+
+    // TODO: upload and fetch new user
+  };
+
   const handleChangeFollow = () => {
     if (loggedInUserFollowingProfile) {
       onUnfollowUser(profileUser.user.username);
@@ -36,19 +56,79 @@ export default function ProfileInfo({
     }
   };
 
+  const handleUploadProfileImage = () => {
+    fileInputRef.current.click();
+  };
+
+  const joinedDate = new Date(profileUser.user.createdAt * 1000);
+
   return (
-    <div>
-      This is @{profileUser.user.username}.
-      {isOwnProfile ? (
-        <p>This is your profile</p>
-      ) : (
-        <button onClick={handleChangeFollow}>
-          {loggedInUserFollowingProfile ? "Unfollow" : "Follow"}
-        </button>
-      )}
-      {profileFollowingLoggedInUser && (
-        <>@{profileUser.user.username} follows you</>
-      )}
+    <div className="profile-info">
+      <div className="profile-avatar">
+        <input
+          type="file"
+          style={{ display: "hidden" }}
+          onChange={handleProfileImageChanged}
+          multiple={false}
+          accept={ACCEPTABLE_MIME_TYPES.join(", ")}
+          ref={fileInputRef}
+        />
+
+        <div className="upload-image">Replace</div>
+
+        <UserAvatar
+          user={profileUser.user}
+          size={100}
+          onClick={handleUploadProfileImage}
+        />
+      </div>
+
+      <div className="profile-content">
+        <div className="user">
+          <span>@{profileUser.user.username}</span>
+          {(isOwnProfile || profileFollowingLoggedInUser) && (
+            <span className="subtitle">
+              {isOwnProfile && <>This is your profile</>}
+              {profileFollowingLoggedInUser && <>Follows you</>}
+            </span>
+          )}
+        </div>
+
+        <div className="joined">
+          <FontAwesomeIcon icon="calendar" />
+          Joined {joinedDate.toLocaleString("default", { month: "long" })}{" "}
+          {joinedDate.getFullYear()}
+        </div>
+
+        <div className="follow-counts">
+          <span>
+            {profileUser?.following.length ? (
+              <>
+                <strong>{profileUser?.following.length}</strong> Following
+              </>
+            ) : (
+              <>Not following anyone</>
+            )}
+          </span>
+          <span>
+            {profileUser?.followers.length ? (
+              <>
+                <strong>{profileUser?.followers.length}</strong> Followers
+              </>
+            ) : (
+              <>No followers</>
+            )}
+          </span>
+        </div>
+      </div>
+
+      <div className="profile-actions">
+        {!isOwnProfile && isLoggedIn && (
+          <button className="btn" onClick={handleChangeFollow}>
+            {loggedInUserFollowingProfile ? "Unfollow" : "Follow"}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

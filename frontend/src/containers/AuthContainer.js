@@ -146,6 +146,7 @@ export function Provider({ children }) {
         saveCredentials,
         login,
         logout,
+        setLoggedInUser,
 
         // State //
         isLoggedIn: loggedInUser !== null,

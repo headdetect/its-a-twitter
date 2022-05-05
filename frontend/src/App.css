@@ -3,7 +3,7 @@
   color-scheme: dark;
 
   --spacing: 8px;
-  --content-width: 900px;
+  --content-width: 600px;
 
   --primary: #8d1eef;
   --success: #80ef1e;
@@ -36,6 +36,7 @@
   --roof-hover: #ffffff;
 
   --action-hover: rgba(255, 255, 255, 0.08);
+  --action-mask: rgba(0, 0, 0, 0.60);
 }
 
 * {
