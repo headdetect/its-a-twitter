@@ -33,6 +33,12 @@
   resize: none;
 }
 
+.craft-tweet .tweet-editor textarea:focus {
+  border-color: var(--primary);
+  filter: var(--glow-primary);
+  background-color: var(--attic-hover);
+}
+
 .craft-tweet .tweet-editor .count {
   margin-top: calc(var(--spacing) * 0.25);
 

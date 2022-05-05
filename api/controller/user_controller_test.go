@@ -18,7 +18,7 @@ func TestHandleTestUser(t *testing.T) {
 	}
 
 	// Verify user //
-	if actualResponse.User.Username != "test" {
+	if actualResponse.User.Username != "basic" {
 		t.Errorf(
 			"expected test got %s",
 			actualResponse.User.Username,
@@ -37,12 +37,6 @@ func TestHandleTestUser(t *testing.T) {
 			"expected 1 got %d",
 			actualResponse.FollowingCount,
 		)
-	}
-
-	for _, tweet := range actualResponse.Timeline.Tweets {
-		if !tweet.UserRetweeted {
-			t.Errorf("expected false got true")
-		}
 	}
 }
 
@@ -162,6 +156,28 @@ func TestHandleRegister(t *testing.T) {
 	if actualResponse.User.Username != "fake" {
 		t.Errorf(
 			"expected 'fake' got '%s'",
+			actualResponse.User.Username,
+		)
+	}
+}
+
+
+
+func TestHandleRegisterUsernameToLowercase(t *testing.T) {
+	makeTestRequest(
+		t,
+		http.MethodPost,
+		"/user/register",
+		bytes.NewReader([]byte(`{ "username": "FakeName", "password": "password", "email": "fake@fake.com" }`)),
+	)
+
+	var actualResponse controller.ProfileUserResponse
+	response, _ := makeAuthenticatedTestRequest(t, "fakename", http.MethodGet, "/user/self", nil)
+	parseResponse(response, &actualResponse)
+
+	if actualResponse.User.Username != "fakename" {
+		t.Errorf(
+			"expected 'fakename' got '%s'",
 			actualResponse.User.Username,
 		)
 	}
@@ -291,3 +307,16 @@ func TestHandleCannotRegisterHaveInvalidUsername(t *testing.T) {
 		t.Errorf("expected Bad Request (400) got %s (%d)", response.Status, response.StatusCode)
 	}
 }
+
+func TestHandleCannotRegisterUsernameTooLong(t *testing.T) {
+	response, _ := makeRequest(
+		http.MethodPost,
+		"/user/register",
+		bytes.NewReader([]byte(`{ "username": "asuperduperlongassusernamethatiswaylongerthanexpected", "password": "password", "email": "not-test@example.com" }`)),
+	)
+
+	if response.StatusCode != http.StatusBadRequest {
+		t.Errorf("expected Bad Request (400) got %s (%d)", response.Status, response.StatusCode)
+	}
+}
+

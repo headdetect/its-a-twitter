@@ -7,6 +7,14 @@ export default function FloatingLabelInput({ label, ...inputProps }) {
     Boolean(inputProps?.value),
   );
 
+  const handleChange = e => {
+    if (e.target.value) {
+      setIsExpanded(true);
+    }
+
+    inputProps?.onChange?.(e);
+  };
+
   const handleFocus = e => {
     setIsExpanded(true);
     inputProps?.onFocus?.(e);
@@ -27,6 +35,7 @@ export default function FloatingLabelInput({ label, ...inputProps }) {
         {...inputProps}
         onFocus={handleFocus}
         onBlur={handleBlur}
+        onChange={handleChange}
       />
     </div>
   );

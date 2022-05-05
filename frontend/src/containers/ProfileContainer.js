@@ -11,8 +11,7 @@ export const Context = React.createContext(null);
 const API_URL = process.env.REACT_APP_API_URL;
 
 export function Provider({ children, profileUsername = null }) {
-  const { authenticatedFetch, saveCredentials, loggedInUser } =
-    AuthContainer.useContext();
+  const { authenticatedFetch, loggedInUser } = AuthContainer.useContext();
 
   const [profileUser, setProfileUser] = React.useState(undefined);
   const [profileUserStatus, setProfileUserStatus] = React.useState("loading"); // loading | finished | error

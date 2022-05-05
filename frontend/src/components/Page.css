@@ -46,7 +46,8 @@
   background: var(--ground);
 
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
 
   width: calc(2 * var(--content-width) / 3);
   height: 100%;
@@ -62,6 +63,11 @@
   right: 0;
 }
 
+.panel svg {
+  margin-bottom: calc(var(--spacing) * 7);
+  color: var(--primary);
+  filter: var(--glow-primary);
+}
 
 
 .user-profile {

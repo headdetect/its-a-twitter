@@ -82,7 +82,7 @@ function Timeline() {
       )}
 
       <div className="timeline-stream">
-        {timeline.length === 0 && <>There&apos;s nothing here :(</>}
+        {timeline.length === 0 && <>It&apos;s pretty empty here...</>}
 
         {timeline.map(timelineTweet => {
           const user = timelineUsers[timelineTweet.posterUserId];

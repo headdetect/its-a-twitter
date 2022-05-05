@@ -51,6 +51,10 @@ type RegisterUserRequest struct {
 	Password string `json:"password"`
 }
 
+const (
+	MAX_USERNAME_CHARS = 20
+)
+
 func getUser(request *http.Request) (model.User, bool) {
 	requestedUserName, exists := GetPathValue(request, 0)
 
@@ -61,10 +65,6 @@ func getUser(request *http.Request) (model.User, bool) {
 	user, _, err := model.GetUserByUsername(requestedUserName)
 
 	return user, err == nil
-}
-
-func HandleUserFollowUser(writer http.ResponseWriter, request *http.Request) {
-	JsonResponse(writer, []byte(`{"message": "TODO"}`))
 }
 
 func HandleOwnUser(writer http.ResponseWriter, request *http.Request) {
@@ -195,7 +195,6 @@ func HandleUser(writer http.ResponseWriter, request *http.Request) {
 
 func HandleUserRegister(writer http.ResponseWriter, request *http.Request) {
 	var registerUserRequest RegisterUserRequest
-
 	err := json.NewDecoder(request.Body).Decode(&registerUserRequest)
 
 	if err != nil {
@@ -203,7 +202,11 @@ func HandleUserRegister(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	if match, err := regexp.MatchString("^[a-z0-9_-]*$", registerUserRequest.Username); !match || err != nil {
+	registerUserRequest.Username = strings.ToLower(registerUserRequest.Username)
+
+	match, err := regexp.MatchString("(?i)^[a-z0-9_-]*$", registerUserRequest.Username)
+
+	if !match || err != nil || len(registerUserRequest.Username) > MAX_USERNAME_CHARS {
 		// This should be handled from client side.
 		// No need to get specific on the error
 
@@ -218,10 +221,12 @@ func HandleUserRegister(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	if _, err := model.MakeUser(registerUserRequest.Email, registerUserRequest.Username, hashedPassword); err != nil {
+	user, err := model.MakeUser(registerUserRequest.Email, registerUserRequest.Username, hashedPassword)
+
+	if err != nil {
 		if strings.Contains(strings.ToLower(err.Error()), "unique constraint failed") {
 
-			// These are traditionally reserved for PUT requests
+			// This status is traditionally reserved for PUT requests
 			// but in this case it makes sense too
 			ConflictRequestResponse(writer)
 			return
@@ -229,6 +234,28 @@ func HandleUserRegister(writer http.ResponseWriter, request *http.Request) {
 
 		BadRequestResponse(writer)
 	}
+
+	// Sign them in now //
+	authToken := utils.RandomString(32)
+
+	// Email should be explicitly assigned so it's not accidentally leaked //
+	user.Email = registerUserRequest.Email
+
+	response := LoginResponse{
+		AuthToken: authToken,
+		User:      user,
+	}
+
+	jsonResponse, err := json.Marshal(response)
+
+	if err != nil {
+		ErrorResponse(writer, err)
+		return
+	}
+
+	JsonResponse(writer, jsonResponse)
+
+	Sessions[authToken] = user	
 }
 
 func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {

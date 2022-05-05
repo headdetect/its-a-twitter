@@ -44,6 +44,51 @@ export function Provider({ children }) {
     };
   }, []);
 
+  const register = React.useCallback(
+    async (email, username, password) => {
+      let response;
+
+      try {
+        response = await fetch(`${API_URL}/user/register`, {
+          method: "POST",
+          body: JSON.stringify({
+            email,
+            username,
+            password,
+          }),
+        });
+      } catch (e) {
+        console.error(e);
+        throw new Error("There was a problem registering you. Try again.");
+      }
+
+      if (response.status === 400) {
+        throw new Error("Error registering. Try again.");
+      }
+
+      if (response.status === 409) {
+        throw new Error("Username already exists. Choose a different one.");
+      }
+
+      try {
+        const { user, authToken } = await response.json();
+
+        if (!user || !authToken) {
+          // Bubbles up to this try's catch //
+          throw new Error();
+        }
+
+        localStorage.setItem("authToken", authToken);
+        localStorage.setItem("username", user.username);
+        saveCredentials(authToken, user.username);
+        setLoggedInUser(user);
+      } catch (e) {
+        throw new Error("Server sent some weird stuff back. Try again.");
+      }
+    },
+    [saveCredentials, setLoggedInUser],
+  );
+
   const logout = React.useCallback((forceRefresh = false) => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("username");
@@ -150,6 +195,7 @@ export function Provider({ children }) {
         authenticatedFetch,
         saveCredentials,
         login,
+        register,
         logout,
         setLoggedInUser,
 

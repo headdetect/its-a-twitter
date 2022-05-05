@@ -1,15 +1,18 @@
 import * as React from "react";
 
 import * as AuthContainer from "containers/AuthContainer";
+import FloatingLabelInput from "components/FloatingLabelInput";
 
 import "./UserLoginForm.css"; // They'll have the same styles //
 
 export default function UserRegistrationForm() {
-  const { login } = AuthContainer.useContext();
+  const { register } = AuthContainer.useContext();
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [email, setEmail] = React.useState("");
+
   const [isLoading, setIsLoading] = React.useState(false);
-  const [error, setError] = React.useState(null);
+  const [error, setError] = React.useState("");
 
   const handleSubmit = React.useCallback(
     async e => {
@@ -25,39 +28,58 @@ export default function UserRegistrationForm() {
         return;
       }
 
+      if (!email) {
+        setError("Email field is empty");
+        return;
+      }
+
       setError(null);
       setIsLoading(true);
 
       try {
-        await login(username, password);
+        await register(email, username, password);
       } catch (e) {
         setError(String(e));
       }
 
       setIsLoading(false);
     },
-    [username, password, login],
+    [username, password, email, register],
   );
 
   return (
-    <div>
-      <div>Log in.</div>
-      {error && <div className="alert-error">{error}</div>}
+    <div className="profile-form">
+      <div className="title">Register</div>
+
       <form onSubmit={handleSubmit}>
-        <input
-          id="username"
+        <FloatingLabelInput
+          label="Email"
+          type="email"
+          autoComplete="email"
+          onChange={e => setEmail(e.target.value)}
+        />
+
+        <FloatingLabelInput
+          label="Username"
+          type="text"
           autoComplete="username"
           onChange={e => setUsername(e.target.value)}
         />
-        <input
-          id="password"
+
+        <FloatingLabelInput
+          label="Password"
           type="password"
-          autoComplete="current-password"
+          autoComplete="new-password"
           onChange={e => setPassword(e.target.value)}
         />
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? "Logging in..." : "Login"}
-        </button>
+
+        {error && <div className="alert alert-danger">{error}</div>}
+
+        <div className="profile-form-action">
+          <button className="btn btn-light" type="submit" disabled={isLoading}>
+            {isLoading ? "Registering..." : "Register"}
+          </button>
+        </div>
       </form>
     </div>
   );

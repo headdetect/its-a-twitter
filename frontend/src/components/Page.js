@@ -123,6 +123,8 @@ export default function Page({ children, title = "" }) {
 
       {userPanelType && (
         <div className="panel">
+          <FontAwesomeIcon icon="kiwi-bird" size="5x" />
+
           {userPanelType === "login" && <UserLoginForm />}
           {userPanelType === "register" && <UserRegistrationForm />}
         </div>
