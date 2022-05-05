@@ -33,12 +33,12 @@ type Route struct {
 	middlewares []MiddlewareFunc
 }
 
-func serveNotFound(writer http.ResponseWriter, request *http.Request) {
+func serveNotFound(writer http.ResponseWriter, _ *http.Request) {
 	NotFoundResponse(writer)
 }
 
 func serveOptions(options []string) http.HandlerFunc {
-	return func(writer http.ResponseWriter, request *http.Request) {
+	return func(writer http.ResponseWriter, _ *http.Request) {
 		writer.Header().Add("Allow", strings.Join(options, ","))
 		writer.WriteHeader(http.StatusOK)
 	}
