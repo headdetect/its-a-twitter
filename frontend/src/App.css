@@ -6,9 +6,9 @@
   --content-width: 600px;
 
   --primary: #8d1eef;
-  --success: #80ef1e;
+  --success: rgb(128, 239, 30);
   --warning: #efbe1e;
-  --danger: #f21c09;
+  --danger: rgb(242, 28, 9);
   
   --text: #f6f6f8;
   --text-subtitle: #94949c;
@@ -117,6 +117,7 @@ a:hover {
 
 .btn.btn-light {
   background: var(--roof);
+  color: var(--text-roof);
 }
 
 .btn.btn-light:hover:not(:disabled) {
@@ -126,4 +127,27 @@ a:hover {
 .btn:disabled {
   cursor: not-allowed;
   background: var(--disabled);
+}
+
+.alert {
+  padding: calc(var(--spacing) * 2);
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+}
+
+.alert-compact {
+  padding: var(--spacing);
+}
+
+.alert-danger {
+  border-color: var(--danger);
+  background: rgba(242, 28, 9, 0.4);
+  color: white;
+}
+
+.alert-success {
+  border-color: var(--success);
+  background: rgba(128, 239, 30, 0.4);
+  color: white;
 }

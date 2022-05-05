@@ -44,10 +44,15 @@ export function Provider({ children }) {
     };
   }, []);
 
-  const logout = React.useCallback(() => {
-    setLoggedInUser(null);
+  const logout = React.useCallback((forceRefresh = false) => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("username");
+
+    if (forceRefresh) {
+      window.location.reload();
+    } else {
+      setLoggedInUser(null);
+    }
   }, []);
 
   const login = React.useCallback(

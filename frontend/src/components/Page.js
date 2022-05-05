@@ -1,8 +1,8 @@
 import React, { forwardRef } from "react";
 
 import * as AuthContainer from "containers/AuthContainer";
-import LoginForm from "components/LoginForm";
-import RegistrationForm from "components/RegistrationForm";
+import UserLoginForm from "components/UserLoginForm";
+import UserRegistrationForm from "components/UserRegistrationForm";
 
 import "./Page.css";
 import useClickedOutside from "hooks/useClickedOutside";
@@ -33,8 +33,7 @@ function UserPanelPopover({ onClose, ...theRest }) {
         <li>
           <a
             onClick={() => {
-              logout();
-              window.location.href = "/";
+              logout(true);
             }}
             rel="noopener noreferrer"
             href=""
@@ -124,8 +123,8 @@ export default function Page({ children, title = "" }) {
 
       {userPanelType && (
         <div className="panel">
-          {userPanelType === "login" && <LoginForm />}
-          {userPanelType === "register" && <RegistrationForm />}
+          {userPanelType === "login" && <UserLoginForm />}
+          {userPanelType === "register" && <UserRegistrationForm />}
         </div>
       )}
 

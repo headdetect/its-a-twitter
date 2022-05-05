@@ -14,8 +14,7 @@ export default function ProfileInfo({
   onFollowUser = _ => {},
   onUnfollowUser = _ => {},
 }) {
-  const { isLoggedIn, loggedInUser, setLoggedInUser } =
-    AuthContainer.useContext();
+  const { isLoggedIn, loggedInUser } = AuthContainer.useContext();
 
   const fileInputRef = React.useRef(null);
 
@@ -62,6 +61,11 @@ export default function ProfileInfo({
 
   const joinedDate = new Date(profileUser.user.createdAt * 1000);
 
+  const followingCount =
+    profileUser.following?.length ?? profileUser.followingCount;
+  const followersCount =
+    profileUser.followers?.length ?? profileUser.followerCount;
+
   return (
     <div className="profile-info">
       <div className="profile-avatar">
@@ -102,18 +106,18 @@ export default function ProfileInfo({
 
         <div className="follow-counts">
           <span>
-            {profileUser?.following.length ? (
+            {followingCount ? (
               <>
-                <strong>{profileUser?.following.length}</strong> Following
+                <strong>{followingCount}</strong> Following
               </>
             ) : (
               <>Not following anyone</>
             )}
           </span>
           <span>
-            {profileUser?.followers.length ? (
+            {followersCount ? (
               <>
-                <strong>{profileUser?.followers.length}</strong> Followers
+                <strong>{followersCount}</strong> Followers
               </>
             ) : (
               <>No followers</>
@@ -124,7 +128,7 @@ export default function ProfileInfo({
 
       <div className="profile-actions">
         {!isOwnProfile && isLoggedIn && (
-          <button className="btn" onClick={handleChangeFollow}>
+          <button className="btn btn-light" onClick={handleChangeFollow}>
             {loggedInUserFollowingProfile ? "Unfollow" : "Follow"}
           </button>
         )}

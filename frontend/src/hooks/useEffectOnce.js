@@ -1,15 +1,19 @@
 import React from "react";
 
 /**
- * Is essentially a hook that assets/throws it should be ran once.
- * But for all intents and purposes, acts like a regular @React.useEffect}
+ * Is essentially a hook that asserts/throws it should be ran only
+ * once throughout the lifetime of the application.
+ *
+ * For all other intents and purposes, this acts like a regular React.useEffect()
+ *
+ * With HMR enabled, it is normal to have this trigger when the app is reloaded.
  *
  * @param {React.EffectCallback} effect The effect to run
  * @param {React.DependencyList} deps The dependencies to pass into the hook
  */
 export default function useEffectOnce(
   effect,
-  deps = null,
+  deps = undefined,
   throwOnRerun = false,
 ) {
   const trackCountRef = React.useRef(false);
