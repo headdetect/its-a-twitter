@@ -43,6 +43,7 @@ export default function UserRegistrationForm() {
 
         // Redirect to own profile //
         navigate(`/profile/@${username}`);
+        location.reload(); // Reload after //
       } catch (e) {
         setError(String(e));
       }

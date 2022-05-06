@@ -82,6 +82,11 @@ export function Provider({ children }) {
         ...body.tweet,
       };
 
+      setTimelineUsers(oldTimelineUsers => ({
+        ...oldTimelineUsers,
+        [`${loggedInUser.id}`]: loggedInUser,
+      }));
+
       setTimeline(oldTimeline => [timelineTweet, ...oldTimeline]);
     },
     [authenticatedFetch, loggedInUser],
