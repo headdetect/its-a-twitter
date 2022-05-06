@@ -3,7 +3,7 @@
   color-scheme: dark;
 
   --spacing: 8px;
-  --content-width: 600px;
+  --content-width: 650px;
 
   --primary: #8d1eef;
   --success: rgb(128, 239, 30);
@@ -43,6 +43,8 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+
+  font-family: 'Source Code Pro', monospace;
 }
 
 html {
