@@ -19,6 +19,7 @@ import {
   faFileAlt,
   faRetweet,
   faCalendar,
+  faClose,
 } from "@fortawesome/free-solid-svg-icons";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 
@@ -35,6 +36,7 @@ library.add(
   faFileAlt,
   faRetweet,
   faCalendar,
+  faClose,
 
   faGithub,
 );

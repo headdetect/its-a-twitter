@@ -9,16 +9,16 @@ import useClickedOutside from "hooks/useClickedOutside";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import UserAvatar from "components/UserAvatar";
 
-function UserPanelPopover({ onClose, ...theRest }) {
+function UserMenuPopover({ onClose, ...theRest }) {
   const ref = React.useRef();
 
   const { loggedInUser, logout } = AuthContainer.useContext();
 
   // Listen in this component so we unhook with unmount //
-  useClickedOutside(ref, onClose);
+  useClickedOutside(ref, onClose, true);
 
   return (
-    <div className="user-panel-popover" ref={ref} {...theRest}>
+    <div className="user-menu-popover" ref={ref} {...theRest}>
       <ul>
         <li className="section-header">Profile</li>
         <li>
@@ -65,10 +65,35 @@ function UserPanelPopover({ onClose, ...theRest }) {
   );
 }
 
+function SidePanel({ isOpened, onClose, userPanelType }) {
+  const sidePanelRef = React.useRef();
+
+  useClickedOutside(isOpened ? sidePanelRef : null, onClose);
+
+  return (
+    <div
+      className={`panel ${isOpened ? "panel-opened" : ""}`}
+      ref={sidePanelRef}
+    >
+      <button className="btn btn-close" title="Delete tweet" onClick={onClose}>
+        <FontAwesomeIcon icon="close" />
+      </button>
+
+      <div className="logo">
+        <FontAwesomeIcon icon="kiwi-bird" size="5x" />
+      </div>
+
+      {userPanelType === "login" && <UserLoginForm />}
+      {userPanelType === "register" && <UserRegistrationForm />}
+    </div>
+  );
+}
+
 export default function Page({ children, title = "" }) {
   const { isLoggedIn, loggedInUser } = AuthContainer.useContext();
 
-  const [isUserPanelOpened, setIsUserPanelOpened] = React.useState(false);
+  const [isUserMenuOpened, setIsUserMenuOpened] = React.useState(false);
+  const [isSidePanelOpened, setIsSidePanelOpened] = React.useState(false);
   const [userPanelType, setUserPanelType] = React.useState(null);
 
   React.useEffect(() => {
@@ -91,7 +116,7 @@ export default function Page({ children, title = "" }) {
 
           {isLoggedIn ? (
             <div className="user-profile">
-              <button onClick={() => setIsUserPanelOpened(p => !p)}>
+              <button onClick={() => setIsUserMenuOpened(p => !p)}>
                 <UserAvatar
                   user={loggedInUser}
                   size={25}
@@ -101,18 +126,27 @@ export default function Page({ children, title = "" }) {
                 <FontAwesomeIcon icon="caret-down" />
               </button>
 
-              {isUserPanelOpened && (
-                <UserPanelPopover onClose={() => setIsUserPanelOpened(false)} />
+              {isUserMenuOpened && (
+                <UserMenuPopover onClose={() => setIsUserMenuOpened(false)} />
               )}
             </div>
           ) : (
             <div className="user-login-register">
-              <button className="btn" onClick={() => setUserPanelType("login")}>
+              <button
+                className="btn"
+                onClick={() => {
+                  setUserPanelType("login");
+                  setIsSidePanelOpened(true);
+                }}
+              >
                 Log in
               </button>
               <button
                 className="btn"
-                onClick={() => setUserPanelType("register")}
+                onClick={() => {
+                  setUserPanelType("register");
+                  setIsSidePanelOpened(true);
+                }}
               >
                 Register
               </button>
@@ -121,16 +155,13 @@ export default function Page({ children, title = "" }) {
         </div>
       </div>
 
-      {userPanelType && (
-        <div className="panel">
-          <FontAwesomeIcon icon="kiwi-bird" size="5x" />
+      <SidePanel
+        isOpened={isSidePanelOpened}
+        onClose={() => setIsSidePanelOpened(false)}
+        userPanelType={userPanelType}
+      />
 
-          {userPanelType === "login" && <UserLoginForm />}
-          {userPanelType === "register" && <UserRegistrationForm />}
-        </div>
-      )}
-
-      {children}
+      <div className="page">{children}</div>
     </>
   );
 }

@@ -15,15 +15,15 @@ export default function useClickedOutside(
   onOutsideClick,
   includeParent = false,
 ) {
-  if (!elementRef) {
-    throw new Error("ElementRef must be specified");
-  }
-
   React.useEffect(() => {
+    if (!elementRef) {
+      return undefined;
+    }
+
     const handle = e => {
       const element = includeParent
-        ? elementRef.current
-        : elementRef.current.parentElement;
+        ? elementRef.current.parentElement
+        : elementRef.current;
 
       if (element && !element.contains(e.target) && onOutsideClick) {
         onOutsideClick(e);
