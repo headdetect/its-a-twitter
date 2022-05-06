@@ -25,6 +25,11 @@ func HandleTimeline(writer http.ResponseWriter, request *http.Request) {
 		tweets, users, err = model.GetFeatured()
 	} else {
 		tweets, users, err = model.GetTimeline(currentUser.Id)
+
+		if err == nil && len(tweets) == 0 {
+			// Show the featured if we don't have anything on our timeline //
+			tweets, users, err = model.GetFeatured()
+		}
 	}
 
 	if err != nil {
