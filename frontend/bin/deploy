@@ -40,6 +40,9 @@ mkdir -p ../docs
 # move to /docs
 mv build/* ../docs
 
+# remove .env.local
+rm -f .env.local
+
 # commit & push changes
 ( \
   cd .. && \
