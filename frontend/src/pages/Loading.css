@@ -1,0 +1,12 @@
+.loading-page {
+  margin-top: calc(var(--spacing) * 10);
+}
+
+.loading-page p {
+  margin-top: calc(var(--spacing) * 3);
+  color: var(--text-subtitle);
+}
+
+.loading-page .alert {
+  margin-top: calc(var(--spacing) * 10);
+}
