@@ -33,8 +33,19 @@
 
 .navbar-title a {
   color: var(--text);
+  display: inline-flex;
+  margin-right: calc(var(--spacing) * 2);
+}
+
+.navbar-title a svg {
   font-size: 2rem;
   margin-right: calc(var(--spacing) * 2);
+}
+
+.navbar-title span {
+  display: inline-block;
+  margin-left: calc(var(--spacing) * 2);
+  color: var(--text-subtitle);
 }
 
 .navbar-title a:hover {

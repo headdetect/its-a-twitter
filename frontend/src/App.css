@@ -5,10 +5,11 @@
   --spacing: 8px;
   --content-width: 650px;
 
-  --primary: #8d1eef;
+  --primary: rgb(141, 30, 239);
   --success: rgb(128, 239, 30);
-  --warning: #efbe1e;
+  --warning: rgb(239, 190, 30);
   --danger: rgb(242, 28, 9);
+  --info: rgb(64, 59, 222);
   
   --text: #f6f6f8;
   --text-subtitle: #94949c;
@@ -59,6 +60,11 @@ html, body, #root, .app {
   color: var(--text);
 
   font-size: 16px;
+}
+
+.content {
+  width: 100%;
+  max-width: var(--content-width);
 }
 
 /* Button reset */
@@ -138,6 +144,12 @@ a:hover {
   border-radius: 8px;
 }
 
+.alert h1,
+.alert h2,
+.alert h3 {
+  margin-bottom: var(--spacing);
+}
+
 .alert-compact {
   padding: var(--spacing);
 }
@@ -152,4 +164,14 @@ a:hover {
   border-color: var(--success);
   background: rgba(128, 239, 30, 0.4);
   color: white;
+}
+
+.alert-info {
+  border-color: var(--info);
+  background: rgba(64, 59, 222, 0.4);
+  color: white;
+}
+
+.what-is-this {
+  margin-bottom: calc(var(--spacing) * 6);
 }

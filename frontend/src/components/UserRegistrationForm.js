@@ -54,6 +54,10 @@ export default function UserRegistrationForm() {
     <div className="profile-form">
       <div className="title">Register</div>
 
+      <div className="alert alert-info what-is-this">
+        This is a demo app. All data will be refreshed every 2 hours.
+      </div>
+
       <form onSubmit={handleSubmit}>
         <FloatingLabelInput
           label="Email"

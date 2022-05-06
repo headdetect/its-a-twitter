@@ -8,6 +8,7 @@ import CraftTweet from "components/CraftTweet";
 import Tweet from "components/Tweet";
 
 import "./Timeline.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export function Presenter() {
   return (
@@ -71,6 +72,22 @@ function Timeline() {
 
   return (
     <>
+      <div className="content what-is-this">
+        <div className="alert alert-info">
+          <h3>
+            <FontAwesomeIcon icon="circle-question" fixedWidth /> What is this?
+          </h3>
+
+          <p>
+            This is a fully-fledged micro application that emulates some of the
+            same features as Twitter. <em>It&apos;s-a-Twitter</em> was developed
+            for educational purposes only. <br />
+            <br />
+            To read more about it, visit our documentation on GitHub
+          </p>
+        </div>
+      </div>
+
       {isLoggedIn && (
         <>
           <CraftTweet onTweet={tweetActions.submitTweet} />
