@@ -40,6 +40,9 @@ mkdir -p ../docs
 # move to /docs
 mv build/* ../docs
 
+# Move CNAME
+mv CNAME ../docs
+
 # remove .env.local
 rm -f .env.local
 
