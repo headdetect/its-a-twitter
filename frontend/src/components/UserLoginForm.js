@@ -31,6 +31,9 @@ export default function UserLoginForm() {
 
       try {
         await login(username, password);
+
+        // Refresh the page //
+        window.location.reload();
       } catch (e) {
         setError(String(e));
       }
