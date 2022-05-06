@@ -74,7 +74,7 @@ export default function ProfileInfo({
     <div className="profile-info">
       <div
         className={`profile-avatar ${
-          isLoggedIn ? "" : "profile-avatar-view-only"
+          isOwnProfile ? "" : "profile-avatar-view-only"
         }`}
       >
         <input
@@ -91,7 +91,7 @@ export default function ProfileInfo({
         <UserAvatar
           user={profileUser.user}
           size={100}
-          onClick={isLoggedIn ? handleUploadProfileImage : undefined}
+          onClick={isOwnProfile ? handleUploadProfileImage : undefined}
         />
       </div>
 

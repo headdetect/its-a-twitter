@@ -12,12 +12,12 @@ import UserAvatar from "components/UserAvatar";
 const API_URL = process.env.REACT_APP_API_URL;
 
 const REACTION_MAP = {
-  clap: "👏",
+  laugh: "😂",
   party: "🎉",
   sad: "😔",
   heart: "❤️",
-  thumbsup: "👍",
-  thumbsdown: "👎",
+  raisedHands: "🙌",
+  shocked: "😲",
 };
 
 const ALLOWED_REACTIONS = Object.keys(REACTION_MAP);

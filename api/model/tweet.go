@@ -34,7 +34,7 @@ type Reaction struct {
 }
 
 // It's technically not a const, but we treat it as one //
-var AllowedReactions = [...]string{"clap", "party", "sad", "heart", "thumbsup", "thumbsdown"}
+var AllowedReactions = [...]string{"laugh", "party", "sad", "heart", "raisedHands", "shocked"}
 
 func MakeTweet(user User, text string, mediaPath string) (Tweet, error) {
 	var tweet Tweet

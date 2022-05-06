@@ -111,6 +111,9 @@
 .tweet .tweet-actions {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+
+  padding-right: calc(var(--spacing) * 3);
 
   margin-top: calc(var(--spacing) * 4);
 }
@@ -131,7 +134,7 @@
 }
 
 .tweet .tweet-reactions .btn-tweet-reaction {
-  background: var(--ground);
+  background: var(--attic);
   border: 1px solid var(--border);
   border-radius: 16px;
 
@@ -144,7 +147,11 @@
 
 /** Reactions **/
 .tweet .tweet-reactions .btn-tweet-reaction:hover:not(:disabled) {
-  background: var(--ground-hover);
+  background: var(--attic-hover);
+}
+
+.tweet .tweet-reactions .btn-tweet-reaction:disabled {
+  background: var(--ground);
 }
 
 .tweet .tweet-reactions .btn-tweet-reaction.selected {
@@ -153,8 +160,13 @@
   border-color: var(--primary);
 }
 
+.tweet:hover .btn-delete-tweet {
+  opacity: 1;
+}
 
 .tweet .btn-delete-tweet {
+  opacity: 0;
+
   position: absolute;
 
   top: calc(var(--spacing) * 2);
@@ -163,6 +175,7 @@
 
   background: transparent;
 }
+
 .tweet .btn-delete-tweet:hover {
   color: var(--danger);
   border-color: var(--danger);

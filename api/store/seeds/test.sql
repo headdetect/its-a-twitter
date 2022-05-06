@@ -97,7 +97,7 @@ insert into retweets (userId, tweetId) values (
 );
 
 insert into reactions (userId, tweetId, reaction) values (
-  2, 1, 'clap'
+  2, 1, 'shocked'
 );
 
 insert into reactions (userId, tweetId, reaction) values (
