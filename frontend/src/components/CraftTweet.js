@@ -53,8 +53,8 @@ export default function CraftTweet({ onTweet = async (_, __) => {} }) {
     updateTextAreaHeight();
   }, [text, updateTextAreaHeight]);
 
-  const handleSubmitTweet = async e => {
-    const [file] = e.target.files;
+  const handleSubmitTweet = async () => {
+    const [file = null] = fileInputRef.current?.files;
 
     if (file && !ACCEPTABLE_MIME_TYPES.includes(file.type)) {
       setError(
@@ -75,6 +75,10 @@ export default function CraftTweet({ onTweet = async (_, __) => {} }) {
 
   const handleImageChanged = e => {
     const [file] = e.target.files;
+
+    if (!file) {
+      return;
+    }
 
     if (!ACCEPTABLE_MIME_TYPES.includes(file.type)) {
       setError("Only images are acceptable");

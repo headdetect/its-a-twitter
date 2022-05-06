@@ -38,6 +38,9 @@ export default function UserRegistrationForm() {
 
       try {
         await register(email, username, password);
+
+        // Redirect to own profile //
+        window.location.href = `/profile/@${username}`;
       } catch (e) {
         setError(String(e));
       }

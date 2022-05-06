@@ -145,6 +145,39 @@ func makeAuthenticatedTestRequest(
 	return response, request
 }
 
+func makeAuthenticatedTestFormRequest(
+	t testing.TB,
+	userName string,
+	method string,
+	route string,
+	body io.Reader,
+) (*http.Response, *http.Request) {
+	loginRequest := controller.LoginRequest{
+		Username: userName,
+		Password: "password",
+	}
+
+	writer := httptest.NewRecorder()
+	request := httptest.NewRequest(method, route, body)
+	err := AuthenticatedRequest(loginRequest, request)
+
+	if err != nil {
+		t.Errorf("Error authenticating. %k\n", err)
+	}
+
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+	ControllerServe(writer, request)
+
+	response := writer.Result()
+
+	if response.StatusCode != http.StatusOK {
+		t.Errorf("expected OK (200) got %s (%d)", response.Status, response.StatusCode)
+	}
+
+	return response, request
+}
+
 func parseTestResponse(t testing.TB, response *http.Response, v any) {
 	defer response.Body.Close()
 

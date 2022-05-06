@@ -2,7 +2,10 @@ package controller_test
 
 import (
 	"bytes"
+	"fmt"
 	"net/http"
+	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/headdetect/its-a-twitter/api/controller"
@@ -48,20 +51,20 @@ func TestHandleTimeline(t *testing.T) {
 	}
 
 	// Add a tweet from a followed user and a non-followed user  //
-	makeAuthenticatedTestRequest(
+	makeAuthenticatedTestFormRequest(
 		t,
 		"admin",
 		http.MethodPost,
 		"/tweet",
-		bytes.NewReader([]byte(`{ "text": "Tweet Tweet" }`)),
+		strings.NewReader(fmt.Sprintf("text=%s", url.QueryEscape("Tweet Tweet"))),
 	)
 
-	makeAuthenticatedTestRequest(
+	makeAuthenticatedTestFormRequest(
 		t,
 		"lurker",
 		http.MethodPost,
 		"/tweet",
-		bytes.NewReader([]byte(`{ "text": "Tweet Tweet" }`)),
+		strings.NewReader(fmt.Sprintf("text=%s", url.QueryEscape("Tweet Tweet"))),
 	)
 
 	// Add a retweet from a followed user to a non-followed user  //
@@ -73,6 +76,15 @@ func TestHandleTimeline(t *testing.T) {
 		nil,
 	)
 
+	// Make our own tweet //
+	makeAuthenticatedTestFormRequest(
+		t,
+		"test",
+		http.MethodPost,
+		"/tweet",
+		strings.NewReader(fmt.Sprintf("text=%s", url.QueryEscape("Tweet Tweet"))),
+	)
+
 	actualResponse = controller.TimelineResponse{}
 	response, _ = makeAuthenticatedTestRequest(t, "test", http.MethodGet, "/timeline", nil)
 	parseTestResponse(t, response, &actualResponse)
@@ -80,7 +92,7 @@ func TestHandleTimeline(t *testing.T) {
 	tweets = actualResponse.Tweets
 
 	// Verify the timeline only shows the followed user's tweet/retweet //
-	validTweetIds = append([]int{8}, validTweetIds...) // Add the new retweet //
+	validTweetIds = append([]int{10, 8}, validTweetIds...) // Add the new retweet //
 
 	if len(tweets) != len(validTweetIds) {
 		t.Errorf(
@@ -94,5 +106,86 @@ func TestHandleTimeline(t *testing.T) {
 		if tweets[i].Tweet.Id != tweetId {
 			t.Errorf("Expected Tweet ID to be %d. Got %d.\n", tweetId, tweets[i].Tweet.Id)
 		}
+	}
+
+	// Verify our tweet is in the #1 spot //
+	if tweets[0].Poster != 2 {
+		t.Errorf("Expected 'test' got '%s'\n", tweets[0].Tweet.User.Username)
+	}
+}
+
+
+func TestNewHandleTimeline(t *testing.T) {
+	response, _ := makeRequest(
+		http.MethodPost,
+		"/user/register",
+		bytes.NewReader([]byte(`{ "username": "timelineuser", "password": "password", "email": "not-real@example.com" }`)),
+	)
+
+	if response.StatusCode != http.StatusOK {
+		t.Errorf("expected OK (200) got %s (%d)", response.Status, response.StatusCode)
+		return
+	}
+
+	var profileResponse controller.ProfileUserResponse
+	parseResponse(response, &profileResponse)
+
+	if profileResponse.User.Username != "timelineuser" {
+		t.Errorf(
+			"expected 'timelineuser' got '%s'",
+			profileResponse.User.Username,
+		)
+
+		return
+	}
+
+	userId := profileResponse.User.Id
+
+	var timelineResponse controller.TimelineResponse
+	response, _ = makeAuthenticatedTestRequest(t, "timelineuser", http.MethodGet, "/timeline", nil)
+	parseTestResponse(t, response, &timelineResponse)
+
+	tweets := timelineResponse.Tweets
+
+	if len(tweets) != 0 {
+		t.Errorf(
+			"Expected 0 tweets on timeline. Got %d\n",
+			len(timelineResponse.Tweets),
+		)
+
+		return
+	}
+
+	// Add a tweet from a followed user and a non-followed user  //
+	makeAuthenticatedTestFormRequest(
+		t,
+		"timelineuser",
+		http.MethodPost,
+		"/tweet",
+		strings.NewReader(fmt.Sprintf("text=%s", url.QueryEscape("Tweet Tweet"))),
+	)
+
+	timelineResponse = controller.TimelineResponse{}
+	response, _ = makeAuthenticatedTestRequest(t, "timelineuser", http.MethodGet, "/timeline", nil)
+	parseTestResponse(t, response, &timelineResponse)
+
+	tweets = timelineResponse.Tweets
+
+	if len(tweets) != 1 {
+		t.Errorf(
+			"Expected 1 tweet on timeline. Got %d\n",
+			len(tweets),
+		)
+
+		return
+	}
+
+	// Verify our tweet is in the #1 spot //
+	if tweets[0].Poster != userId {
+		t.Errorf("Expected '%d' got '%d'\n", userId, tweets[0].Poster)
+	}
+
+	if tweets[0].Tweet.Text != "Tweet Tweet" {
+		t.Errorf("Expected 'Tweet Tweet' got '%s'\n", tweets[0].Tweet.Text)
 	}
 }

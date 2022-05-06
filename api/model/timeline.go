@@ -179,8 +179,8 @@ func GetTimeline(userId int) ([]TimelineTweet, map[int]User, error) {
 			join (
 				select t.id as tweetId, NULL as retweeterId
 					from tweets t
-					join follows f on f.followedUserId = t.userId
-					join users u on f.followedUserId = u.id
+					left join follows f on f.followedUserId = t.userId
+					left join users u on f.followedUserId = u.id
 					where f.userId = $1 or t.userId = $1
 				union
 				select rt.tweetId as tweetId, f.followedUserId as retweeterId

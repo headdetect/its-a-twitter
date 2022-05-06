@@ -47,30 +47,14 @@ func TestHandleGetTweet(t *testing.T) {
 }
 
 func TestHandlePostTweet(t *testing.T) {
-	loginRequest := controller.LoginRequest{
-		Username: "lurker",
-		Password: "password",
-	}
-
-	writer := httptest.NewRecorder()
-	request := httptest.NewRequest(
+	response, _ := makeAuthenticatedTestFormRequest(
+		t,
+		"lurker",
 		http.MethodPost,
 		"/tweet",
 		strings.NewReader(fmt.Sprintf("text=%s", url.QueryEscape("Tweet Tweet"))),
 	)
-
-	err := AuthenticatedRequest(loginRequest, request)
-
-	if err != nil {
-		t.Errorf("Error authenticating. %k\n", err)
-	}
-
-	request.Header.Add("Content-Type", "application/x-www-form-urlencoded; param=value")
-
-	ControllerServe(writer, request)
-
-	response := writer.Result()
-
+	
 	if response.StatusCode != http.StatusOK {
 		t.Errorf("expected OK (200) got %s (%d)", response.Status, response.StatusCode)
 	}
