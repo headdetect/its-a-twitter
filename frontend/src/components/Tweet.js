@@ -2,6 +2,8 @@ import React from "react";
 
 import * as AuthContainer from "containers/AuthContainer";
 import * as TimeUtils from "utils/TimeUtils";
+import * as UrlUtils from "utils/UrlUtils";
+import * as StringUtils from "utils/StringUtils";
 
 import "./Tweet.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -88,6 +90,9 @@ export default function Tweet({
     onDeleteTweet(tweet.id);
   };
 
+  const linkedText = UrlUtils.insertAnchorElements(tweet.text);
+  const newlinedText = StringUtils.insertNewlineElements(linkedText);
+
   return (
     <>
       {retweetUser && (
@@ -132,7 +137,7 @@ export default function Tweet({
             </a>
           </div>
 
-          <p>{tweet.text}</p>
+          <p>{newlinedText}</p>
 
           {tweet.mediaPath && (
             <img

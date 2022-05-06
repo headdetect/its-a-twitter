@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "lib": ["ES2021", "DOM"],
     "baseUrl": "src",
     "checkJs": true,
     "jsx": "react"

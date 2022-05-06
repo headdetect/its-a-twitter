@@ -1,3 +1,5 @@
+import React from "react";
+
 /**
  * A version of toFixed that doesn't round.
  *
@@ -47,4 +49,54 @@ export function shortHandNumber(value) {
   }
 
   return value;
+}
+
+export function insertNewlineElements(textNode) {
+  const elements = [];
+
+  if (typeof textNode === "string") {
+    const split = textNode.replaceAll("\r", "").split("\n");
+
+    elements.push(
+      ...split.map((e, i) => (
+        <>
+          {e} {i !== split.length - 1 && <br />}
+        </>
+      )),
+    );
+  } else if (typeof textNode === "object") {
+    // It's a react element //
+    const children = textNode?.props?.children;
+
+    if (!children?.length || typeof children === "string") {
+      return textNode;
+    }
+
+    for (const child of children) {
+      const node = child?.props?.children;
+
+      if (typeof node === "string" && node !== "") {
+        const split = node.replaceAll("\r", "").split("\n");
+
+        if (split.length === 1) {
+          elements.push(node);
+          continue;
+        }
+
+        elements.push(
+          ...split.map((e, i) => (
+            <>
+              {e} {i !== split.length - 1 && <br />}
+            </>
+          )),
+        );
+      } else {
+        elements.push(child);
+      }
+    }
+  } else {
+    throw new Error("Node must be either a string or a react element");
+  }
+
+  return elements.map((e, i) => <React.Fragment key={i}>{e}</React.Fragment>);
 }
