@@ -83,7 +83,15 @@ function Timeline() {
             same features as Twitter. <em>It&apos;s-a-Twitter</em> was developed
             for educational purposes only. <br />
             <br />
-            To read more about it, visit our documentation on GitHub
+            To read more about it, visit our{" "}
+            <a
+              href="https://github.com/headdetect/its-a-twitter/blob/master/README.md"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              documentation
+            </a>{" "}
+            on GitHub
           </p>
         </div>
       </div>

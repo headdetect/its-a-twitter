@@ -43,13 +43,16 @@ function UserMenuPopover({ onClose, ...theRest }) {
             Logout
           </a>
         </li>
-
         <li className="section-header">About</li>
         <li>
-          <Link to={"/about"} rel="noopener noreferrer">
+          <a
+            href="https://github.com/headdetect/its-a-twitter/blob/master/README.md"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <FontAwesomeIcon icon="file-alt" />
             Docs
-          </Link>
+          </a>
         </li>
         <li>
           <a

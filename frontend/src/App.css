@@ -150,6 +150,11 @@ a:hover {
   margin-bottom: var(--spacing);
 }
 
+.alert a {
+  color: white;
+  text-decoration: underline;
+}
+
 .alert-compact {
   padding: var(--spacing);
 }
