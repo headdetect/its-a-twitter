@@ -29,9 +29,13 @@ git fetch origin
 git reset --hard origin/master
 echo "Reset HEAD to origin/master"
 
+mv .env.local .env.bak
+
 # build the app
 npm run build
 echo "Built application pack"
+
+mv .env.bak .env.local
 
 # Clear /docs
 rm -rf ../docs
