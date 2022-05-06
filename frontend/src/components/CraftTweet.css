@@ -1,7 +1,4 @@
-.craft-tweet-container {
-  width: 100%;
-  max-width: var(--content-width);
-  
+.craft-tweet-container {  
   margin: calc(var(--spacing) * 2) 0;
 }
 

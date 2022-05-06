@@ -100,13 +100,13 @@ function Timeline() {
         <>
           <CraftTweet onTweet={tweetActions.submitTweet} />
 
-          <div className="divider">
+          <div className="divider content">
             <span>Timeline</span>
           </div>
         </>
       )}
 
-      <div className="timeline-stream">
+      <div className="timeline-stream  content">
         {timeline.length === 0 && <>It&apos;s pretty empty here...</>}
 
         {timeline.map(timelineTweet => {

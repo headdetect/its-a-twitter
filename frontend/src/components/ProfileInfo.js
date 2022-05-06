@@ -71,7 +71,7 @@ export default function ProfileInfo({
   // TODO: Handle on hover when logged out
 
   return (
-    <div className="profile-info">
+    <div className="profile-info content">
       <div
         className={`profile-avatar ${
           isOwnProfile ? "" : "profile-avatar-view-only"

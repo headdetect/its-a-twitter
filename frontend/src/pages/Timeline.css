@@ -1,15 +1,9 @@
 .timeline-stream {
-  width: 100%;
-  max-width: var(--content-width);
-
   padding: calc(var(--spacing) * 2) 0;
 }
 
 .divider {
   position: relative;
-
-  width: 100%;
-  max-width: var(--content-width);
 
   border-bottom: 1px dotted var(--border);
 

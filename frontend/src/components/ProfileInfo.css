@@ -1,10 +1,7 @@
 .profile-info {
   display: flex;
   position: relative;
-
-  width: 100%;
-  max-width: var(--content-width);
-
+  
   border-radius: 16px;
   
   padding: calc(var(--spacing) * 3);

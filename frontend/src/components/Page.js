@@ -164,7 +164,7 @@ export default function Page({ children, title = "" }) {
         userPanelType={userPanelType}
       />
 
-      <div className="page">{children}</div>
+      <div className="page content">{children}</div>
     </>
   );
 }
