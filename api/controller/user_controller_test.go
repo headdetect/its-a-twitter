@@ -141,6 +141,65 @@ func TestHandleFollow(t *testing.T) {
 	}
 }
 
+func TestHandleFollowUserAgain(t *testing.T) {
+	// Verify can put //
+	response, _ := makeAuthenticatedTestRequest(
+		t,
+		"test",
+		http.MethodPut,
+		"/user/profile/lurker/follow",
+		nil,
+	)
+
+	// Verify updated //
+	response, _ = makeAuthenticatedTestRequest(t, "test", http.MethodGet, "/user/self", nil)
+	var actualResponse controller.ProfileUserResponse
+	parseTestResponse(t, response, &actualResponse)
+
+	exists := false
+
+	for _, following := range actualResponse.Following {
+		if following.Username == "lurker" {
+			exists = true
+			break
+		}
+	}
+
+	if !exists {
+		t.Error("Expected 'lurker' to exist")
+	}
+
+	// Verify follow again //
+	response, _ = makeAuthenticatedTestRequest(
+		t,
+		"test",
+		http.MethodPut,
+		"/user/profile/lurker/follow",
+		nil,
+	)
+
+	if response.StatusCode != http.StatusOK {
+		t.Errorf("expected OK (200) got %s (%d)", response.Status, response.StatusCode)
+	} 
+
+	// Verify the same //
+	response, _ = makeAuthenticatedTestRequest(t, "test", http.MethodGet, "/user/self", nil)
+	parseResponse(response, &actualResponse)
+
+	exists = false
+
+	for _, following := range actualResponse.Following {
+		if following.Username == "lurker" {
+			exists = true
+			break
+		}
+	}
+
+	if !exists {
+		t.Error("Expected 'lurker' to exist")
+	}
+}
+
 func TestHandleRegister(t *testing.T) {
 	makeTestRequest(
 		t,

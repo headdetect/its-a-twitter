@@ -327,6 +327,11 @@ func HandleFollowUser(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	if err = currentUser.FollowUser(requestedUser.Id); err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "unique constraint failed") {
+			// We're attempting to follow a user that we already follow. Ignore //
+			return
+		}
+
 		ErrorResponse(writer, err)
 	}
 }
