@@ -84,16 +84,10 @@ func fillAssociatedUsers(users *map[int]User, userIds []any) (err error) {
 	defer userRows.Close()
 	for userRows.Next() {
 		var u User
-		var profilePicPath sql.NullString
-
 		if err = userRows.Scan(
-			&u.Id, &u.Username, &profilePicPath, &u.CreatedAt,
+			&u.Id, &u.Username, &u.ProfilePicPath, &u.CreatedAt,
 		); err != nil {
 			return err
-		}
-
-		if profilePicPath.Valid {
-			u.ProfilePicPath = profilePicPath.String
 		}
 
 		(*users)[u.Id] = u
@@ -113,7 +107,7 @@ func GetFeatured() ([]TimelineTweet, map[int]User, error) {
 		Query(`
 			select
 				t.id, t.text, t.mediaPath, t.createdAt, 
-				u.id, u.username, u.createdAt
+				u.id, u.username, u.profilePicPath, u.createdAt
 			from tweets t
 			join users u on t.userId = u.id
 			order by t.createdAt DESC`,
@@ -132,7 +126,7 @@ func GetFeatured() ([]TimelineTweet, map[int]User, error) {
 
 		err = rows.Scan(
 			&t.Tweet.Id, &t.Tweet.Text, &mediaPath, &t.Tweet.CreatedAt, // Tweet properties //
-			&u.Id, &u.Username, &u.CreatedAt, // User properties //
+			&u.Id, &u.Username, &u.ProfilePicPath, &u.CreatedAt, // User properties //
 		)
 
 		if err != nil {

@@ -107,6 +107,7 @@ func MakeRoutes() (routes []Route) {
 
 		// Assets //
 		{method: "GET", path: "/asset/([^/]+)", handler: HandleAsset},
+		{method: "GET", path: "/asset/random/([^/]+)", handler: HandleRandomImage},
 
 		// Timeline //
 		{method: "GET", path: "/timeline", handler: HandleTimeline},

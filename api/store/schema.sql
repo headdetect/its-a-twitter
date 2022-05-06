@@ -3,7 +3,7 @@ create table if not exists users (
   username string not null unique,
   password string not null,
   email string not null,
-  profilePicPath string unique,
+  profilePicPath text not null,
   createdAt integer not null
 );
 

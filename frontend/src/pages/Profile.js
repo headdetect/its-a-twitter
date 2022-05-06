@@ -64,7 +64,7 @@ function Profile() {
       return;
     }
 
-    setTimeline(profileUser.timeline.tweets);
+    setTimeline(profileUser.timeline?.tweets);
   }, [setTimeline, profileUser]);
 
   if (profileUserStatus === "loading") {

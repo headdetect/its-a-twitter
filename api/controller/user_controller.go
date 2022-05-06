@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"regexp"
@@ -125,6 +126,14 @@ func HandleOwnUser(writer http.ResponseWriter, request *http.Request) {
 }
 
 func HandleUpdateUserAvatar(writer http.ResponseWriter, request *http.Request) {
+	currentUser, err := GetCurrentUser(request)
+
+	if err != nil {
+		// Returning an error response because this shouldn't be possible //
+		ErrorResponse(writer, err)
+		return
+	}
+
 	// Receive file upload if there is one //
 	file, fileHeader, err := request.FormFile("file")
 
@@ -176,20 +185,27 @@ func HandleUpdateUserAvatar(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	io.Copy(diskFile, file)
-	
-	currentUser, err := GetCurrentUser(request)
+	_, err = io.Copy(diskFile, file)
 
 	if err != nil {
-		// Returning an error response because this shouldn't be possible //
 		ErrorResponse(writer, err)
 		return
+	}
+
+	// Delete the old one if this one passed and is not base64 image //
+	if err == nil && strings.Index(currentUser.ProfilePicPath, "data:image") != 0 {
+		path, _ := utils.GetStringOrDefault("MEDIA_PATH", "./assets/media")
+		fullFilePath := fmt.Sprintf("%s/%s", path, currentUser.ProfilePicPath)
+		if err := os.Remove(fullFilePath); err != nil {
+			ErrorResponse(writer, err)
+			log.Printf("Error deleting file %k\nFile name: %s", err, fullFilePath)
+			return
+		}
 	}
 
 	err = currentUser.UpdateProfilePicPath(name)
 
 	if err != nil {
-		// Returning an error response because this shouldn't be possible //
 		ErrorResponse(writer, err)
 		return
 	}

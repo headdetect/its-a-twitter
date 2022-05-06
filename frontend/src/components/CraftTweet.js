@@ -115,7 +115,7 @@ export default function CraftTweet({ onTweet = async (_, __) => {} }) {
 
   return (
     <div className="craft-tweet-container">
-      <div className="tweet craft-tweet" style={{ borderColor: "green" }}>
+      <div className="tweet craft-tweet">
         <UserAvatar
           user={loggedInUser}
           size={50}

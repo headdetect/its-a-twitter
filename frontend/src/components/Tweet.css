@@ -11,6 +11,13 @@
   margin-bottom: calc(var(--spacing) * 6);
 
   background: var(--ground);
+
+  border: 1px solid transparent;
+}
+
+.tweet:focus {
+  border-color: var(--primary);
+  filter: var(--glow-primary);
 }
 
 .retweet {
@@ -160,7 +167,8 @@
   border-color: var(--primary);
 }
 
-.tweet:hover .btn-delete-tweet {
+.tweet:hover .btn-delete-tweet, 
+.tweet:focus .btn-delete-tweet {
   opacity: 1;
 }
 

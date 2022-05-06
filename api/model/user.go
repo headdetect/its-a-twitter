@@ -1,11 +1,12 @@
 package model
 
 import (
-	"database/sql"
+	"encoding/base64"
 	"fmt"
 	"time"
 
 	"github.com/headdetect/its-a-twitter/api/store"
+	"github.com/headdetect/its-a-twitter/api/utils"
 )
 
 var PROFILE_PIC_PATH = "./assets/profile"
@@ -27,79 +28,62 @@ type Follow struct {
 }
 
 func GetUserByUsernameWithPass(username string) (user User, hashedPassword string, email string, err error) {
-	var profilePicPath sql.NullString
-
 	err = store.DB.QueryRow(
 		"select id, username, profilePicPath, email, password, createdAt from users where username = ? limit 1",
 		username,
 	).Scan(
-		&user.Id, &user.Username, &profilePicPath, &email, &hashedPassword, &user.CreatedAt,
+		&user.Id, &user.Username, &user.ProfilePicPath, &email, &hashedPassword, &user.CreatedAt,
 	)
-
-	if profilePicPath.Valid {
-		user.ProfilePicPath = profilePicPath.String
-	}
 
 	return
 }
 
 func GetUserById(id int) (user User, email string, err error) {
-	var profilePicPath sql.NullString
-
 	err = store.DB.QueryRow(
 		"select id, username, profilePicPath, email, createdAt from users where id = ? limit 1",
 		id,
 	).Scan(
-		&user.Id, &user.Username, &profilePicPath, &email, &user.CreatedAt,
+		&user.Id, &user.Username, &user.ProfilePicPath, &email, &user.CreatedAt,
 	)
-
-	if profilePicPath.Valid {
-		user.ProfilePicPath = profilePicPath.String
-	}
 
 	return
 }
 
 func GetUserByUsername(username string) (user User, email string, err error) {
-	var profilePicPath sql.NullString
-
 	err = store.DB.QueryRow(
 		"select id, username, profilePicPath, createdAt from users where username = ? limit 1",
 		username,
 	).Scan(
-		&user.Id, &user.Username, &profilePicPath, &user.CreatedAt,
+		&user.Id, &user.Username, &user.ProfilePicPath, &user.CreatedAt,
 	)
-
-	if profilePicPath.Valid {
-		user.ProfilePicPath = profilePicPath.String
-	}
 
 	return
 }
 
 func GetUserByTweetId(tweetId int) (user User, email string, err error) {
-	var profilePicPath sql.NullString
-
 	err = store.DB.QueryRow(
 		"select u.id, u.username, u.profilePicPath, u.email, u.createdAt from users u, tweets t where u.id = t.userId and t.id = ? limit 1",
 		tweetId,
 	).Scan(
-		&user.Id, &user.Username, &profilePicPath, &user.Email, &user.CreatedAt,
+		&user.Id, &user.Username, &user.ProfilePicPath, &user.Email, &user.CreatedAt,
 	)
-
-	if profilePicPath.Valid {
-		user.ProfilePicPath = profilePicPath.String
-	}
 
 	return
 }
 
 func MakeUser(email string, username string, passwordHash string) (user User, err error) {
 	createdAt := time.Now().Unix()
+	randomPic, err := utils.RandomImage(128)
+
+	if err != nil {
+		return
+	}
+
+	encodedProfilePicString := "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(randomPic)
 
 	res, err := store.DB.Exec(
-		"insert into users (username, password, email, createdAt) values (?, ?, ?, ?)",
-		username, passwordHash, email, createdAt,
+		"insert into users (username, password, email, createdAt, profilePicPath) values (?, ?, ?, ?, ?)",
+		username, passwordHash, email, createdAt, encodedProfilePicString,
 	)
 
 	if err != nil {
@@ -115,6 +99,7 @@ func MakeUser(email string, username string, passwordHash string) (user User, er
 	user.Id = int(id)
 	user.CreatedAt = createdAt
 	user.Username = username
+	user.ProfilePicPath = encodedProfilePicString
 
 	return
 }

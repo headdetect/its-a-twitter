@@ -46,12 +46,12 @@ func TestMain(m *testing.M) {
 func TestOptionRequest(t *testing.T) {
 	response, _ := makeRequest(
 		http.MethodOptions,
-		"/user/self",
+		"/tweet/1/retweet", // Some random route that has multiple methods //
 		nil,
 	)
 
-	if response.Header.Get("Allow") != "GET,PUT" {
-		t.Errorf("expected 'GET,PUT' got %s", response.Header.Get("Allow"))
+	if response.Header.Get("Allow") != "PUT,DELETE" {
+		t.Errorf("expected 'PUT,DELETE' got %s", response.Header.Get("Allow"))
 	}
 }
 

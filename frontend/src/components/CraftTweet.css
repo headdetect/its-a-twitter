@@ -1,6 +1,6 @@
 .craft-tweet-container {
   width: 100%;
-  max-width: 600px;
+  max-width: var(--content-width);
   
   margin: calc(var(--spacing) * 2) 0;
 }
@@ -63,8 +63,8 @@
 }
 
 .craft-tweet .media-preview img {
-  max-width: 400px;
-  max-height: 400px;
+  max-width: 450px;
+  max-height: 450px;
 
   border-radius: 4px;
 }

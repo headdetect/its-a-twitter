@@ -8,10 +8,10 @@
 .divider {
   position: relative;
 
-  width: 90%;
+  width: 100%;
   max-width: var(--content-width);
 
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px dotted var(--border);
 
   margin-top: calc(var(--spacing) * 5);
 }
