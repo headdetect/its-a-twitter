@@ -1,4 +1,5 @@
 import React from "react";
+import { useHref } from "react-router-dom";
 
 import { API_URL } from "consts";
 
@@ -12,13 +13,14 @@ export default function UserAvatar({
   onClick = undefined,
   ...theRest
 }) {
+  const defaultHrefPath = useHref(`/profile/@${user.username}`);
+
   const hrefOrClick = {};
 
   if (onClick) {
     hrefOrClick.onClick = onClick;
-    hrefOrClick.href = "#";
   } else {
-    hrefOrClick.href = `/profile/@${user.username}`;
+    hrefOrClick.href = defaultHrefPath;
   }
 
   const imageSrc = user.profilePicPath.startsWith("data:image")

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import "./App.css";
 
@@ -47,50 +48,18 @@ library.add(
   faGithub,
 );
 
-function Route() {
-  const path = window.location.pathname;
-  const segments = path
-    .split("/")
-    .filter(p => Boolean(p) && p != BASE_ROUTE.substring(1));
-
-  const [root = "", secondary = null] = segments;
-
-  const routes = {
-    "": () => {
-      location.pathname = "/timeline";
-
-      return null;
-    },
-    timeline: () => <Timeline.Presenter />,
-    profile: () => {
-      if (!secondary || !secondary.startsWith("@")) {
-        return <NotFound.Presenter />;
-      }
-
-      const username = secondary.substring(1);
-
-      return <Profile.Presenter username={username} />;
-    },
-    tweet: () => {
-      if (!secondary) {
-        return <NotFound.Presenter />;
-      }
-
-      return <SingleTweet.Presenter tweetId={+secondary} />;
-    },
-  };
-
-  const component = routes[root];
-
-  if (component) {
-    const result = component();
-
-    if (result) {
-      return result;
-    }
-  }
-
-  return <NotFound.Presenter />;
+function AppRouter() {
+  return (
+    <HashRouter basename="/">
+      <Routes>
+        <Route path="/" element={<Navigate to="/timeline" replace />} />
+        <Route path="/timeline" element={<Timeline.Presenter />} />
+        <Route path="/profile/@:username" element={<Profile.Presenter />} />
+        <Route path="/tweet/:tweetId" element={<SingleTweet.Presenter />} />
+        <Route path="*" element={<NotFound.Presenter />} />
+      </Routes>
+    </HashRouter>
+  );
 }
 
 function App() {
@@ -113,7 +82,7 @@ function App() {
     <div className="app">
       {/* Prevent rendering if the server is still coming up */}
       {isServerLoaded ? (
-        <Route />
+        <AppRouter />
       ) : (
         <Loading error={serverError} visible={isRenderingLoader} />
       )}

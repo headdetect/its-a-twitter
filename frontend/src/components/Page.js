@@ -1,4 +1,5 @@
-import React, { forwardRef } from "react";
+import React from "react";
+import { Link } from "react-router-dom";
 
 import * as AuthContainer from "containers/AuthContainer";
 import UserLoginForm from "components/UserLoginForm";
@@ -22,13 +23,13 @@ function UserMenuPopover({ onClose, ...theRest }) {
       <ul>
         <li className="section-header">Profile</li>
         <li>
-          <a
-            href={`/profile/@${loggedInUser.username}`}
+          <Link
+            to={`/profile/@${loggedInUser.username}`}
             rel="noopener noreferrer"
           >
             <FontAwesomeIcon icon="user" />
             Your Profile
-          </a>
+          </Link>
         </li>
         <li>
           <a
@@ -36,7 +37,7 @@ function UserMenuPopover({ onClose, ...theRest }) {
               logout(true);
             }}
             rel="noopener noreferrer"
-            href=""
+            href="#"
           >
             <FontAwesomeIcon icon="sign-out-alt" />
             Logout
@@ -45,10 +46,10 @@ function UserMenuPopover({ onClose, ...theRest }) {
 
         <li className="section-header">About</li>
         <li>
-          <a href={"/about"} rel="noopener noreferrer">
+          <Link to={"/about"} rel="noopener noreferrer">
             <FontAwesomeIcon icon="file-alt" />
             Docs
-          </a>
+          </Link>
         </li>
         <li>
           <a
@@ -107,9 +108,9 @@ export default function Page({ children, title = "" }) {
       <div className="navbar">
         <div className="navbar-content">
           <div className="navbar-title">
-            <a href="/timeline">
+            <Link to="/timeline">
               <FontAwesomeIcon icon="kiwi-bird" /> Its-a-Twitter
-            </a>
+            </Link>
             &middot; <span>{title}</span>
           </div>
 

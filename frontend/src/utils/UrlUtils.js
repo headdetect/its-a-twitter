@@ -39,26 +39,6 @@ export const COMMON_TLDS = [
 ];
 
 /**
- * Updates the specified query param with a new value.
- *
- * @param {*} key The key of the value to update. Will create KV pair if not exist.
- * @param {*} value The updated value. Leave blank or set to null to delete the param.
- * @param {*} uri The URI of the query param you'd like to update
- * @returns the url string
- */
-export function updateQueryParameter(key, value, uri = window.location.href) {
-  const currentUrl = new URL(uri);
-  const params = Object.fromEntries(currentUrl.searchParams.entries());
-  if (value) {
-    params[key] = value;
-  } else {
-    delete params[key];
-  }
-  currentUrl.search = `&${new URLSearchParams(params).toString()}`;
-  return currentUrl.toString();
-}
-
-/**
  * Will attempt to parse the specified link into a URL object.
  * Will return null if parsing fails.
  *

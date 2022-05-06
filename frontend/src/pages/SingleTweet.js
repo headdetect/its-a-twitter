@@ -1,5 +1,7 @@
 import React from "react";
 
+import { useParams } from "react-router-dom";
+
 import * as AuthContainer from "containers/AuthContainer";
 import * as TweetContainer from "containers/TweetContainer";
 
@@ -8,7 +10,9 @@ import Tweet from "components/Tweet";
 
 import "./Timeline.css";
 
-export function Presenter({ tweetId }) {
+export function Presenter() {
+  const { tweetId } = useParams();
+
   return (
     <AuthContainer.Provider>
       <div

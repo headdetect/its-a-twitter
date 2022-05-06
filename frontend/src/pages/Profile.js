@@ -1,5 +1,7 @@
 import React from "react";
 
+import { useParams } from "react-router-dom";
+
 import * as AuthContainer from "containers/AuthContainer";
 import * as ProfileContainer from "containers/ProfileContainer";
 import * as TweetContainer from "containers/TweetContainer";
@@ -11,7 +13,9 @@ import "./Timeline.css";
 import "./Profile.css";
 import Tweet from "components/Tweet";
 
-export function Presenter({ username }) {
+export function Presenter() {
+  const { username } = useParams();
+
   return (
     <AuthContainer.Provider>
       <div

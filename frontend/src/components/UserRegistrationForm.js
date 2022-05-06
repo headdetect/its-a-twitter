@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
 
 import * as AuthContainer from "containers/AuthContainer";
 import FloatingLabelInput from "components/FloatingLabelInput";
@@ -6,6 +7,7 @@ import FloatingLabelInput from "components/FloatingLabelInput";
 import "./UserLoginForm.css"; // They'll have the same styles //
 
 export default function UserRegistrationForm() {
+  const navigate = useNavigate();
   const { register } = AuthContainer.useContext();
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -40,14 +42,14 @@ export default function UserRegistrationForm() {
         await register(email, username, password);
 
         // Redirect to own profile //
-        window.location.href = `/profile/@${username}`;
+        navigate(`/profile/@${username}`);
       } catch (e) {
         setError(String(e));
       }
 
       setIsLoading(false);
     },
-    [username, password, email, register],
+    [username, password, email, register, navigate],
   );
 
   return (

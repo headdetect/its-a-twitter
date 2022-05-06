@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 import * as AuthContainer from "containers/AuthContainer";
 import * as TimeUtils from "utils/TimeUtils";
@@ -103,12 +104,12 @@ export default function Tweet({
             style={{ marginRight: "var(--spacing)" }}
           />
 
-          <a
-            href={`/profile/@${retweetUser.username}`}
+          <Link
+            to={`/profile/@${retweetUser.username}`}
             rel="noopener noreferrer"
           >
             @{retweetUser.username}
-          </a>
+          </Link>
           <span>retweeted</span>
         </div>
       )}
@@ -129,12 +130,12 @@ export default function Tweet({
         />
         <div className="tweet-content">
           <div className="user-info">
-            <a className="user-link" href={`/profile/@${user.username}`}>
+            <Link className="user-link" to={`/profile/@${user.username}`}>
               @{user.username}
-            </a>
-            <a className="tweet-link" href={`/tweet/${tweet.id}`}>
+            </Link>
+            <Link className="tweet-link" to={`/tweet/${tweet.id}`}>
               {TimeUtils.toAgoString(new Date(tweet.createdAt * 1000))}
-            </a>
+            </Link>
           </div>
 
           <p>{newlinedText}</p>
