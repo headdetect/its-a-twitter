@@ -2,7 +2,10 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 
@@ -37,6 +40,10 @@ type SmallProfileUserResponse struct {
 	FollowerCount  int             `json:"followerCount"`
 	FollowingCount int             `json:"followingCount"`
 	Timeline       profileTimeline `json:"timeline"`
+}
+
+type ProfileImageChangedResponse struct {
+	ProfilePicPath string `json:"profilePicPath"`
 }
 
 type RegisterUserRequest struct {
@@ -117,8 +124,97 @@ func HandleOwnUser(writer http.ResponseWriter, request *http.Request) {
 	JsonResponse(writer, jsonResponse)
 }
 
-func HandleUpdateOwnUser(writer http.ResponseWriter, request *http.Request) {
+func HandleUpdateUserAvatar(writer http.ResponseWriter, request *http.Request) {
+	// Receive file upload if there is one //
+	file, fileHeader, err := request.FormFile("file")
 
+	if err != nil {
+		BadRequestResponse(writer)
+	}
+
+	defer file.Close()
+
+	fileMime := fileHeader.Header.Get("Content-Type")
+	types := strings.Split(fileMime, "/")
+
+	if strings.TrimSpace(fileMime) == "" || len(types) != 2 {
+		BadRequestResponse(writer)
+		return
+	}
+
+	valid := false
+
+	for _, mime := range ACCEPTABLE_MIME_TYPES {
+		if mime == fileMime {
+			valid = true
+			break
+		}
+	}
+
+	if !valid {
+		BadRequestResponse(writer)
+		return
+	}
+
+	extension := types[1]
+
+	// [Scaleability]
+	// This would be processed to reduce filesize as much as
+	// possible using some lossless or a low lossy compression
+	//
+	// We'd also want to check for filename conflicts.
+	name := fmt.Sprintf("u-%s.%s", utils.RandomHex(8), extension)
+
+	// Copy to disk //
+	path, _ := utils.GetStringOrDefault("MEDIA_PATH", "./assets/media")
+	fullFilePath := fmt.Sprintf("%s/%s", path, name)
+	diskFile, err := os.OpenFile(fullFilePath, os.O_CREATE|os.O_WRONLY, 0644)
+	defer diskFile.Close()
+
+	if err != nil {
+		ErrorResponse(writer, err)
+		return
+	}
+
+	io.Copy(diskFile, file)
+	
+	currentUser, err := GetCurrentUser(request)
+
+	if err != nil {
+		// Returning an error response because this shouldn't be possible //
+		ErrorResponse(writer, err)
+		return
+	}
+
+	err = currentUser.UpdateProfilePicPath(name)
+
+	if err != nil {
+		// Returning an error response because this shouldn't be possible //
+		ErrorResponse(writer, err)
+		return
+	}
+
+	// Update logged in user //
+	for auth, val := range Sessions {
+		if val.Id == currentUser.Id {
+			val.ProfilePicPath = name // Update //
+
+			Sessions[auth] = val // Copy back //
+		}
+	}
+
+	response := ProfileImageChangedResponse{
+		ProfilePicPath: name,
+	}
+
+	jsonResponse, err := json.Marshal(response)
+
+	if err != nil {
+		ErrorResponse(writer, err)
+		return
+	}
+
+	JsonResponse(writer, jsonResponse)
 }
 
 func HandleUser(writer http.ResponseWriter, request *http.Request) {
@@ -255,7 +351,7 @@ func HandleUserRegister(writer http.ResponseWriter, request *http.Request) {
 
 	JsonResponse(writer, jsonResponse)
 
-	Sessions[authToken] = user	
+	Sessions[authToken] = user
 }
 
 func HandleUserLogin(writer http.ResponseWriter, request *http.Request) {

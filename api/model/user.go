@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -13,6 +14,7 @@ type User struct {
 	Id       int    `json:"id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
+	ProfilePicPath string `json:"profilePicPath"`
 
 	CreatedAt int64 `json:"createdAt"`
 }
@@ -25,45 +27,69 @@ type Follow struct {
 }
 
 func GetUserByUsernameWithPass(username string) (user User, hashedPassword string, email string, err error) {
+	var profilePicPath sql.NullString
+
 	err = store.DB.QueryRow(
-		"select id, username, email, password, createdAt from users where username = ? limit 1",
+		"select id, username, profilePicPath, email, password, createdAt from users where username = ? limit 1",
 		username,
 	).Scan(
-		&user.Id, &user.Username, &email, &hashedPassword, &user.CreatedAt,
+		&user.Id, &user.Username, &profilePicPath, &email, &hashedPassword, &user.CreatedAt,
 	)
+
+	if profilePicPath.Valid {
+		user.ProfilePicPath = profilePicPath.String
+	}
 
 	return
 }
 
 func GetUserById(id int) (user User, email string, err error) {
+	var profilePicPath sql.NullString
+
 	err = store.DB.QueryRow(
-		"select id, username, email, createdAt from users where id = ? limit 1",
+		"select id, username, profilePicPath, email, createdAt from users where id = ? limit 1",
 		id,
 	).Scan(
-		&user.Id, &user.Username, &email, &user.CreatedAt,
+		&user.Id, &user.Username, &profilePicPath, &email, &user.CreatedAt,
 	)
+
+	if profilePicPath.Valid {
+		user.ProfilePicPath = profilePicPath.String
+	}
 
 	return
 }
 
 func GetUserByUsername(username string) (user User, email string, err error) {
+	var profilePicPath sql.NullString
+
 	err = store.DB.QueryRow(
-		"select id, username, createdAt from users where username = ? limit 1",
+		"select id, username, profilePicPath, createdAt from users where username = ? limit 1",
 		username,
 	).Scan(
-		&user.Id, &user.Username, &user.CreatedAt,
+		&user.Id, &user.Username, &profilePicPath, &user.CreatedAt,
 	)
+
+	if profilePicPath.Valid {
+		user.ProfilePicPath = profilePicPath.String
+	}
 
 	return
 }
 
 func GetUserByTweetId(tweetId int) (user User, email string, err error) {
+	var profilePicPath sql.NullString
+
 	err = store.DB.QueryRow(
-		"select u.id, u.username, u.email, u.createdAt from users u, tweets t where u.id = t.userId and t.id = ? limit 1",
+		"select u.id, u.username, u.profilePicPath, u.email, u.createdAt from users u, tweets t where u.id = t.userId and t.id = ? limit 1",
 		tweetId,
 	).Scan(
-		&user.Id, &user.Username, &user.Email, &user.CreatedAt,
+		&user.Id, &user.Username, &profilePicPath, &user.Email, &user.CreatedAt,
 	)
+
+	if profilePicPath.Valid {
+		user.ProfilePicPath = profilePicPath.String
+	}
 
 	return
 }
@@ -97,6 +123,16 @@ func (u *User) DeleteUser() (err error) {
 	_, err = store.DB.Exec(
 		"delete from users where id = ?",
 		u.Id,
+	)
+
+	return
+}
+
+
+func (u *User) UpdateProfilePicPath(profilePicPath string) (err error) {
+	_, err = store.DB.Exec(
+		"update users set profilePicPath = ? where id = ? ",
+		profilePicPath, u.Id,
 	)
 
 	return

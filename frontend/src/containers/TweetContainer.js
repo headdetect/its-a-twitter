@@ -5,7 +5,7 @@
 import React from "react";
 import * as AuthContainer from "containers/AuthContainer";
 
-const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL } from "consts";
 
 export const Context = React.createContext(null);
 

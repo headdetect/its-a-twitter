@@ -18,10 +18,6 @@ const (
 	MAX_TWEET_CHARS = 250
 )
 
-var (
-	ACCEPTABLE_MIME_TYPES = []string{"image/jpeg", "image/jpg", "image/png", "image/gif"}
-)
-
 type SingleTweetResponse struct {
 	TimelineTweet model.TimelineTweet `json:"tweet"`
 }

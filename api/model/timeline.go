@@ -71,7 +71,7 @@ func fillAssociatedUsers(users *map[int]User, userIds []any) (err error) {
 
 	userRows, err := store.DB.
 		Query(`
-			select u.id, u.username, u.createdAt
+			select u.id, u.username, u.profilePicPath, u.createdAt
 			from users u
 			where u.id in (?`+strings.Repeat(",?", len(userIds)-1)+`)`,
 			userIds...,
@@ -84,11 +84,16 @@ func fillAssociatedUsers(users *map[int]User, userIds []any) (err error) {
 	defer userRows.Close()
 	for userRows.Next() {
 		var u User
+		var profilePicPath sql.NullString
 
 		if err = userRows.Scan(
-			&u.Id, &u.Username, &u.CreatedAt,
+			&u.Id, &u.Username, &profilePicPath, &u.CreatedAt,
 		); err != nil {
 			return err
+		}
+
+		if profilePicPath.Valid {
+			u.ProfilePicPath = profilePicPath.String
 		}
 
 		(*users)[u.Id] = u

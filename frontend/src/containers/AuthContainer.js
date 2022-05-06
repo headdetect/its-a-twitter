@@ -4,10 +4,9 @@
  */
 import useEffectOnce from "hooks/useEffectOnce";
 import React from "react";
+import { API_URL } from "consts";
 
 export const Context = React.createContext(null);
-
-const API_URL = process.env.REACT_APP_API_URL;
 
 export function Provider({ children }) {
   const [loggedInUser, setLoggedInUser] = React.useState(null);
@@ -162,6 +161,30 @@ export function Provider({ children }) {
     }
   }, [authenticatedFetch]);
 
+  const updateProfilePic = React.useCallback(
+    async media => {
+      const formData = new FormData();
+      formData.append("file", media);
+
+      const response = await authenticatedFetch(`${API_URL}/user/self/avatar`, {
+        method: "PUT",
+        body: formData,
+      });
+
+      const body = await response.json();
+
+      if (!body.profilePicPath) {
+        throw new Error("Server returned something unexpected");
+      }
+
+      setLoggedInUser(u => ({
+        ...u,
+        profilePicPath: body.profilePicPath,
+      }));
+    },
+    [authenticatedFetch],
+  );
+
   useEffectOnce(() => {
     const authToken = localStorage.getItem("authToken");
     const username = localStorage.getItem("username");
@@ -197,7 +220,7 @@ export function Provider({ children }) {
         login,
         register,
         logout,
-        setLoggedInUser,
+        updateProfilePic,
 
         // State //
         isLoggedIn: loggedInUser !== null,

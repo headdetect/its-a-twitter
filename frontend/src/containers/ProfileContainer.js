@@ -5,18 +5,15 @@
 import React from "react";
 
 import * as AuthContainer from "containers/AuthContainer";
+import { API_URL } from "consts";
 
 export const Context = React.createContext(null);
-
-const API_URL = process.env.REACT_APP_API_URL;
 
 export function Provider({ children, profileUsername = null }) {
   const { authenticatedFetch, loggedInUser } = AuthContainer.useContext();
 
   const [profileUser, setProfileUser] = React.useState(undefined);
   const [profileUserStatus, setProfileUserStatus] = React.useState("loading"); // loading | finished | error
-
-  const updateProfilePic = React.useCallback(async pic => {}, []);
 
   const followUser = React.useCallback(
     async username => {
@@ -111,9 +108,9 @@ export function Provider({ children, profileUsername = null }) {
     <Context.Provider
       value={{
         // Actions //
-        updateProfilePic,
         followUser,
         unfollowUser,
+        setProfileUser,
 
         // State //
         profileUser,

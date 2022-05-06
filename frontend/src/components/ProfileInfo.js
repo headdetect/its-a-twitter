@@ -13,6 +13,8 @@ export default function ProfileInfo({
 
   onFollowUser = _ => {},
   onUnfollowUser = _ => {},
+
+  onProfileImageChanged = _ => {},
 }) {
   const { isLoggedIn, loggedInUser } = AuthContainer.useContext();
 
@@ -39,12 +41,12 @@ export default function ProfileInfo({
   const handleProfileImageChanged = e => {
     const [file] = e.target.files;
 
-    if (!ACCEPTABLE_MIME_TYPES.includes(file.type)) {
+    if (!file || !ACCEPTABLE_MIME_TYPES.includes(file.type)) {
       // Silent rejection //
       return;
     }
 
-    // TODO: upload and fetch new user
+    onProfileImageChanged(file);
   };
 
   const handleChangeFollow = () => {
@@ -66,9 +68,15 @@ export default function ProfileInfo({
   const followersCount =
     profileUser.followers?.length ?? profileUser.followerCount;
 
+  // TODO: Handle on hover when logged out
+
   return (
     <div className="profile-info">
-      <div className="profile-avatar">
+      <div
+        className={`profile-avatar ${
+          isLoggedIn ? "" : "profile-avatar-view-only"
+        }`}
+      >
         <input
           type="file"
           style={{ display: "hidden" }}
@@ -83,7 +91,7 @@ export default function ProfileInfo({
         <UserAvatar
           user={profileUser.user}
           size={100}
-          onClick={handleUploadProfileImage}
+          onClick={isLoggedIn ? handleUploadProfileImage : undefined}
         />
       </div>
 

@@ -113,7 +113,7 @@ func MakeRoutes() (routes []Route) {
 
 		// Users //
 		{method: "GET", path: "/user/self", handler: HandleOwnUser, middlewares: []MiddlewareFunc{AuthMiddleware()}},
-		{method: "PUT", path: "/user/self", handler: HandleUpdateOwnUser, middlewares: []MiddlewareFunc{AuthMiddleware()}},
+		{method: "PUT", path: "/user/self/avatar", handler: HandleUpdateUserAvatar, middlewares: []MiddlewareFunc{AuthMiddleware()}},
 		{method: "POST", path: "/user/login", handler: HandleUserLogin},
 		{method: "POST", path: "/user/register", handler: HandleUserRegister},
 		{method: "GET", path: "/user/profile/([^/]+)", handler: HandleUser},

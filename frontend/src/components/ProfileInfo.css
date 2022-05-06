@@ -51,7 +51,7 @@
 
 }
 
-.profile-info .profile-avatar:hover .upload-image {
+.profile-info .profile-avatar:hover:not(.profile-avatar-view-only) .upload-image {
   opacity: 1;
 }
 

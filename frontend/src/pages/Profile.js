@@ -36,12 +36,28 @@ export function Presenter({ username }) {
 }
 
 function Profile() {
-  const { loggedInUser, isLoggedIn } = AuthContainer.useContext();
+  const { updateProfilePic, loggedInUser } = AuthContainer.useContext();
+
   const { timeline, setTimeline, ...tweetActions } =
     TweetContainer.useContext(); // Just using the actions //
 
-  const { profileUser, profileUserStatus, followUser, unfollowUser } =
-    ProfileContainer.useContext();
+  const {
+    profileUser,
+    setProfileUser,
+    profileUserStatus,
+    followUser,
+    unfollowUser,
+  } = ProfileContainer.useContext();
+
+  //  If we're on our own profile, update if logged in info changes  //
+  React.useEffect(() => {
+    if (loggedInUser?.username === profileUser?.user?.username) {
+      setProfileUser(p => ({
+        ...p,
+        user: loggedInUser,
+      }));
+    }
+  }, [loggedInUser, profileUser?.user?.username, setProfileUser]);
 
   React.useEffect(() => {
     if (!profileUser) {
@@ -73,6 +89,7 @@ function Profile() {
         profileUser={profileUser}
         onFollowUser={followUser}
         onUnfollowUser={unfollowUser}
+        onProfileImageChanged={updateProfilePic}
       />
 
       <div className="timeline-stream">

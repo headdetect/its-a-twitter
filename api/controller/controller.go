@@ -8,6 +8,10 @@ import (
 	"github.com/headdetect/its-a-twitter/api/model"
 )
 
+var (
+	ACCEPTABLE_MIME_TYPES = []string{"image/jpeg", "image/jpg", "image/png", "image/gif"}
+)
+
 var Sessions map[string]model.User = make(map[string]model.User) // [authToken] = user
 
 // TODO Make these helper funcs private
