@@ -175,7 +175,7 @@ func HandleUpdateUserAvatar(writer http.ResponseWriter, request *http.Request) {
 	name := fmt.Sprintf("u-%s.%s", utils.RandomHex(8), extension)
 
 	// Copy to disk //
-	path, _ := utils.GetStringOrDefault("MEDIA_PATH", "./assets/media")
+	path, _ := utils.GetStringOrDefault("MEDIA_PATH", "./media")
 	fullFilePath := fmt.Sprintf("%s/%s", path, name)
 	diskFile, err := os.OpenFile(fullFilePath, os.O_CREATE|os.O_WRONLY, 0644)
 	defer diskFile.Close()
@@ -194,7 +194,7 @@ func HandleUpdateUserAvatar(writer http.ResponseWriter, request *http.Request) {
 
 	// Delete the old one if this one passed and is not base64 image //
 	if err == nil && strings.Index(currentUser.ProfilePicPath, "data:image") != 0 {
-		path, _ := utils.GetStringOrDefault("MEDIA_PATH", "./assets/media")
+		path, _ := utils.GetStringOrDefault("MEDIA_PATH", "./media")
 		fullFilePath := fmt.Sprintf("%s/%s", path, currentUser.ProfilePicPath)
 		if err := os.Remove(fullFilePath); err != nil {
 			ErrorResponse(writer, err)

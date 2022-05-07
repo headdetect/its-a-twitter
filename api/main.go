@@ -3,9 +3,12 @@ package main
 import (
 	"bytes"
 	"encoding/gob"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
+	"path"
 	"path/filepath"
 	"syscall"
 
@@ -44,6 +47,34 @@ func restoreSessions() {
 	decoder.Decode(&controller.Sessions)
 }
 
+func copyAssets() {
+	files, err := filepath.Glob("./assets/*")
+
+	if err != nil {
+		log.Fatalln("Unable to access compile time assets")
+	}
+
+	assetsPath, _ := utils.GetStringOrDefault("MEDIA_PATH", "./media")
+
+	for _, fullPath := range files {
+		file := path.Base(fullPath)
+		bytesRead, err := ioutil.ReadFile(fullPath)
+
+    if err != nil {
+			log.Fatal(err)
+    }
+
+		newPath := fmt.Sprintf("%s/%s", assetsPath, file)
+    err = ioutil.WriteFile(newPath, bytesRead, 0644)
+
+    if err != nil {
+			log.Fatal(err)
+    }
+
+		log.Printf("Copied %s to %s\n", fullPath, newPath)
+	}
+}
+
 func main() {
 	log.Println("Starting its-a-twitter API")
 
@@ -54,7 +85,7 @@ func main() {
 		log.Println("Error loading .env file. Skipping.")
 	}
 
-	assetsPath, _ := utils.GetStringOrDefault("MEDIA_PATH", "./assets/media")
+	assetsPath, _ := utils.GetStringOrDefault("MEDIA_PATH", "./media")
 	newPath := filepath.Join(".", assetsPath)
 	err = os.MkdirAll(newPath, os.ModePerm)
 
@@ -62,6 +93,9 @@ func main() {
 		log.Fatal("Error making assets directory")
 		log.Fatal(err)
 	}
+
+	log.Println("Hyrdating build-time assets to media path")
+	copyAssets()
 
 	log.Println("Loading database")
 	store.LoadDatabase(false)

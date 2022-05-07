@@ -97,7 +97,7 @@ func GetTweetById(tweetId int) (t Tweet, err error) {
 
 func (t *Tweet) GetFullMediaPath() (string, error) {
 	// TODO: Look for file
-	path, _ := utils.GetStringOrDefault("MEDIA_PATH", "./assets/media")
+	path, _ := utils.GetStringOrDefault("MEDIA_PATH", "./media")
 	return fmt.Sprintf("%s/%s", path, t.MediaPath), nil
 }
 

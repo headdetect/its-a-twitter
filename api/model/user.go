@@ -2,14 +2,11 @@ package model
 
 import (
 	"encoding/base64"
-	"fmt"
 	"time"
 
 	"github.com/headdetect/its-a-twitter/api/store"
 	"github.com/headdetect/its-a-twitter/api/utils"
 )
-
-var PROFILE_PIC_PATH = "./assets/profile"
 
 type User struct {
 	Id       int    `json:"id"`
@@ -121,12 +118,6 @@ func (u *User) UpdateProfilePicPath(profilePicPath string) (err error) {
 	)
 
 	return
-}
-
-func (u *User) GetProfilePicPath() (string, error) {
-	// TODO: Look for file
-
-	return fmt.Sprintf("%s/%d.jpg", PROFILE_PIC_PATH, u.Id), nil
 }
 
 func (u *User) FollowUser(followedUserId int) (err error) {

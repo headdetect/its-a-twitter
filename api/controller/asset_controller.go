@@ -24,7 +24,7 @@ func HandleAsset(writer http.ResponseWriter, request *http.Request) {
 	assetBase := filepath.Base(requestedAsset)
 	mimeType := fmt.Sprintf("image/%s", strings.TrimLeft(filepath.Ext(assetBase), "."))
 
-	mediaPath, _ := utils.GetStringOrDefault("MEDIA_PATH", "./assets/media")
+	mediaPath, _ := utils.GetStringOrDefault("MEDIA_PATH", "./media")
 	fullFilePath := fmt.Sprintf("%s/%s", mediaPath, assetBase)
 	diskFile, err := os.ReadFile(fullFilePath)
 

@@ -155,7 +155,7 @@ func HandlePostTweet(writer http.ResponseWriter, request *http.Request) {
 		name := fmt.Sprintf("t-%s.%s", utils.RandomHex(8), extension)
 
 		// Copy to disk //
-		path, _ := utils.GetStringOrDefault("MEDIA_PATH", "./assets/media")
+		path, _ := utils.GetStringOrDefault("MEDIA_PATH", "./media")
 		fullFilePath := fmt.Sprintf("%s/%s", path, name)
 		diskFile, err := os.OpenFile(fullFilePath, os.O_CREATE|os.O_WRONLY, 0644)
 		defer diskFile.Close()
@@ -238,7 +238,7 @@ func HandleDeleteTweet(writer http.ResponseWriter, request *http.Request) {
 
 	// Attempt to delete any media //
 	if tweet.MediaPath != "" {
-		path, _ := utils.GetStringOrDefault("MEDIA_PATH", "./assets/media")
+		path, _ := utils.GetStringOrDefault("MEDIA_PATH", "./media")
 		fullFilePath := fmt.Sprintf("%s/%s", path, tweet.MediaPath)
 		if err := os.Remove(fullFilePath); err != nil && !responded {
 			ErrorResponse(writer, err)
