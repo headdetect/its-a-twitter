@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+import * as AppContainer from "containers/AppContainer";
 import * as AuthContainer from "containers/AuthContainer";
 import * as TimeUtils from "utils/TimeUtils";
 import * as UrlUtils from "utils/UrlUtils";
@@ -34,6 +35,7 @@ export default function Tweet({
   onReaction = (_, __) => {},
   onDeleteTweet = _ => {},
 }) {
+  const { makeAlert } = AppContainer.useContext();
   const { loggedInUser, isLoggedIn } = AuthContainer.useContext();
   const [titles, setTitles] = React.useState({
     reaction: "Add a reaction",
@@ -72,6 +74,11 @@ export default function Tweet({
   } = timelineTweet;
 
   const handleRetweet = async () => {
+    if (!isLoggedIn || isOwnTweet) {
+      makeAlert("danger", "You must be logged in to retweet");
+      return;
+    }
+
     if (userRetweeted) {
       onRemoveRetweet(tweet.id);
     } else {
@@ -80,6 +87,11 @@ export default function Tweet({
   };
 
   const handleReact = r => {
+    if (!isLoggedIn || isOwnTweet) {
+      makeAlert("danger", "You must be logged in to react");
+      return;
+    }
+
     if (userReactions.includes(r)) {
       onRemoveReaction(tweet.id, r);
     } else {
@@ -155,8 +167,7 @@ export default function Tweet({
               onClick={handleRetweet}
               className={`btn btn-tweet-action ${
                 userRetweeted ? "selected" : ""
-              }`}
-              disabled={!isLoggedIn || isOwnTweet}
+              } ${!isLoggedIn || isOwnTweet ? "btn-disabled" : ""}`}
               title={titles.retweet}
             >
               <FontAwesomeIcon icon="retweet" /> <span>{retweetCount}</span>
@@ -166,11 +177,10 @@ export default function Tweet({
               {ALLOWED_REACTIONS.map(r => (
                 <button
                   key={r}
-                  disabled={!isLoggedIn || isOwnTweet}
                   onClick={() => handleReact(r)}
                   className={`btn btn-tweet-reaction ${
                     userReactions.includes(r) ? "selected" : ""
-                  }`}
+                  } ${!isLoggedIn || isOwnTweet ? "btn-disabled" : ""}`}
                   title={titles.reaction}
                 >
                   {REACTION_MAP[r]} {reactionCount[r] || 0}

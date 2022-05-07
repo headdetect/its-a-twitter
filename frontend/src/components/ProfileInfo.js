@@ -1,5 +1,6 @@
 import React from "react";
 
+import * as AppContainer from "containers/AppContainer";
 import * as AuthContainer from "containers/AuthContainer";
 import UserAvatar from "components/UserAvatar";
 
@@ -16,6 +17,7 @@ export default function ProfileInfo({
 
   onProfileImageChanged = _ => {},
 }) {
+  const { makeAlert } = AppContainer.useContext();
   const { isLoggedIn, loggedInUser } = AuthContainer.useContext();
 
   const fileInputRef = React.useRef(null);
@@ -42,7 +44,7 @@ export default function ProfileInfo({
     const [file] = e.target.files;
 
     if (!file || !ACCEPTABLE_MIME_TYPES.includes(file.type)) {
-      // Silent rejection //
+      makeAlert("danger", "Only jpeg, gif, and pngs are accepted");
       return;
     }
 
@@ -67,8 +69,6 @@ export default function ProfileInfo({
     profileUser.following?.length ?? profileUser.followingCount;
   const followersCount =
     profileUser.followers?.length ?? profileUser.followerCount;
-
-  // TODO: Handle on hover when logged out
 
   return (
     <div className="profile-info content">
