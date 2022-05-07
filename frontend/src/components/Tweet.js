@@ -124,11 +124,12 @@ export default function Tweet({
           </button>
         )}
 
-        <UserAvatar
-          user={user}
-          style={{ marginRight: "calc(var(--spacing) * 2.5)" }}
-        />
-        <div className="tweet-content">
+        <div className="tweet-info">
+          <UserAvatar
+            user={user}
+            style={{ marginRight: "calc(var(--spacing) * 2.5)" }}
+          />
+
           <div className="user-info">
             <Link className="user-link" to={`/profile/@${user.username}`}>
               @{user.username}
@@ -137,7 +138,9 @@ export default function Tweet({
               {TimeUtils.toAgoString(new Date(tweet.createdAt * 1000))}
             </Link>
           </div>
+        </div>
 
+        <div className="tweet-content">
           <p>{newlinedText}</p>
 
           {tweet.mediaPath && (

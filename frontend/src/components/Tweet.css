@@ -1,5 +1,6 @@
 .tweet {
   display: flex;
+  flex-direction: column;
   position: relative;
 
   border-radius: 16px;
@@ -63,11 +64,12 @@
   opacity: 1;
 }
 
-.tweet .tweet-content {
-  flex: 1 1 auto;
+.tweet .tweet-info {
+  display: flex;
+  flex-direction: row;
 }
 
-.tweet .tweet-content .user-info {
+.tweet .tweet-info .user-info {
   display: flex;
   flex-direction: column;
 
@@ -76,7 +78,7 @@
   margin-bottom: calc(var(--spacing) * 2);
 }
 
-.tweet .tweet-content .user-info a.user-link {
+.tweet .tweet-info .user-info a.user-link {
   color: var(--text);
   font-size: 1.25rem;
 
@@ -84,19 +86,23 @@
   margin-bottom: calc(var(--spacing) * 0.5);
 }
 
-.tweet .tweet-content .user-info a.user-link:hover {
+.tweet .tweet-info .user-info a.user-link:hover {
   color: var(--link-hover);
 }
 
-.tweet .tweet-content .user-info a.tweet-link {
+.tweet .tweet-info .user-info a.tweet-link {
   color: var(--text-subtitle);
   display: inline-block;
 
   font-size: 0.85rem;
 }
 
-.tweet .tweet-content .user-info .tweet-link:hover {
+.tweet .tweet-info .user-info .tweet-link:hover {
   color: var(--link-hover);
+}
+
+.tweet .tweet-content  {
+  margin-left: calc(var(--spacing) * 2.5 + 50px);
 }
 
 .tweet .tweet-content p {
@@ -111,6 +117,9 @@
 
   max-width: 400px;
   max-height: 400px;
+
+  width: 100%;
+  height: 100%;
 }
 
 /** Actions **/
@@ -189,4 +198,34 @@
   border-color: var(--danger);
 
   background: transparent;
+}
+
+@media only screen and (max-width: 768px) {
+  .tweet {
+    padding: calc(var(--spacing) * 2);
+    padding-bottom: calc(var(--spacing) * 4);
+
+    margin-top: calc(var(--spacing) * 2);
+    margin-bottom: calc(var(--spacing) * 5);
+  }
+
+  .tweet .tweet-content {
+    margin-left: 0;
+    margin-top: var(--spacing);
+  }
+
+  .tweet .tweet-actions {
+    flex-direction: column;
+    padding-right: 0;
+  }
+
+  .tweet .tweet-actions .btn-tweet-action {
+    width: 100%;
+    margin-bottom: calc(var(--spacing) * 2);
+  }
+
+  .tweet .tweet-actions .tweet-reactions {
+    display: flex;
+    justify-content: center;
+  }
 }

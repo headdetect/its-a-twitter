@@ -60,6 +60,8 @@ html, body, #root, .app {
   color: var(--text);
 
   font-size: 16px;
+
+  padding: 0 calc(var(--spacing) * 0.5);
 }
 
 .content {
