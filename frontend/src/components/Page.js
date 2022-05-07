@@ -112,9 +112,11 @@ export default function Page({ children, title = "" }) {
         <div className="navbar-content">
           <div className="navbar-title">
             <Link to="/timeline">
-              <FontAwesomeIcon icon="kiwi-bird" /> Its-a-Twitter
+              <FontAwesomeIcon icon="kiwi-bird" />
+              <span className="xs-hide">Its-a-Twitter</span>
             </Link>
-            &middot; <span>{title}</span>
+            &middot;
+            <span className="title">{title}</span>
           </div>
 
           {isLoggedIn ? (
