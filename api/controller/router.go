@@ -1,3 +1,23 @@
+/**
+=== Notes about scaling ===
+
+Given the nature and scope of this project, it made more sense to
+structure the api calls in a RESTful manner. That decision comes
+with some potential downsides as the size and usage of the application
+changes.
+
+The biggest bottle neck regarding the routing of the api calls
+comes not with the routing, but with how you determine the methods,
+paths, and results of those routes.
+
+In a more established system, something like GraphQL would render
+this type of routing obsolete and allow for the caller to determine
+the resources and the structure that it needs to accomplish a task.
+
+Further Reading
+- In Retrospective
+
+*/
 package controller
 
 import (

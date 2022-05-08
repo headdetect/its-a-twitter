@@ -1,3 +1,15 @@
+/**
+	=== Notes about scaling ===
+
+	There's not much to improve upon here for production-grade applications.
+	
+	The biggest one would be a more comprehensive auth system with a 
+	more defined and secure flow instead of the custom flow.
+
+	Additionally, a more indepth request logger could help debug some issues and prevent 
+
+ */
+
 package controller
 
 import (

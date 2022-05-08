@@ -2,11 +2,9 @@ package model
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/headdetect/its-a-twitter/api/store"
-	"github.com/headdetect/its-a-twitter/api/utils"
 )
 
 type Tweet struct {
@@ -93,12 +91,6 @@ func GetTweetById(tweetId int) (t Tweet, err error) {
 	}
 
 	return
-}
-
-func (t *Tweet) GetFullMediaPath() (string, error) {
-	// TODO: Look for file
-	path, _ := utils.GetStringOrDefault("MEDIA_PATH", "./media")
-	return fmt.Sprintf("%s/%s", path, t.MediaPath), nil
 }
 
 func (t *Tweet) MakeRetweet(userId int) (err error) {

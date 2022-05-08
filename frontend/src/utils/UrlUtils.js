@@ -52,6 +52,9 @@ export function tryParseUrl(tryLink, quickLink = true) {
   try {
     let hadToInsertSchema = false;
 
+    // This stays http instead of https for the potential links
+    // that are actually http:// which is fine because it will still be able to
+    // catch links that are https as well
     if (!link.startsWith("http")) {
       link = `http://${link}`;
       hadToInsertSchema = true;

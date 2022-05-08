@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 import * as AuthContainer from "containers/AuthContainer";
 
@@ -16,7 +17,10 @@ export function Presenter() {
           width: "100%",
         }}
       >
-        <Page>Idk how you got here bruv</Page>
+        <Page>
+          This page does not exist.{" "}
+          <Link to="/timeline">Click here to go back</Link>
+        </Page>
       </div>
     </AuthContainer.Provider>
   );

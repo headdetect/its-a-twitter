@@ -1,3 +1,26 @@
+/*
+ === Notes about scaling ====
+
+  In a production grade application where there
+  are thousands of requests per second for media,
+	the current implementation would not be
+	acceptable. You'd see a significant bottleneck in
+	reading the content from disk all the way to serving
+	to the requester.
+
+	For something like this, we'd need a layer that is
+	able to cache the assets post request, so that any additional
+	request for the same asset will get pulled from the caching layer
+	instead of needing to be hit in the api.
+
+	This would reduce the load on the api and only require it to fetch
+	assets that the caching layer has not yet seen before.
+
+  Further Reading:
+  - CDN/Media Caching
+	- Storage
+*/
+
 package controller
 
 import (

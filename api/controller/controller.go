@@ -1,3 +1,22 @@
+/**
+=== Notes about scaling ===
+
+There are a couple of these we do here that, in an enterprise application,
+would be a huge nono. The `Sessions` map is the biggest example of this.
+We'd want to keep this stored in some secure cache or database instead of
+making it a local variable that gets stored in the application memory.
+
+If a system had several thousands of active users per day, you could see
+the memory growing exponentially for each instance of the API.
+
+In addition, this would make load balancing impossible as they are currently
+unable to share sessions between api instances.
+
+Further reading:
+- Load Balancing
+- Database
+*/
+
 package controller
 
 import (
@@ -13,8 +32,6 @@ var (
 )
 
 var Sessions map[string]model.User = make(map[string]model.User) // [authToken] = user
-
-// TODO Make these helper funcs private
 
 func GetCurrentUser(request *http.Request) (model.User, error) {
 	authToken := request.Header.Get("Authtoken")

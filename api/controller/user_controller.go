@@ -167,7 +167,7 @@ func HandleUpdateUserAvatar(writer http.ResponseWriter, request *http.Request) {
 
 	extension := types[1]
 
-	// [Scaleability]
+	// === Notes about Scaleability ===
 	// This would be processed to reduce filesize as much as
 	// possible using some lossless or a low lossy compression
 	//

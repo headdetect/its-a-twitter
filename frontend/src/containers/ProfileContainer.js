@@ -1,6 +1,6 @@
 /**
- * @fileoverview Container that stores the current user information if logged in
- * and gives the ability to log a user in otherwise.
+ * @fileoverview Container that stores the current profile information. As well as
+ * gives access to actions to interact with user profile endpoints with the API
  */
 import React from "react";
 

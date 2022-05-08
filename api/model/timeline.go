@@ -23,7 +23,7 @@ type TimelineTweet struct {
 func fillTimelineMeta(tweets *[]TimelineTweet, asUserId int, showUserInteractions bool) (err error) {
 	pTweets := *tweets
 
-	// [Scaling]
+	// === Notes about Scaleability ===
 	// Bad to make multiple queries like this.
 	// This should be just one query that gets values we're after
 	// in one swoop instead of n number of queries.

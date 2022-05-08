@@ -33,7 +33,7 @@ var (
 )
 
 /*
- * Generates a random base64 image
+ * Generates an NxN sized image with random placements of blocks.
  */
 func RandomImage(size int) ([]byte, error) {
 	// Must be a base 2 sized image //
@@ -56,7 +56,7 @@ func RandomImage(size int) ([]byte, error) {
 				0xFF,
 			}
 
-			// For each pixel //
+			// For each pixel in the chunk //
 			for x := 0; x < CHUNK_SIZE; x++ {
 				for y := 0; y < CHUNK_SIZE; y++ {
 					img.Set(

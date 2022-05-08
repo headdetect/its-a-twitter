@@ -1,3 +1,20 @@
+/*
+	=== Notes about scalability ===
+
+	This file exists to store the backend state of our application.
+	In a normal application, this would need to persist in some fashion usually with
+	a combination of a disk-persisted database (eg. PostgreSQL) and an in-memory database (eg. Redis)
+
+	That would allow for a more generalized approach, allowing each service to handle
+	it's own filtering, sorting, limiting. Additionally, the largest downside of a solution like this,
+	is a lack of scalability due to a single file based database and the lack of ability to shard and scale
+	those databases.
+
+	In the interest of time, a memory-based storage with a tailor-made schema will
+	suffice.
+
+*/
+
 package store
 
 import (
@@ -9,18 +26,6 @@ import (
 	"github.com/headdetect/its-a-twitter/api/utils"
 	_ "github.com/mattn/go-sqlite3"
 )
-
-/*
-	This file exists to store the backend state of our application.
-	In a normal application, this would need to persist in some fashion.
-	If it came down to it, I'd most likely use a combination of postgres & redis.
-	That would allow for a more generalized approach, allowing each service to handle
-	it's own filtering, sorting, limiting. Additionally, the largest downside is a lack of
-	ACID, meaning that the chance of loss of data is possible.
-
-	However, in the interest of time, a memory-based storage with a tailor-made schema will
-	suffice. Just don't plan to have this be production grade.
-*/
 
 var DB *sql.DB
 
