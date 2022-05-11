@@ -17,6 +17,11 @@
   --text-disabled: rgba(255, 255, 255, 0.40);
   --link: #3a32cd;
   --link-hover: #6861f0;
+  --text-primary: var(--primary);
+  --text-success: var(--success);
+  --text-warning: var(--warning);
+  --text-danger:  var(--danger);
+  --text-info:  var(--info);
 
   --border: rgba(255, 255, 255, 0.08);
   --shadow: drop-shadow(0 0 8px rgba(0, 0, 0, 0.16));

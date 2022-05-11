@@ -6,6 +6,9 @@ import FloatingLabelInput from "components/FloatingLabelInput";
 
 import "./UserLoginForm.css"; // They'll have the same styles //
 
+const MAX_USERNAME_CHARS = 20;
+const MIN_PASSWORD_CHARS = 8;
+
 export default function UserRegistrationForm() {
   const navigate = useNavigate();
   const { register } = AuthContainer.useContext();
@@ -15,6 +18,11 @@ export default function UserRegistrationForm() {
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState("");
+
+  const [validationErrors, setValidationErrors] = React.useState({
+    username: null,
+    password: null,
+  });
 
   const handleSubmit = React.useCallback(
     async e => {
@@ -35,7 +43,29 @@ export default function UserRegistrationForm() {
         return;
       }
 
+      let v = {
+        username: null,
+        password: null,
+      };
+
+      if (
+        !username.match(/^[a-z0-9\_\-]*$/gi) ||
+        username.length > MAX_USERNAME_CHARS
+      ) {
+        v.username = `Text must be ${MAX_USERNAME_CHARS} chars and only contain: letters, numbers, _, or -`;
+      }
+
+      if (password.length < MIN_PASSWORD_CHARS) {
+        v.password = `Password must be at least ${MIN_PASSWORD_CHARS} chars`;
+      }
+
       setError(null);
+
+      if (v.username || v.password) {
+        setValidationErrors(v);
+        return;
+      }
+
       setIsLoading(true);
 
       try {
@@ -73,6 +103,7 @@ export default function UserRegistrationForm() {
           label="Username"
           type="text"
           autoComplete="username"
+          errorText={validationErrors.username}
           onChange={e => setUsername(e.target.value)}
         />
 
@@ -80,6 +111,7 @@ export default function UserRegistrationForm() {
           label="Password"
           type="password"
           autoComplete="new-password"
+          errorText={validationErrors.password}
           onChange={e => setPassword(e.target.value)}
         />
 

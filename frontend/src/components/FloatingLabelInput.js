@@ -2,7 +2,11 @@ import React from "react";
 
 import "./FloatingLabelInput.css";
 
-export default function FloatingLabelInput({ label, ...inputProps }) {
+export default function FloatingLabelInput({
+  label,
+  errorText = null,
+  ...inputProps
+}) {
   const [isExpanded, setIsExpanded] = React.useState(
     Boolean(inputProps?.value),
   );
@@ -28,15 +32,19 @@ export default function FloatingLabelInput({ label, ...inputProps }) {
   };
 
   return (
-    <div className={`input-group ${isExpanded ? "input-group-focused" : ""}`}>
-      <label htmlFor={label.toLowerCase()}>{label}</label>
-      <input
-        id={label.toLowerCase()}
-        {...inputProps}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        onChange={handleChange}
-      />
-    </div>
+    <>
+      <div className={`input-group ${isExpanded ? "input-group-focused" : ""}`}>
+        <label htmlFor={label.toLowerCase()}>{label}</label>
+        <input
+          id={label.toLowerCase()}
+          {...inputProps}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onChange={handleChange}
+        />
+      </div>
+
+      {errorText && <div className="input-error">{errorText}</div>}
+    </>
   );
 }
