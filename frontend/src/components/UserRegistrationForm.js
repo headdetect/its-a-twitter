@@ -43,7 +43,7 @@ export default function UserRegistrationForm() {
         return;
       }
 
-      let v = {
+      const v = {
         username: null,
         password: null,
       };

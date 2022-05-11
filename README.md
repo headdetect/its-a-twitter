@@ -4,6 +4,10 @@ This is part of the "It's A" series.
 A short project series that aims to showcase my technical abilities by recreating
 some famous applications/problems and breaking them down into their hard parts.
 
+[https://its-a-twitter.jacoy.dev](https://its-a-twitter.jacoy.dev/)
+
+
+
 # Why
 
  This application was created to showcase my ability to build a fully-featured project from scratch. The goal is to understand the challenges that an app like Twitter would face, and demonstrate how these challenges could be solved. This "It's-a" project was chosen because Twitter has a clearly defined feature-set with interesting problems to tackle. The goal is not to re-create Twitter in its entirety, but to create a project with low risk and ease of use that is reminiscent of Twitter. 
