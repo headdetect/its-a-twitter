@@ -79,9 +79,10 @@ function Timeline() {
           </h3>
 
           <p>
-            This is a fully-fledged micro application that emulates some of the
-            same features as Twitter. <em>It&apos;s-a-Twitter</em> was developed
-            for educational purposes only. The database is wiped every 4 hours.
+            This is an entry from the &quot;Its-a&quot; project series where we
+            try to understand interesting projects and problems by recreating
+            portions of them. <em>It&apos;s-a-Twitter</em> was developed for
+            educational purposes only. The database is wiped every 4 hours.
             <br />
             <br />
             To read more about it, visit our{" "}
