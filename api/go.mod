@@ -1,4 +1,4 @@
-// +heroku goVersion go1.18 
+// +heroku goVersion go1.18
 
 module github.com/headdetect/its-a-twitter/api
 
