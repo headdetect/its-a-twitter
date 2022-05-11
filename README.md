@@ -1,25 +1,28 @@
-# It’s a Twitter
+# It's a Twitter
 
-This is part of the “It’s A” series. 
+This is part of the "It's A" series. 
 A short project series that aims to showcase my technical abilities by recreating
 some famous applications/problems and breaking them down into their hard parts.
 
-- TODO
-
 # Why
 
-As I’m growing in my career I wanted to push myself to understand the hard parts that make up the apps I use on a daily bases. The goal is to understand the challenges that an app like Twitter would face, and be able to demonstrate how I would solve them. The outcome goals for this project are: design a system from start to finish; from concept to code while also being able to explain the engineering decisions taken, and demonstrate my approach to day-to-day issues that come up in a technical setting.
+ This application was created to showcase my ability to build a fully-featured project from scratch. The goal is to understand the challenges that an app like Twitter would face, and demonstrate how these challenges could be solved. This "It's-a" project was chosen because Twitter has a clearly defined feature-set with interesting problems to tackle. The goal is not to re-create Twitter in its entirety, but to create a project with low risk and ease of use that is reminiscent of Twitter. 
 
 # Scope
 
-Obviously we don’t want to recreate the full Twitter experience, this is just a recreation of the essential parts that make Twitter work. The scope has been cut to accommodate a shorter timeline of around 40-50 hours of work. This gives us
+There are three main objectives for this project:
+1. Design a system from start to finish &mdash; from concept to code. 
+2. Explain the engineering decisions exercised.
+3. Describe how to efficiently scale the application if it were the size of Twitter. 
+
+This is just a recreation of the essential parts that make Twitter work. The scope has been cut to accommodate a shorter timeline of around 40-50 hours of work. This gives us
 the ability to focus on the more specific details one might not consider when building an application meant for a public audience.
 
-Given the timeline and goals of the project, there were a handful of engineering decisions that only make sense in this specific scenario. Throughout the application, there are comments and notes that convey the intent of a solution and how the approach taken for this purpose would differ if it were a solution for an enterprise system.
+Given the goals of this project and timeline, there were a handful of engineering decisions that only make sense in this specific scenario. Throughout the application, there are comments and notes that convey the intent of a solution and how the approach taken for this purpose would differ if it were a solution for an enterprise system.
 
 # Features
 
-This project will feature some of twitters main functions. Below is a list of product facing features (the things that users will be able to use) and non-functional features (features that are not user facing).
+Below is a list of product facing features (things users directly interact with) and non-functional features (positive consequences of the system design)
 
 ## Product Features
 
@@ -40,7 +43,7 @@ This project will feature some of twitters main functions. Below is a list of pr
 
 ## Dependencies
 
-I wanted to accomplish the ambitions of the project with as little dependencies as possible. In a real world scenario, dependencies (while they do give the ability to enable rapid development) can cause a down stream of issues if the dependencies break. As an application becomes more dependent on other providers to keep it functional, the potential for the application to become unavailable becomes unavoidable. Most of the largest companies with applications that tout millions of Daily Active Users have created their own building blocks and services so they can ensure the most critical of the blocks are as _cohesive and available_ and possible. As a test of ability, I’ve decided to reduce the amount of dependencies as much as possible and treat this project like it has a future.
+I wanted to accomplish the ambitions of the project with as little dependencies as possible. In a real world scenario, dependencies (while they do give the ability to enable rapid development) can cause a down stream of issues if the dependencies break. As an application becomes more dependent on other providers to keep it functional, the potential for the application to become unavailable becomes unavoidable. Most of the largest companies with applications that tout millions of Daily Active Users have created their own building blocks and services so they can ensure the most critical of the blocks are as _cohesive and available_ and possible. As a test of ability, I've decided to reduce the amount of dependencies as much as possible and treat this project like it has a future.
 
 Given this, there will be dependencies added in the interest of brevity and in the interest of showcasing my ability to utilize those dependencies as efficiently as possible.
 
@@ -68,14 +71,11 @@ As such, something like a database shard would help accomplish the task of distr
 
 At a high level view, the database structure is maintained across the database swarm, but the data (the rows in the database) are split amongst several different instances. There is no right answer when it comes to picking how data is partitioned and in most cases, it's application specific. The goal is to reach an equal balance of data between all the replicas so that the load is evenly distributed.
 
-
-## Storage
-
-TODO
-
 ## Load Balancing
 
-TODO
+Load balancing is the process of distributing load across multiple instances of the application. It's a crucial and frequently required feature for web applications that receive any respectable amount of traffic. The biggest capability that is unlocked when propping up a load balancer is the ability to scale up and down the number of instances as the flow of user traffic changes. Allowing your application to handle any amount of traffic it might receive.
+
+As designed from the beginning, this demo app is not fit to be place behind a load balancer and scaled up with multiple instances. As such, there are a few changes that would need to be made in order to enable that ability. The database is set-up to be a single file sqlite database stored in the file system of each of the instances. This prevents data from being shared among different application instances and would partition the data to be per-instance, which means things like session, tweets, profiles, etc would not persist between different instances. Obviously this is a major blocker in terms of scalability for a popular application, but in our case for a demo app, it is acceptable. 
 
 ## Caching
 
@@ -89,23 +89,12 @@ Because the application is designed as an SPA of sorts, the front end code could
 
 Media would be a large portion of this application and having to load the assets from a single source would take forever. We would need to store the different medias in different edge nodes around the world so it could be loaded quicker. This would allow users in different parts of the world to load the assets as if it were being served from a few miles away (because it would be)
 
-The absolute best solution would be to duplicate all media being uploaded to every edge node. But alas, money doesn’t grow on trees and housing that amount of data in every edge node is just a logistical nightmare. So as we break it down, there are a few major issues with this solution. Can’t store that much data and don’t have the bandwidth to duplicate **every** asset to **every** edge node. 
+The absolute best solution would be to duplicate all media being uploaded to every edge node. But alas, money doesn't grow on trees and housing that amount of data in every edge node is just a logistical nightmare. So as we break it down, there are a few major issues with this solution. Can't store that much data and don't have the bandwidth to duplicate **every** asset to **every** edge node. 
 
-So a potential solution for this would be to create a classification for each user to determine how far their audience reach goes and how many users might see a piece of media. Someone in a small village in Europe probably isn’t going to be looking at that picture a local politician posted in Utah. We can keep the image local to the audience that it will *most likely* reach. 
+So a potential solution for this would be to create a classification for each user to determine how far their audience reach goes and how many users might see a piece of media. Someone in a small village in Europe probably isn't going to be looking at that picture a local politician posted in Utah. We can keep the image local to the audience that it will *most likely* reach. 
 
 Subsequently, if that politicians image sparks some rage and it goes viral, we would have more incentive to cache that image in more and more edge nodes. We would need to employ a strategy of storing images in some edge nodes only after someone requests it.
 
-### Testing
-
-Testing is an after thought in too many applications. 
-
-
-## In retrospect
-
-I'd change how we do the HTTP Server logic to use goroutines.
-I probably would avoid doing RESTFul things and just stick.
-The database store option ended up being a lot more work than it was worth
-
-## How to build the app
+# How to build the app
 
 [See the build docs](BUILD.md)
