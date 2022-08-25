@@ -4,9 +4,6 @@ This is part of the "It's A" series.
 A short project series that aims to showcase my technical abilities by recreating
 some famous applications/problems and breaking them down into their hard parts.
 
-[https://its-a-twitter.jacoy.dev](https://its-a-twitter.jacoy.dev/)
-
-
 
 # Why
 
