@@ -3,7 +3,7 @@ INSERT INTO users (id, username, password, email, profilePicPath, createdAt) VAL
 INSERT INTO users (id, username, password, email, profilePicPath, createdAt) VALUES (2, 'bray', '$2a$14$Xyy1t.JsY.LHkN23Rsw5meOcmrVAueiRFEE8m5.YJy.vUi0.qowcW', 'bray@example.com', 'u-bray.jpg', 1651906207);
 INSERT INTO users (id, username, password, email, profilePicPath, createdAt) VALUES (3, 'chuck', '$2a$14$Xyy1t.JsY.LHkN23Rsw5meOcmrVAueiRFEE8m5.YJy.vUi0.qowcW', 'chuck@example.com', 'u-chuck.jpg', 1651906207);
 INSERT INTO users (id, username, password, email, profilePicPath, createdAt) VALUES (4, 'diane', '$2a$14$Xyy1t.JsY.LHkN23Rsw5meOcmrVAueiRFEE8m5.YJy.vUi0.qowcW', 'diane@example.com', 'u-diane.jpg', 1651906207);
-INSERT INTO users (id, username, password, email, profilePicPath, createdAt) VALUES (5, 'elon', '$2a$14$Xyy1t.JsY.LHkN23Rsw5meOcmrVAueiRFEE8m5.YJy.vUi0.qowcW', 'elon@example.com', 'u-elon.jpg', 1651906207);
+INSERT INTO users (id, username, password, email, profilePicPath, createdAt) VALUES (5, 'tom', '$2a$14$Xyy1t.JsY.LHkN23Rsw5meOcmrVAueiRFEE8m5.YJy.vUi0.qowcW', 'elon@example.com', 'u-elon.jpg', 1651906207);
 INSERT INTO users (id, username, password, email, profilePicPath, createdAt) VALUES (6, 'lily', '$2a$14$Xyy1t.JsY.LHkN23Rsw5meOcmrVAueiRFEE8m5.YJy.vUi0.qowcW', 'lily@example.com', 'u-lily.jpg', 1651906207);
 INSERT INTO users (id, username, password, email, profilePicPath, createdAt) VALUES (7, 'charlie', '$2a$14$Xyy1t.JsY.LHkN23Rsw5meOcmrVAueiRFEE8m5.YJy.vUi0.qowcW', 'charlie@example.com', 'u-charlie.jpg', 1651906207);
 INSERT INTO users (id, username, password, email, profilePicPath, createdAt) VALUES (8, 'mac', '$2a$14$Xyy1t.JsY.LHkN23Rsw5meOcmrVAueiRFEE8m5.YJy.vUi0.qowcW', 'mac@example.com', 'u-mac.jpg', 1651906207);
